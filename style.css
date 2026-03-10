@@ -370,7 +370,6 @@ img {
     backdrop-filter: blur(25px) saturate(160%);
     /* Increased blur */
     -webkit-backdrop-filter: blur(25px) saturate(160%);
-    filter: url(#liquid-refraction);
     border-radius: inherit;
 }
 
