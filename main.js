@@ -442,31 +442,55 @@ function initLazyEffects() {
 }
 
 // ========================================
-// LOGO ANIMATION (SP -> XR)
+// LOGO ANIMATION (SP <-> XR)
 // ========================================
 
 function initLogoAnimation() {
     const logoChars = document.getElementById('logo-chars');
     if (!logoChars) return;
 
-    // Start sequence after 5 seconds
-    setTimeout(() => {
-        // Step 1: Delete "SP" backwards
-        logoChars.textContent = "S";
-        setTimeout(() => {
-            logoChars.textContent = "";
+    let isXR = false;
 
-            // Step 2: Type "XR" with glow
+    function animateLogo() {
+        if (!isXR) {
+            // SP -> XR
+            logoChars.classList.remove('xr-glow');
+            logoChars.textContent = "S";
             setTimeout(() => {
-                logoChars.textContent = "X";
+                logoChars.textContent = "";
+
                 setTimeout(() => {
-                    logoChars.textContent = "XR";
-                    // Add glow effect class to text
-                    logoChars.classList.add('xr-glow');
-                }, 300); // type R
-            }, 600); // pause before typing X
-        }, 300); // delete S
-    }, 5000); // Initial interval before animation starts
+                    logoChars.textContent = "X";
+                    setTimeout(() => {
+                        logoChars.textContent = "XR";
+                        logoChars.classList.add('xr-glow');
+                        isXR = true;
+                    }, 300);
+                }, 600);
+            }, 300);
+        } else {
+            // XR -> SP
+            logoChars.classList.remove('xr-glow');
+            logoChars.textContent = "X";
+            setTimeout(() => {
+                logoChars.textContent = "";
+
+                setTimeout(() => {
+                    logoChars.textContent = "S";
+                    setTimeout(() => {
+                        logoChars.textContent = "SP";
+                        isXR = false;
+                    }, 300);
+                }, 600);
+            }, 300);
+        }
+    }
+
+    // Initial wait, then start the loop
+    setTimeout(() => {
+        animateLogo();
+        setInterval(animateLogo, 5000); // Trigger animation every 5 seconds
+    }, 5000);
 }
 
 // ========================================
