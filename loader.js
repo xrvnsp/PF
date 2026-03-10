@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     loader.style.display = 'none';
                 }, 800);
-            }, 1000);
+            }, 600);
             return;
         }
 
@@ -75,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         terminalContainer.appendChild(lineElement);
 
-        let charIndex = 0;
-        const typingSpeed = Math.random() * 20 + 5;
+        const charIndex = 0;
+        const typingSpeed = Math.random() * 15 + 5;
 
         function typeChar() {
             if (charIndex < lineData.text.length) {
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 currentLineIndex++;
-                const nextDelay = lineData.status === 'WAIT' ? 500 : 200;
+                const nextDelay = lineData.status === 'WAIT' ? 400 : 150;
                 setTimeout(typeLine, nextDelay);
             }
         }
@@ -116,5 +116,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         document.body.style.overflow = 'hidden'; // Lock scrolling during boot
         typeLine();
-    }, 500);
+    }, 300);
 });
