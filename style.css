@@ -627,11 +627,22 @@ img {
     font-size: clamp(var(--font-size-5xl), 10vw, var(--font-size-6xl));
     font-weight: 900;
     margin-bottom: var(--spacing-sm);
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #00f5ff 0%, #a855f7 50%, #ec4899 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: fadeInUp 1s ease;
+    filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.4));
+    animation: fadeInUp 1s ease, name-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes name-glow {
+    from {
+        filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.3)) drop-shadow(0 0 20px rgba(168, 85, 247, 0.2));
+    }
+
+    to {
+        filter: drop-shadow(0 0 20px rgba(0, 245, 255, 0.5)) drop-shadow(0 0 40px rgba(236, 72, 153, 0.3));
+    }
 }
 
 .hero-title {
