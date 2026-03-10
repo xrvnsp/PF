@@ -18,8 +18,8 @@
 }
 
 /* Hide custom cursor elements during loading */
-#terminal-loader:not(.fade-out)~#portfolio-content .custom-cursor,
-#terminal-loader:not(.fade-out)~#portfolio-content .cursor-follower {
+#terminal-loader:not(.fade-out)~.custom-cursor,
+#terminal-loader:not(.fade-out)~.cursor-follower {
     display: none !important;
 }
 
