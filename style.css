@@ -311,7 +311,6 @@ img {
     background: var(--color-surface);
     backdrop-filter: blur(30px) saturate(160%);
     -webkit-backdrop-filter: blur(30px) saturate(160%);
-    filter: url(#liquid-refraction);
     border-radius: inherit;
     transition: background 0.6s ease;
 }
@@ -543,7 +542,6 @@ img {
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
-    filter: url(#liquid-slab);
     border-radius: inherit;
     transition: all 0.4s ease;
 }
