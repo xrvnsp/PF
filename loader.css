@@ -219,3 +219,45 @@
     transform: scale(1);
     filter: blur(0);
 }
+
+/* Mobile Responsiveness for Terminal Window */
+@media (max-width: 768px) {
+    .terminal-window {
+        height: 65vh;
+        width: 95%;
+        margin: 10px;
+    }
+
+    .terminal-body {
+        padding: 12px;
+        font-size: 12px;
+    }
+
+    .ascii-logo {
+        font-size: 0.35rem;
+        /* Scale down ASCII for mobile */
+        margin-bottom: 15px;
+    }
+
+    .window-title {
+        font-size: 0.65rem;
+    }
+
+    .control-btn {
+        width: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .terminal-window {
+        height: 75vh;
+    }
+
+    .ascii-logo {
+        font-size: 0.25rem;
+    }
+
+    #terminal-loader {
+        padding: 10px;
+    }
+}
