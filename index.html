@@ -22,9 +22,20 @@
 <body>
     <!-- Terminal Boot Loader -->
     <div id="terminal-loader">
-        <div class="terminal-header">XR DEV SYSTEM INITIALIZING...</div>
-        <div id="terminal-content" class="terminal-content"></div>
-        <div class="terminal-cursor"></div>
+        <div class="terminal-window">
+            <div class="terminal-titlebar">
+                <div class="window-controls">
+                    <div class="control-dot dot-red"></div>
+                    <div class="control-dot dot-yellow"></div>
+                    <div class="control-dot dot-green"></div>
+                </div>
+                <div class="window-title">zsh — xr-dev — 80x24</div>
+            </div>
+            <div id="terminal-body" class="terminal-body">
+                <div id="terminal-content"></div>
+                <div class="terminal-cursor"></div>
+            </div>
+        </div>
     </div>
     <!-- Custom XR Cursor -->
     <div class="custom-cursor"></div>

@@ -1,4 +1,4 @@
-/* Terminal Loader Styles */
+/* Terminal Loader Styles - Windowed Mode */
 #terminal-loader {
     position: fixed;
     top: 0;
@@ -8,16 +8,10 @@
     background-color: #0a0a0a;
     z-index: 10000;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding: 2rem;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
     overflow: hidden;
-    color: #00f5ff;
-    /* Cyan terminal color */
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.1rem;
-    line-height: 1.5;
     transition: opacity 0.8s ease-out, visibility 0.8s;
 }
 
@@ -26,7 +20,7 @@
     visibility: hidden;
 }
 
-/* Scanlines effect */
+/* Scanlines effect (Backdrop) */
 #terminal-loader::before {
     content: " ";
     display: block;
@@ -88,21 +82,94 @@
     animation: flicker 0.15s infinite;
 }
 
-.terminal-header {
-    margin-bottom: 2rem;
-    color: #00f5ff;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.terminal-content {
+/* Terminal Window Wrapper */
+.terminal-window {
     width: 100%;
     max-width: 800px;
+    height: 500px;
+    background: rgba(13, 13, 13, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    z-index: 5;
 }
 
+/* Title Bar Styling */
+.terminal-titlebar {
+    height: 36px;
+    background: rgba(45, 45, 45, 0.9);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.window-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot-red {
+    background: #ff5f56;
+}
+
+.dot-yellow {
+    background: #ffbd2e;
+}
+
+.dot-green {
+    background: #27c93f;
+}
+
+.window-title {
+    flex-grow: 1;
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+    margin-right: 48px;
+    /* Offset for symmetry with dots */
+}
+
+/* Terminal Body Styling */
+.terminal-body {
+    flex-grow: 1;
+    padding: 24px;
+    padding-top: 10px;
+    overflow-y: auto;
+    color: #00f5ff;
+    /* Cyan terminal color */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+.terminal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+/* Original Line & Cursor Styles */
 .terminal-line {
-    margin-bottom: 0.5rem;
+    margin-bottom: 6px;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.3s ease-out, transform 0.3s ease-out;
@@ -115,10 +182,10 @@
 
 .terminal-cursor {
     display: inline-block;
-    width: 10px;
-    height: 1.2rem;
+    width: 8px;
+    height: 1.1rem;
     background-color: #00f5ff;
-    margin-left: 5px;
+    margin-left: 4px;
     vertical-align: middle;
     animation: blink 0.8s infinite;
 }
@@ -145,71 +212,19 @@
     font-weight: bold;
 }
 
-.status-error {
-    color: #ff0000;
-    font-weight: bold;
-}
-
 .status-connected {
     color: #00f5ff;
     font-weight: bold;
     text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
 }
 
-/* Progress bar styles */
-.progress-container {
-    width: 300px;
-    height: 20px;
-    border: 1px solid #00f5ff;
-    margin-top: 1rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    background-color: #00f5ff;
-    width: 0%;
-    transition: width 0.1s linear;
-}
-
 /* ASCII Logo style */
 .ascii-logo {
-    font-size: 0.6rem;
-    line-height: 1.2;
-    margin-bottom: 2rem;
+    font-size: 0.5rem;
+    line-height: 1.25;
+    margin-bottom: 24px;
     color: #a855f7;
     /* Purple accent */
     white-space: pre;
-}
-
-/* Glitch animation */
-@keyframes glitch {
-    0% {
-        transform: translate(0);
-    }
-
-    20% {
-        transform: translate(-2px, 2px);
-    }
-
-    40% {
-        transform: translate(-2px, -2px);
-    }
-
-    60% {
-        transform: translate(2px, 2px);
-    }
-
-    80% {
-        transform: translate(2px, -2px);
-    }
-
-    100% {
-        transform: translate(0);
-    }
-}
-
-.glitch {
-    animation: glitch 1s infinite alternate-reverse;
+    opacity: 0.9;
 }

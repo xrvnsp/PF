@@ -25,6 +25,7 @@ const asciiLogo = `
 
 document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('terminal-loader');
+    const terminalBody = document.getElementById('terminal-body');
     const terminalContainer = document.getElementById('terminal-content');
 
     if (!loader || !terminalContainer) return;
@@ -58,22 +59,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lineData.type === 'header') {
             lineElement.style.color = '#a855f7';
             lineElement.style.fontWeight = 'bold';
-            lineElement.style.marginBottom = '1.5rem';
+            lineElement.style.marginBottom = '1.2rem';
         } else if (lineData.type === 'launch') {
-            lineElement.style.marginTop = '1.5rem';
+            lineElement.style.marginTop = '1.2rem';
             lineElement.style.color = '#00ff00';
-            lineElement.style.fontSize = '1.2rem';
+            lineElement.style.fontSize = '1.1rem';
         }
 
         terminalContainer.appendChild(lineElement);
 
         let charIndex = 0;
-        const typingSpeed = Math.random() * 30 + 10; // Varied typing speed
+        const typingSpeed = Math.random() * 20 + 5; // Slightly faster typing for windowed mode
 
         function typeChar() {
             if (charIndex < lineData.text.length) {
                 lineElement.textContent += lineData.text.charAt(charIndex);
                 charIndex++;
+
+                // Auto-scroll to bottom
+                if (terminalBody) {
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }
+
                 setTimeout(typeChar, typingSpeed);
             } else {
                 // Done typing this line
@@ -90,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 currentLineIndex++;
-                const nextDelay = lineData.status === 'WAIT' ? 600 : 300;
+                const nextDelay = lineData.status === 'WAIT' ? 500 : 200;
                 setTimeout(typeLine, nextDelay);
             }
         }
