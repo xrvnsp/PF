@@ -274,15 +274,20 @@ a:hover {
 .nav-btn-resume {
     background: transparent;
     border: 1px solid var(--color-primary);
-    padding: 8px 24px;
-    /* Increased padding */
-    border-radius: var(--radius-sm);
+    padding: 8px 18px;
+    /* Slightly reduced horizontal to look better in pill */
+    border-radius: 30px;
+    /* Rounded pill shape */
     color: var(--color-primary) !important;
     transition: all var(--transition-base);
-    margin-left: 20px;
+    margin-left: 25px;
     /* More space from other text */
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav-btn-resume:hover {
@@ -380,15 +385,16 @@ img {
    ======================================== */
 
 #navbar {
-    position: sticky;
-    top: 0;
-    left: 0;
-    width: 100%;
-    max-width: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1100px;
     z-index: var(--z-nav);
     background: transparent;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    border-radius: 0;
+    border-radius: 40px;
 }
 
 #navbar::before {
