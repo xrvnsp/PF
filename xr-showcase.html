@@ -565,6 +565,7 @@
         const IMAGES = {
             quest3: 'Quest3.png',      // white/light device on dark background
             vision: 'VisionPro.png',   // same style for Vision Pro
+            fleet: 'assets/Quest3_Fleet.png' // New fleet image
         };
 
         const N = 4000;  // particle count
@@ -1029,12 +1030,16 @@
             setP(98);
             if (!v) { console.warn('[XR] Vision Pro image failed → using fallback'); v = fallbackVision(); }
 
+            // Load Fleet image (98→100%)
+            let f = await imageToCloud(IMAGES.fleet, N, 4.2, 12);
+            if (!f) { console.warn('[XR] Fleet image failed → using fallback'); f = makeFleet(q); }
+
             setP(100);
 
             SHAPES.cloud = makeCloud();
             SHAPES.quest3 = q;
             SHAPES.vision = v;
-            SHAPES.fleet = makeFleet(q);
+            SHAPES.fleet = f;
 
             await new Promise(r => setTimeout(r, 300));
             hideLoader();
