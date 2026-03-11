@@ -12,8 +12,8 @@
     --color-liquid-shine: rgba(0, 245, 255, 0.2);
 
     /* visionOS Accents */
-    --color-primary: #00f2ff;
-    --color-secondary: #ff00ff;
+    --color-primary: #1d93f4;
+    --color-secondary: #fe359a;
     --color-accent: #ec4899;
 
     /* Text */
@@ -274,11 +274,13 @@ a:hover {
 .nav-btn-resume {
     background: transparent;
     border: 1px solid var(--color-primary);
-    padding: 6px 16px;
+    padding: 8px 24px;
+    /* Increased padding */
     border-radius: var(--radius-sm);
     color: var(--color-primary) !important;
     transition: all var(--transition-base);
-    margin-left: 10px;
+    margin-left: 20px;
+    /* More space from other text */
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -378,16 +380,15 @@ img {
    ======================================== */
 
 #navbar {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 1200px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
     z-index: var(--z-nav);
     background: transparent;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    border-radius: 40px;
+    border-radius: 0;
 }
 
 #navbar::before {
@@ -416,7 +417,7 @@ img {
 }
 
 #navbar.scrolled {
-    transform: translateX(-50%) translateY(-5px) scale(0.98);
+    transform: translateY(0) scale(1);
 }
 
 #navbar.scrolled::before {
@@ -688,10 +689,10 @@ img {
     color: var(--color-primary);
     /* Layered intense glow */
     text-shadow:
-        0 0 5px rgba(0, 242, 255, 0.8),
-        0 0 15px rgba(0, 242, 255, 0.5),
-        0 0 30px rgba(0, 242, 255, 0.3),
-        0 0 50px rgba(0, 242, 255, 0.1);
+        0 0 5px rgba(29, 147, 244, 0.8),
+        0 0 15px rgba(29, 147, 244, 0.5),
+        0 0 30px rgba(29, 147, 244, 0.3),
+        0 0 50px rgba(29, 147, 244, 0.1);
     animation: glitch-reveal 2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     position: relative;
     z-index: 2;
@@ -701,10 +702,10 @@ img {
     color: var(--color-secondary);
     /* Layered intense glow */
     text-shadow:
-        0 0 5px rgba(255, 0, 255, 0.8),
-        0 0 15px rgba(255, 0, 255, 0.5),
-        0 0 30px rgba(255, 0, 255, 0.3),
-        0 0 50px rgba(255, 0, 255, 0.1);
+        0 0 5px rgba(254, 53, 154, 0.8),
+        0 0 15px rgba(254, 53, 154, 0.5),
+        0 0 30px rgba(254, 53, 154, 0.3),
+        0 0 50px rgba(254, 53, 154, 0.1);
     animation: glitch-reveal 2s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     position: relative;
     z-index: 2;
