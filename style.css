@@ -12,8 +12,8 @@
     --color-liquid-shine: rgba(0, 245, 255, 0.2);
 
     /* visionOS Accents */
-    --color-primary: #00f5ff;
-    --color-secondary: #a855f7;
+    --color-primary: #00f2ff;
+    --color-secondary: #ff00ff;
     --color-accent: #ec4899;
 
     /* Text */
@@ -225,6 +225,19 @@ body::before {
     z-index: var(--z-canvas);
     pointer-events: none;
     animation: liquid-bg 15s ease infinite alternate;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 @keyframes liquid-bg {
@@ -624,15 +637,62 @@ img {
 
 .hero-name {
     font-family: var(--font-display);
-    font-size: clamp(var(--font-size-5xl), 10vw, var(--font-size-6xl));
+    font-size: clamp(3rem, 12vw, 6rem);
     font-weight: 900;
-    margin-bottom: var(--spacing-sm);
-    background: linear-gradient(135deg, #00f5ff 0%, #a855f7 50%, #ec4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.4));
-    animation: fadeInUp 1s ease, name-glow 4s ease-in-out infinite alternate;
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.name-line-1 {
+    color: var(--color-primary);
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.6), 0 0 40px rgba(0, 242, 255, 0.3);
+    animation: glitch-reveal 2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+.name-line-2 {
+    color: var(--color-secondary);
+    text-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(255, 0, 255, 0.3);
+    animation: glitch-reveal 2s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+.hero-metadata {
+    font-family: 'DotGothic16', monospace;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.3em;
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.8;
+    animation: glitch-reveal 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+@keyframes glitch-reveal {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) skewX(10deg);
+        filter: blur(10px) brightness(2);
+    }
+
+    10% {
+        opacity: 0.5;
+        transform: translateY(0) skewX(-5deg);
+    }
+
+    15% {
+        opacity: 0.8;
+        transform: skewX(2deg);
+    }
+
+    20% {
+        opacity: 1;
+        transform: skewX(0);
+        filter: blur(0) brightness(1);
+    }
 }
 
 @keyframes name-glow {

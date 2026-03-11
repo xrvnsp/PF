@@ -1,17 +1,13 @@
 /* Terminal Loader Script */
 const terminalLines = [
-    { text: "XR DEV SYSTEM v1.1.0 INITIALIZING...", type: "header" },
-    { text: "Checking ADB installation...", status: "WAIT" },
-    { text: "ADB version 34.0.4-10411341 [ OK ]", status: "OK" },
-    { text: "Scanning USB devices...", status: "WAIT" },
-    { text: "Device Found: Meta Quest 3 [ VR-MODE ]", status: "CONNECTED" },
-    { text: "Establishing secure ADB bridge...", status: "WAIT" },
-    { text: "Bridge Established [ CONNECTED ]", status: "CONNECTED" },
-    { text: "Initializing XR runtime...", status: "WAIT" },
-    { text: "Loading OpenXR modules...", status: "OK" },
-    { text: "Preparing developer environment...", status: "OK" },
-    { text: "Portfolio interface ready.", status: "OK" },
-    { text: "Launching Saravana Prakash portfolio...", type: "launch" }
+    { text: "[ SYSTEM ] 0xF0::init... INITIALIZING", type: "header" },
+    { text: "[ CORE   ] neural_network_v5.1 ── LOADED", status: "OK" },
+    { text: "[ MODULE ] spatial_rendering_v2.0 ── ONLINE", status: "OK" },
+    { text: "[ MODULE ] ai_inference_engine ── ONLINE", status: "OK" },
+    { text: "[ MODULE ] llm_orchestrator ── ONLINE", status: "OK" },
+    { text: "[ NET    ] establishing_uplink... OK", status: "OK" },
+    { text: "[ SECURE ] 0xID::VERIFY // OPERATOR IDENTIFIED", type: "launch" },
+    { text: "LAUNCHING_SARAVANA_PRAKASH_PORTFOLIO...", type: "launch" }
 ];
 
 const asciiLogo = `
@@ -43,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentLineIndex >= terminalLines.length) {
             // End sequence
             setTimeout(() => {
-                loader.classList.add('fade-out');
+                loader.classList.add('terminal-scale-out');
 
                 // Trigger portfolio reveal
                 if (portfolioContent) {

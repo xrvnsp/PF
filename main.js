@@ -14,20 +14,20 @@ function initThreeBackground() {
 
     // Create particle system
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1500;
+    const particlesCount = 3000; // Increased density for starfield
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 10;
+        posArray[i] = (Math.random() - 0.5) * 15; // Wider spread
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.015,
-        color: 0x00f5ff,
+        size: 0.008, // Smaller stars
+        color: 0x00f2ff,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.6,
         blending: THREE.AdditiveBlending
     });
 
