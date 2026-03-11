@@ -5,10 +5,10 @@
 :root {
     /* Pure Liquid Refractive Palette */
     --color-bg: #010206;
-    --color-surface: rgba(255, 255, 255, 0.04);
-    --color-liquid-tint: rgba(255, 255, 255, 0.08);
-    --color-glass-border: rgba(255, 255, 255, 0.12);
-    --color-liquid-rim: rgba(255, 255, 255, 0.4);
+    --color-surface: rgba(255, 255, 255, 0.08); /* Increased from 0.04 */
+    --color-liquid-tint: rgba(255, 255, 255, 0.12); /* Increased from 0.08 */
+    --color-glass-border: rgba(255, 255, 255, 0.2); /* Increased from 0.12 */
+    --color-liquid-rim: rgba(255, 255, 255, 0.5); /* Increased from 0.4 */
     --color-liquid-shine: rgba(0, 245, 255, 0.2);
 
     /* visionOS Accents */
@@ -346,8 +346,8 @@ img {
     inset: 0;
     z-index: -1;
     background: var(--color-surface);
-    backdrop-filter: blur(30px) saturate(160%);
-    -webkit-backdrop-filter: blur(30px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%); /* Reduced blur from 30px */
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
     border-radius: inherit;
     transition: background 0.6s ease;
 }
@@ -1247,9 +1247,14 @@ img {
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Safety fix for "fade error" - ensure cards are visible when revealed */
-.reveal-content.active .project-card {
+/* Safety fix: ensure ALL glass elements are fully visible when page reveals */
+.reveal-content.active .glass,
+.reveal-content.active .project-card,
+.reveal-content.active .training-card,
+.reveal-content.active .skill-item,
+.reveal-content.active .timeline-item {
     opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .project-card:hover {

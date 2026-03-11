@@ -236,7 +236,6 @@ function initScrollAnimations() {
         // Timeline items animation
         gsap.utils.toArray('.timeline-item').forEach((item, index) => {
             gsap.from(item, {
-                opacity: 0,
                 x: -50,
                 duration: 0.8,
                 delay: index * 0.15,
@@ -244,13 +243,13 @@ function initScrollAnimations() {
                     trigger: item,
                     start: 'top 90%',
                     toggleActions: 'play none none none'
-                }
+                },
+                onComplete: () => { item.style.opacity = '1'; }
             });
         });
 
         // Project cards stagger animation
         gsap.from('.project-card', {
-            opacity: 0,
             y: 30,
             duration: 0.6,
             stagger: 0.08,
@@ -258,12 +257,12 @@ function initScrollAnimations() {
                 trigger: '.projects-grid',
                 start: 'top 90%',
                 toggleActions: 'play none none none'
-            }
+            },
+            onComplete: function() { gsap.set(this.targets(), { opacity: 1, visibility: 'visible' }); }
         });
 
         // Skills animation
         gsap.from('.skill-item', {
-            opacity: 0,
             scale: 0.9,
             duration: 0.5,
             stagger: 0.1,
@@ -271,12 +270,12 @@ function initScrollAnimations() {
                 trigger: '.skills-grid',
                 start: 'top 90%',
                 toggleActions: 'play none none none'
-            }
+            },
+            onComplete: function() { gsap.set(this.targets(), { opacity: 1, visibility: 'visible' }); }
         });
 
         // Training cards animation
         gsap.from('.training-card', {
-            opacity: 0,
             y: 30,
             duration: 0.6,
             stagger: 0.12,
@@ -284,7 +283,8 @@ function initScrollAnimations() {
                 trigger: '.training-grid',
                 start: 'top 90%',
                 toggleActions: 'play none none none'
-            }
+            },
+            onComplete: function() { gsap.set(this.targets(), { opacity: 1, visibility: 'visible' }); }
         });
 
         // Stats counter animation
@@ -308,15 +308,14 @@ function initScrollAnimations() {
             });
         });
 
-        // Fallback safety net: if any elements got stuck at opacity:0, reset them after 4s
+        // Fallback safety net: ensure everything is visible after 2s
         setTimeout(() => {
-            document.querySelectorAll('.project-card, .skill-item, .training-card, .timeline-item').forEach(el => {
-                if (parseFloat(window.getComputedStyle(el).opacity) < 0.1) {
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                }
+            document.querySelectorAll('.project-card, .skill-item, .training-card, .timeline-item, .glass').forEach(el => {
+                el.style.opacity = '1';
+                el.style.visibility = 'visible';
             });
-        }, 4000);
+            if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+        }, 2000);
 
     } catch (err) {
         // If GSAP/ScrollTrigger throws any error, ensure all elements are visible
@@ -364,19 +363,19 @@ function initProjectReveal() {
         return;
     }
 
-    btn.addEventListener('click', () => {
-        hiddenProjects.forEach((project, index) => {
-            // Remove hidden-project class
-            project.classList.remove('hidden-project');
-            
-            // GSAP sequential animation
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo(project, 
-                    { opacity: 0, y: 30, scale: 0.95 }, 
-                    { opacity: 1, y: 0, scale: 1, duration: 0.6, delay: index * 0.08, ease: 'power2.out' }
-                );
-            }
-        });
+        btn.addEventListener('click', () => {
+            hiddenProjects.forEach((project, index) => {
+                // Remove hidden-project class
+                project.classList.remove('hidden-project');
+                
+                // GSAP sequential animation
+                if (typeof gsap !== 'undefined') {
+                    gsap.fromTo(project, 
+                        { opacity: 1, y: 30, scale: 0.95 }, 
+                        { opacity: 1, y: 0, scale: 1, duration: 0.6, delay: index * 0.08, ease: 'power2.out', clearProps: "all" }
+                    );
+                }
+            });
 
         // Hide button after revealing
         if (typeof gsap !== 'undefined') {
@@ -569,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initProjectModals();
     initProjectReveal();
-    initLazyEffects();
+    // initLazyEffects();
 
     // Custom cursor (XR Style)
     initCustomCursor();
