@@ -655,47 +655,58 @@ img {
 
 .hero-name {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 8vw, 4rem);
-    /* Reduced size */
+    font-size: clamp(3rem, 10vw, 5.5rem);
     font-weight: 900;
     text-transform: uppercase;
-    line-height: 0.9;
-    letter-spacing: -0.02em;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 5px;
+    align-items: flex-start;
+    /* Left aligned like reference */
+    gap: 0;
     position: relative;
+    padding: 20px 0;
 }
 
-/* Scan line effect on name */
+/* Sharp high-def scan lines */
 .hero-name::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(transparent 50%,
-            rgba(0, 0, 0, 0.1) 50%);
-    background-size: 100% 4px;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.4) 2px,
+            rgba(0, 0, 0, 0.4) 4px);
     pointer-events: none;
-    z-index: 1;
+    z-index: 5;
+    mix-blend-mode: overlay;
 }
 
 .name-line-1 {
     color: var(--color-primary);
-    text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
-    /* Softened glow */
+    /* Layered intense glow */
+    text-shadow:
+        0 0 5px rgba(0, 242, 255, 0.8),
+        0 0 15px rgba(0, 242, 255, 0.5),
+        0 0 30px rgba(0, 242, 255, 0.3),
+        0 0 50px rgba(0, 242, 255, 0.1);
     animation: glitch-reveal 2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    position: relative;
     z-index: 2;
 }
 
 .name-line-2 {
     color: var(--color-secondary);
-    text-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
-    /* Softened glow */
+    /* Layered intense glow */
+    text-shadow:
+        0 0 5px rgba(255, 0, 255, 0.8),
+        0 0 15px rgba(255, 0, 255, 0.5),
+        0 0 30px rgba(255, 0, 255, 0.3),
+        0 0 50px rgba(255, 0, 255, 0.1);
     animation: glitch-reveal 2s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    position: relative;
     z-index: 2;
 }
 
