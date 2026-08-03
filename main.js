@@ -16,19 +16,22 @@ function initThreeBackground() {
     const isMobile = window.matchMedia("(pointer: coarse)").matches;
     const particlesGeometry = new THREE.BufferGeometry();
     const particlesCount = isMobile ? 800 : 2500; // Significantly reduced for mobile performance
-    const posArray = new Float32Array(particlesCount * 3);
-
+    
+    // Store final target positions
+    const targetPos = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 15; // Wider spread
+        targetPos[i] = (Math.random() - 0.5) * 15; // Wider spread
     }
 
+    // Initialize posArray at 0 (clustered at center)
+    const posArray = new Float32Array(particlesCount * 3);
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     const particlesMaterial = new THREE.PointsMaterial({
-        size: isMobile ? 0.012 : 0.008, // Slightly larger particles on mobile for visibility
+        size: isMobile ? 0.012 : 0.008,
         color: 0x00f2ff,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0,           // Start invisible — blast will fade them in
         blending: THREE.AdditiveBlending
     });
 
@@ -74,9 +77,47 @@ function initThreeBackground() {
         }
     });
 
+    // Global progress tracker for GSAP blast animation
+    window.particlesBlast = {
+        progress: 0
+    };
+
+    let lastProgress = -1;
+
     // Animation loop
     function animate() {
         requestAnimationFrame(animate);
+
+        // Update positions during particle blast animation
+        const blast = window.particlesBlast;
+        if (blast && !blast._done) {
+            const progress = blast.progress;
+            if (progress !== lastProgress) {
+                const positions = particlesGeometry.attributes.position.array;
+                for (let i = 0; i < particlesCount; i++) {
+                    const i3 = i * 3;
+                    positions[i3]     = targetPos[i3]     * progress;
+                    positions[i3 + 1] = targetPos[i3 + 1] * progress;
+                    positions[i3 + 2] = targetPos[i3 + 2] * progress;
+                }
+                particlesGeometry.attributes.position.needsUpdate = true;
+                // Fade in opacity: 0 → 0.6 over the blast duration
+                particlesMaterial.opacity = progress * 0.6;
+                lastProgress = progress;
+            }
+        } else if (blast && blast._done && lastProgress !== 1) {
+            // Snap to final on first frame after completion
+            const positions = particlesGeometry.attributes.position.array;
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                positions[i3]     = targetPos[i3];
+                positions[i3 + 1] = targetPos[i3 + 1];
+                positions[i3 + 2] = targetPos[i3 + 2];
+            }
+            particlesGeometry.attributes.position.needsUpdate = true;
+            particlesMaterial.opacity = 0.6;
+            lastProgress = 1;
+        }
 
         // Rotate particles
         particlesMesh.rotation.y += 0.0005;

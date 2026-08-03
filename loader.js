@@ -1,4 +1,4 @@
-/* Terminal Loader Script */
+/* Terminal Loader Script - Preview Version */
 const terminalLines = [
     { text: "[ SYSTEM ] 0xF0::init... INITIALIZING", type: "header" },
     { text: "[ CORE   ] neural_network_v5.1 ── LOADED", status: "OK" },
@@ -19,6 +19,63 @@ const asciiLogo = `
                                     
 `;
 
+function runGSAPHeroEntrance() {
+    if (typeof gsap === 'undefined') {
+        console.warn('GSAP is undefined — skipping staggered entrance');
+        return;
+    }
+
+    // Reset initial states of landing elements
+    gsap.set('#navbar', { y: -50, opacity: 0 });
+    gsap.set('.name-line-1', { x: -80, opacity: 0, skewX: 15 });
+    gsap.set('.name-line-2', { x: 80, opacity: 0, skewX: -15 });
+    gsap.set('.hero-designation', { letterSpacing: '0.3em', opacity: 0 });
+    gsap.set('.hero-cta .btn', { scale: 0.8, opacity: 0 });
+    gsap.set('.scroll-indicator', { y: 20, opacity: 0 });
+
+    const tl = gsap.timeline({ delay: 0.05 });
+
+    tl.to('#navbar', {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power3.out'
+    })
+    .to('.name-line-1', {
+        x: 0,
+        opacity: 1,
+        skewX: 0,
+        duration: 0.7,
+        ease: 'back.out(1.2)'
+    }, '-=0.3')
+    .to('.name-line-2', {
+        x: 0,
+        opacity: 1,
+        skewX: 0,
+        duration: 0.7,
+        ease: 'back.out(1.2)'
+    }, '-=0.55')
+    .to('.hero-designation', {
+        letterSpacing: '0.12em',
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power2.out'
+    }, '-=0.4')
+    .to('.hero-cta .btn', {
+        scale: 1,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: 'back.out(1.5)'
+    }, '-=0.35')
+    .to('.scroll-indicator', {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        ease: 'power2.out'
+    }, '-=0.2');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('terminal-loader');
     const terminalBody = document.getElementById('terminal-body');
@@ -26,6 +83,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const portfolioContent = document.getElementById('portfolio-content');
 
     if (!loader || !terminalContainer) return;
+
+    // Inject Glitch Flash Overlay
+    const flash = document.createElement('div');
+    flash.className = 'glitch-flash';
+    document.body.appendChild(flash);
+
+    // Inject Shutter Panels
+    const shutterTop = document.createElement('div');
+    shutterTop.className = 'terminal-shutter shutter-top';
+    const shutterBottom = document.createElement('div');
+    shutterBottom.className = 'terminal-shutter shutter-bottom';
+    loader.appendChild(shutterTop);
+    loader.appendChild(shutterBottom);
 
     // Add ASCII Logo first (instant)
     const logoDiv = document.createElement('div');
@@ -37,25 +107,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function typeLine() {
         if (currentLineIndex >= terminalLines.length) {
-            // End sequence
+            // End sequence - Triggers the transition
             setTimeout(() => {
-                loader.classList.add('terminal-scale-out');
-
-                // Trigger portfolio reveal
-                if (portfolioContent) {
-                    portfolioContent.classList.add('active');
-
-                    // Force refresh GSAP ScrollTriggers after the reveal starts
-                    if (typeof ScrollTrigger !== 'undefined') {
-                        setTimeout(() => ScrollTrigger.refresh(), 500);
-                    }
+                const win = loader.querySelector('.terminal-window');
+                if (win) {
+                    win.classList.add('crt-off');
                 }
 
-                // Ensure main page content is visible
-                document.body.style.overflow = 'auto';
+                // Wait 420ms for CRT off flatline animation
                 setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 800);
+                    // Trigger Fullscreen Glitch Flash
+                    flash.classList.add('active');
+
+                    // Slide Open Shutters
+                    loader.classList.add('shutters-open');
+
+                    // === PARTICLE BLAST: raise canvas above loader so blast is visible ===
+                    const canvas = document.getElementById('bg-canvas');
+                    if (canvas) {
+                        canvas.style.zIndex = '10001'; // Above terminal-loader (10000)
+                    }
+
+                    // Fire GSAP blast animation
+                    if (typeof gsap !== 'undefined' && window.particlesBlast) {
+                        gsap.to(window.particlesBlast, {
+                            progress: 1,
+                            duration: 1.4,
+                            ease: 'power4.out',
+                            onComplete: () => {
+                                window.particlesBlast._done = true;
+                            }
+                        });
+                    }
+
+                    // Make Portfolio Container Active
+                    if (portfolioContent) {
+                        portfolioContent.classList.add('active');
+                        
+                        // Execute GSAP Entrance Choreography
+                        runGSAPHeroEntrance();
+                    }
+                }, 420);
+
+                // Wait for shutters to finish + blast to settle, then restore canvas
+                setTimeout(() => {
+                    loader.classList.add('transition-complete');
+                    document.body.style.overflow = 'auto';
+
+                    // Restore canvas z-index to normal (behind content)
+                    const canvas = document.getElementById('bg-canvas');
+                    if (canvas) canvas.style.zIndex = '';
+
+                    // Force refresh GSAP ScrollTriggers
+                    if (typeof ScrollTrigger !== 'undefined') {
+                        ScrollTrigger.refresh();
+                    }
+                }, 1600);
+
             }, 400);
             return;
         }
