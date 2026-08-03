@@ -12,6 +12,19 @@
         "link": "xr-showcase.html"
     },
     {
+        "id": "equine-therapy",
+        "title": "VR Vestibular Rehabilitation",
+        "description": "Developed a high-fidelity VR vestibular rehabilitation system simulating equine-assisted therapy with 5Hz real-time biomechanical tracking, WebSocket streaming, and REST logging.",
+        "tags": [
+            "Unity",
+            "VR",
+            "WebSockets",
+            "REST API",
+            "Clinical Tech"
+        ],
+        "highlight": false
+    },
+    {
         "id": "forklift",
         "title": "Forklift VR Simulator",
         "description": "Engineered a VR forklift training simulator with realistic physics and collision detection. Integrated task scoring and safety evaluation mechanisms.",
