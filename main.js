@@ -84,6 +84,21 @@ function initThreeBackground() {
 
     let lastProgress = -1;
 
+    // On mobile: skip blast animation entirely — snap to final state immediately
+    if (isMobile) {
+        const positions = particlesGeometry.attributes.position.array;
+        for (let i = 0; i < particlesCount; i++) {
+            const i3 = i * 3;
+            positions[i3]     = targetPos[i3];
+            positions[i3 + 1] = targetPos[i3 + 1];
+            positions[i3 + 2] = targetPos[i3 + 2];
+        }
+        particlesGeometry.attributes.position.needsUpdate = true;
+        particlesMaterial.opacity = 0.4; // Slightly dimmer on mobile
+        window.particlesBlast._done = true;
+        lastProgress = 1;
+    }
+
     // Animation loop
     function animate() {
         requestAnimationFrame(animate);

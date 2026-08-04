@@ -1276,6 +1276,9 @@ img {
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    position: relative;
+    /* GPU-friendly: use max-height + opacity instead of height on mobile */
     transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1870,4 +1873,119 @@ img {
 /* Smooth appearance transition for revealed cards */
 .projects-grid .project-card {
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-in, transform 0.5s ease-in;
+}
+
+/* ========================================
+   MOBILE PERFORMANCE — TOUCH DEVICES
+   Kills heavy GPU effects that cause lag
+   ======================================== */
+@media (pointer: coarse), (hover: none) {
+
+    /* --- Restore default cursor (hidden on desktop) --- */
+    body { cursor: auto; }
+    .custom-cursor, .cursor-follower { display: none !important; }
+
+    /* --- Disable ALL backdrop-filters (huge GPU cost on mobile) --- */
+    .glass,
+    .skill-item,
+    .project-card,
+    .training-card,
+    .contact-btn,
+    .timeline-item,
+    .experience-card,
+    .stat-card,
+    #navbar {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        /* Replace glass blur with a solid tinted background */
+        background: rgba(10, 12, 20, 0.92) !important;
+    }
+
+    /* --- Project card: disable sluggish height reflow expansion --- */
+    /* On mobile, show the image at full height always — no hover needed */
+    .project-card:hover .project-image,
+    .project-image {
+        height: 220px !important;
+        transition: none !important;
+    }
+
+    /* Disable card lift on touch (causes jank) */
+    .project-card:hover {
+        transform: none !important;
+    }
+
+    /* Disable skill card tilt (cosmetic only, wastes paint) */
+    .skill-item:hover {
+        transform: none !important;
+    }
+    .skill-item:hover .skill-icon svg {
+        transform: none !important;
+    }
+
+    /* --- Particle blast: lock to final state immediately on mobile --- */
+    /* (handled in main.js isMobile check, this is CSS safety net) */
+
+    /* --- Reduce reticle animation cost --- */
+    .cursor-follower::before,
+    .cursor-follower::after {
+        animation: none !important;
+    }
+
+    /* --- Disable heavy box-shadow animations --- */
+    .project-card,
+    .skill-item,
+    .glass {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+        transition: none !important;
+    }
+}
+
+/* ========================================
+   PROFILE CARD — MOBILE SHIMMER FIX
+   The rainbow holo shine is invisible noise
+   on mobile. Kill it entirely for performance.
+   ======================================== */
+@media (pointer: coarse), (hover: none) {
+
+    /* Completely hide the shimmer/holo layer */
+    .pc-shine {
+        display: none !important;
+    }
+
+    /* Disable the animated glow behind the card */
+    .pc-behind {
+        display: none !important;
+    }
+
+    /* Disable 3D tilt (causes constant repaints on touch) */
+    .pc-card {
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+        animation: none !important;
+    }
+
+    /* Make avatar photo fully visible — no mix-blend overlay */
+    .pc-avatar-content,
+    .pc-content:not(.pc-avatar-content) {
+        mix-blend-mode: normal !important;
+    }
+
+    /* Strip the glare overlay */
+    .pc-glare {
+        display: none !important;
+    }
+
+    /* Simplify the card background */
+    .pc-inside {
+        background: rgba(10, 12, 30, 0.95) !important;
+        background-image: none !important;
+    }
+
+    /* Remove user info blur */
+    .pc-user-info {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(10, 12, 30, 0.85) !important;
+    }
 }
