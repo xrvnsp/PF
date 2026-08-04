@@ -1891,14 +1891,49 @@ img {
     .project-card,
     .training-card,
     .contact-btn,
-    .timeline-item,
-    .experience-card,
     .stat-card,
     #navbar {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         /* Replace glass blur with a solid tinted background */
         background: rgba(10, 12, 20, 0.92) !important;
+    }
+
+    /* Work cards: keep their own background — don't override with black */
+    .timeline-content,
+    .timeline-content.glass {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(18, 22, 40, 0.95) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    /* --- Fix: date badge + company logo layout on narrow screens --- */
+    /* Make timeline-content a flex column so date sits above the logo row */
+    .timeline-content {
+        display: flex;
+        flex-direction: column;
+        padding: 1.2rem !important;
+    }
+
+    /* Date badge: full width, no longer overlapped by logo */
+    .timeline-date {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 0.6rem !important;
+        padding-right: 90px; /* leave space for the logo */
+        white-space: nowrap;
+        overflow: visible;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Company logo: smaller + tucked to top-right, clear of the date text */
+    .timeline-content > img[style*="position: absolute"] {
+        width: 60px !important;
+        height: 60px !important;
+        top: 1.2rem !important;
+        right: 1.2rem !important;
     }
 
     /* --- Project card: disable sluggish height reflow expansion --- */
