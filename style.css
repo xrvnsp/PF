@@ -109,107 +109,97 @@ body {
 }
 
 /* ========================================
-   CUSTOM VR RETICLE CURSOR
+   IRON MAN 3 — ARC REACTOR CURSOR
    ======================================== */
 
-.custom-cursor {
-    width: 6px;
-    height: 6px;
-    background: var(--color-accent);
-    /* Changed to Magenta */
+/* Core: tiny hot-white dot that snaps exactly to mouse */
+.arc-cursor-core {
+    width: 4px;
+    height: 4px;
+    background: white;
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 99999;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 15px var(--color-accent);
+    box-shadow:
+        0 0 4px  2px #00f5ff,
+        0 0 14px 4px rgba(0, 245, 255, 0.55);
+    transition: opacity 0.15s ease, box-shadow 0.2s ease;
 }
 
-.cursor-follower {
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(236, 72, 153, 0.3);
-    /* Accent alpha */
-    border-radius: 50%;
+/* Arc Reactor halo: drifts ~0.08 lerp behind mouse */
+.arc-cursor-reactor {
+    width: 52px;
+    height: 52px;
     position: fixed;
     pointer-events: none;
-    z-index: 9998;
+    z-index: 99998;
     transform: translate(-50%, -50%);
-    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    transition:
+        width  0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
         height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        background 0.3s ease;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        opacity 0.2s ease;
+    animation: arc-reactor-breathe 2.5s ease-in-out infinite;
 }
 
-/* Reticle Corners (Fancy VR brackets) */
-.cursor-follower::before,
-.cursor-follower::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: var(--color-accent);
-    border-bottom-color: var(--color-accent);
-    animation: reticle-rotate 4s linear infinite;
-    opacity: 0.6;
+/* Outer ring + studs: slow continuous spin */
+.arc-spin-group {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: arc-ring-spin 8s linear infinite;
 }
 
-.cursor-follower::after {
-    width: 120%;
-    height: 120%;
-    border-top-color: transparent;
-    border-bottom-color: transparent;
-    border-left-color: var(--color-secondary);
-    border-right-color: var(--color-secondary);
-    animation: reticle-rotate-reverse 6s linear infinite;
-    opacity: 0.4;
+/* Core cyan bloom: opacity pulse */
+.arc-core-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: arc-core-pulse-anim 1.8s ease-in-out infinite;
 }
 
-@keyframes reticle-rotate {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+/* Subtle whole-reactor glow breathe */
+@keyframes arc-reactor-breathe {
+    0%,  100% { filter: drop-shadow(0 0  6px rgba(0, 245, 255, 0.65)); }
+    50%        { filter: drop-shadow(0 0 18px rgba(0, 245, 255, 1.00)); }
 }
 
-@keyframes reticle-rotate-reverse {
-    from {
-        transform: rotate(360deg);
-    }
-
-    to {
-        transform: rotate(0deg);
-    }
+/* Outer ring spin */
+@keyframes arc-ring-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 
-/* Hover Interaction State */
-.cursor-active .cursor-follower {
-    width: 50px;
-    height: 50px;
-    background: rgba(236, 72, 153, 0.1);
-    border-color: var(--color-accent);
+/* Core brightness pulse */
+@keyframes arc-core-pulse-anim {
+    0%,  100% { opacity: 0.75; }
+    50%        { opacity: 1.00; }
 }
 
-.cursor-active .cursor-follower::before {
-    animation-duration: 1s;
-    opacity: 1;
+/* ——— POWER-UP on interactive element hover ——— */
+.cursor-active .arc-cursor-reactor {
+    width: 72px;
+    height: 72px;
+    filter: drop-shadow(0 0 22px rgba(0, 245, 255, 0.95));
 }
 
-.cursor-active .cursor-follower::after {
-    width: 80%;
-    height: 80%;
-    animation-duration: 1.5s;
-    opacity: 0.8;
+.cursor-active .arc-spin-group {
+    animation-duration: 1.8s; /* Ring spins faster */
 }
 
+.cursor-active .arc-cursor-core {
+    box-shadow:
+        0 0 8px  4px #00f5ff,
+        0 0 26px 8px rgba(0, 245, 255, 0.75);
+}
+
+/* ——— CLICK FLASH ——— */
+.arc-cursor-core.arc-clicking {
+    transform: translate(-50%, -50%) scale(2.5);
+    box-shadow:
+        0 0 18px 8px  #00f5ff,
+        0 0 40px 16px rgba(0, 245, 255, 0.8);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
 
 
 body::before {
@@ -1883,7 +1873,7 @@ img {
 
     /* --- Restore default cursor (hidden on desktop) --- */
     body { cursor: auto; }
-    .custom-cursor, .cursor-follower { display: none !important; }
+    .arc-cursor-core, .arc-cursor-reactor { display: none !important; }
 
     /* --- Disable ALL backdrop-filters (huge GPU cost on mobile) --- */
     .glass,
