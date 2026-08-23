@@ -143,17 +143,17 @@ body {
     animation: arc-reactor-breathe 2.5s ease-in-out infinite;
 }
 
-/* Outer ring + studs: slow continuous spin */
+/* Outer ring + studs: slow continuous spin — view-box pins to SVG centre (30,30) */
 .arc-spin-group {
-    transform-box: fill-box;
-    transform-origin: center;
+    transform-box: view-box;     /* rotate around SVG viewport centre, not bounding box */
+    transform-origin: 50% 50%;  /* = exactly (30,30) in our 60×60 viewBox */
     animation: arc-ring-spin 8s linear infinite;
 }
 
 /* Core cyan bloom: opacity pulse */
 .arc-core-pulse {
-    transform-box: fill-box;
-    transform-origin: center;
+    transform-box: view-box;
+    transform-origin: 50% 50%;
     animation: arc-core-pulse-anim 1.8s ease-in-out infinite;
 }
 
