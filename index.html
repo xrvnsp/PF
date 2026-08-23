@@ -81,55 +81,76 @@
     <!-- Iron Man Arc Reactor Cursor -->
     <div class="arc-cursor-core"></div>
     <div class="arc-cursor-reactor">
+        <!--
+          ALL COORDINATES — center (30,30), viewBox 60×60
+          Arms at SVG angles: -90° (up), 30° (bottom-right), 150° (bottom-left)
+          cos/sin values:
+            -90°:  cos=-0,    sin=-1     → (30, 3)       on r=27 outer ring
+             30°:  cos=0.866, sin=0.5    → (53.38, 43.5) on r=27
+            150°:  cos=-0.866,sin=0.5   → (6.62, 43.5)  on r=27
+          Inner circle r=13:
+            -90°: (30, 17)       | 30°: (41.26, 36.5) | 150°: (18.74, 36.5)
+          Triangle: equilateral, circumradius=12, pointing DOWN
+            Bottom  90°: (30, 42)
+            Top-R  -30°: (30+10.39, 30-6) = (40.39, 24)
+            Top-L  210°: (30-10.39, 24)   = (19.61, 24)
+        -->
         <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
             <defs>
-                <!-- Soft glow filter for structural elements -->
                 <filter id="arc-gf" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="1" result="blur"/>
+                    <feGaussianBlur stdDeviation="1.1" result="blur"/>
                     <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
-                <!-- Intense glow for core -->
                 <filter id="core-gf" x="-100%" y="-100%" width="300%" height="300%">
-                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feGaussianBlur stdDeviation="2.8" result="blur"/>
                     <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
-                <!-- Core gradient: white center → cyan edge -->
                 <radialGradient id="arc-core-grad" cx="50%" cy="50%" r="50%">
                     <stop offset="0%"   stop-color="white"   stop-opacity="1"/>
-                    <stop offset="45%"  stop-color="#a0ffff" stop-opacity="1"/>
+                    <stop offset="40%"  stop-color="#c0ffff" stop-opacity="1"/>
                     <stop offset="100%" stop-color="#00f5ff" stop-opacity="1"/>
                 </radialGradient>
             </defs>
 
-            <!-- ① Outer spinning ring + 3 connector studs -->
+            <!-- ① Outer ring: rotates. Studs exactly at arm-tip angles (-90°, 30°, 150°) -->
             <g class="arc-spin-group">
-                <circle cx="30" cy="30" r="27" fill="none" stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
-                <!-- Studs at the 3 arm tips on outer ring -->
-                <circle cx="30"   cy="3"  r="2.2" fill="#00f5ff" filter="url(#arc-gf)"/>
-                <circle cx="52.4" cy="43" r="2.2" fill="#00f5ff" filter="url(#arc-gf)"/>
-                <circle cx="7.6"  cy="43" r="2.2" fill="#00f5ff" filter="url(#arc-gf)"/>
+                <circle cx="30" cy="30" r="27"
+                    fill="none" stroke="#00f5ff" stroke-width="1.8" filter="url(#arc-gf)"/>
+                <!-- Stud top    (-90°): (30, 30-27) = (30, 3) -->
+                <circle cx="30"    cy="3"    r="2.4" fill="#00f5ff" filter="url(#arc-gf)"/>
+                <!-- Stud BR     ( 30°): (30+23.38, 30+13.5) = (53.38, 43.5) -->
+                <circle cx="53.38" cy="43.5" r="2.4" fill="#00f5ff" filter="url(#arc-gf)"/>
+                <!-- Stud BL     (150°): (30-23.38, 43.5) = (6.62, 43.5) -->
+                <circle cx="6.62"  cy="43.5" r="2.4" fill="#00f5ff" filter="url(#arc-gf)"/>
             </g>
 
-            <!-- ② Secondary static ring -->
-            <circle cx="30" cy="30" r="21" fill="none" stroke="#00f5ff" stroke-width="0.7" opacity="0.4"/>
+            <!-- ② Three Y-arm spokes: inner circle edge → outer ring, exact endpoints -->
+            <!-- Arm top: (30,17) → (30,3) -->
+            <line x1="30"    y1="17"   x2="30"    y2="3"
+                stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
+            <!-- Arm BR:  (41.26,36.5) → (53.38,43.5) -->
+            <line x1="41.26" y1="36.5" x2="53.38" y2="43.5"
+                stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
+            <!-- Arm BL:  (18.74,36.5) → (6.62,43.5) -->
+            <line x1="18.74" y1="36.5" x2="6.62"  y2="43.5"
+                stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
 
-            <!-- ③ 3 Y-arm spokes (from inner circle edge → outer ring) -->
-            <!-- Arm top -->
-            <line x1="30"   y1="17"   x2="30"   y2="4"    stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
-            <!-- Arm bottom-right (angle 30° below horizontal) -->
-            <line x1="41.3" y1="36.5" x2="51.5" y2="42.5" stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
-            <!-- Arm bottom-left (mirror) -->
-            <line x1="18.7" y1="36.5" x2="8.5"  y2="42.5" stroke="#00f5ff" stroke-width="1.6" filter="url(#arc-gf)"/>
+            <!-- ③ Inner circle: perfectly centred -->
+            <circle cx="30" cy="30" r="13"
+                fill="rgba(0,10,28,0.93)" stroke="#00f5ff" stroke-width="1.5" filter="url(#arc-gf)"/>
 
-            <!-- ④ Inner circle (dark fill to frame the triangle) -->
-            <circle cx="30" cy="30" r="13" fill="rgba(0,15,35,0.92)" stroke="#00f5ff" stroke-width="1.4" filter="url(#arc-gf)"/>
+            <!-- ④ Downward equilateral triangle, circumradius=12 (fits inside r=13 ring)
+                  Top-L (210°): (30-12*0.866, 30-12*0.5) = (19.6, 24)
+                  Top-R (-30°): (30+10.39,    24)         = (40.4, 24)
+                  Bottom(90°):  (30,           30+12)      = (30,   42) -->
+            <polygon points="19.6,24 40.4,24 30,42"
+                fill="rgba(0,245,255,0.22)" stroke="#00f5ff" stroke-width="1.6"
+                filter="url(#arc-gf)"/>
 
-            <!-- ⑤ Downward-pointing triangle ▽ (Iron Man 3 signature) -->
-            <polygon points="21,25 39,25 30,40" fill="rgba(0,245,255,0.2)" stroke="#00f5ff" stroke-width="1.4" filter="url(#arc-gf)"/>
-
-            <!-- ⑥ Core: bloom → mid → white hot center -->
-            <circle cx="30" cy="30" r="5.5" fill="#00f5ff"              class="arc-core-pulse" filter="url(#core-gf)"/>
-            <circle cx="30" cy="30" r="3.5" fill="url(#arc-core-grad)"/>
+            <!-- ⑤ Core — bloom layer → gradient mid → white-hot centre -->
+            <circle cx="30" cy="30" r="5.5"
+                fill="#00f5ff" class="arc-core-pulse" filter="url(#core-gf)"/>
+            <circle cx="30" cy="30" r="3.6" fill="url(#arc-core-grad)"/>
             <circle cx="30" cy="30" r="1.8" fill="white"/>
         </svg>
     </div>
