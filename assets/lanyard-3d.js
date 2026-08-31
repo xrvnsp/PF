@@ -22,8 +22,8 @@
         // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
-        // Position camera to frame the hanging lanyard starting from top ceiling border down to card
-        camera.position.set(0, 0.55, 14.5);
+        // Camera framing to show full lanyard strap and card at normal rest
+        camera.position.set(0, 0.50, 14.8);
 
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
@@ -59,11 +59,11 @@
         const gravity = -38.0;
         const damping = 0.95;
         const angularDamping = 0.93;
-        const segmentLength = 0.60;
+        const segmentLength = 0.70;
         const numSegments = 4;
 
-        // Fixed anchor at top border of the 3D container box
-        const fixedPos = new THREE.Vector3(0, 3.45, 0);
+        // Fixed anchor at top ceiling border of 3D box
+        const fixedPos = new THREE.Vector3(0, 3.50, 0);
         const joints = [];
         for (let i = 0; i < numSegments; i++) {
             joints.push({
@@ -413,7 +413,6 @@
 
                 const vIndex = i * 2;
                 posAttr.setXYZ(vIndex, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
-                // Map texture: t=0 (top anchor) -> right text, t=1 (hook) -> left logo
                 uvAttr.setXY(vIndex, (1.0 - t), 0);
 
                 posAttr.setXYZ(vIndex + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
