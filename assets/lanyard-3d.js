@@ -420,11 +420,11 @@
                 const vIndex = i * 2;
                 // Left vertex
                 posAttr.setXYZ(vIndex, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
-                uvAttr.setXY(vIndex, (1.0 - t) * 1.6, 1);
+                uvAttr.setXY(vIndex, (1.0 - t) * 1.5, 0);
 
                 // Right vertex
                 posAttr.setXYZ(vIndex + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
-                uvAttr.setXY(vIndex + 1, (1.0 - t) * 1.6, 0);
+                uvAttr.setXY(vIndex + 1, (1.0 - t) * 1.5, 1);
             }
 
             posAttr.needsUpdate = true;
