@@ -1004,20 +1004,50 @@ img {
 
 .lanyard-container {
     width: 100%;
-    min-height: 520px;
-    height: 520px;
+    min-height: 380px;
+    height: 380px;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     touch-action: none;
-    border-radius: 30px;
-    background: radial-gradient(circle at 50% 35%, rgba(0, 245, 255, 0.08) 0%, rgba(1, 2, 6, 0.6) 75%);
+    border-radius: 24px;
+    background: radial-gradient(circle at 50% 35%, rgba(0, 245, 255, 0.08) 0%, rgba(10, 14, 28, 0.75) 75%);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(0, 245, 255, 0.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), inset 0 0 25px rgba(0, 245, 255, 0.04);
     overflow: hidden;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+}
+
+.timeline-exp-lanyard-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 280px;
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+.timeline-exp-lanyard {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lanyard-container-inline {
+    width: 100% !important;
+    height: 380px !important;
+    min-height: 380px !important;
+}
+
+@media (max-width: 900px) {
+    .timeline-exp-lanyard-grid {
+        grid-template-columns: 1fr;
+    }
+    .lanyard-container-inline {
+        height: 340px !important;
+        min-height: 340px !important;
+        margin-top: 15px;
+    }
 }
 
 .lanyard-container canvas {
@@ -1034,9 +1064,9 @@ img {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
+    font-size: 11px;
     font-family: var(--font-display);
     letter-spacing: 1px;
     transition: opacity 0.5s ease;
@@ -1044,8 +1074,8 @@ img {
 }
 
 .lanyard-spinner {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border: 2px solid rgba(0, 245, 255, 0.2);
     border-top-color: var(--color-primary);
     border-radius: 50%;
@@ -1058,25 +1088,25 @@ img {
 
 .lanyard-hint {
     position: absolute;
-    bottom: 15px;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
-    background: rgba(1, 2, 6, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 6px 14px;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(8, 12, 22, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 5px 12px;
     border-radius: 20px;
-    border: 1px solid rgba(0, 245, 255, 0.3);
+    border: 1px solid rgba(0, 245, 255, 0.35);
     pointer-events: none;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(0, 245, 255, 0.2);
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 8px rgba(0, 245, 255, 0.15);
     animation: pulse-lanyard-hint 3s ease-in-out infinite;
     white-space: nowrap;
     z-index: 5;
@@ -1087,8 +1117,8 @@ img {
 }
 
 @keyframes pulse-lanyard-hint {
-    0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
-    50% { opacity: 1; transform: translateX(-50%) scale(1.04); }
+    0%, 100% { opacity: 0.75; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
 }
 
 .profile-frame {
