@@ -1035,8 +1035,8 @@ img {
 
 .lanyard-container-inline {
     width: 100% !important;
-    height: 440px !important;
-    min-height: 440px !important;
+    height: 480px !important;
+    min-height: 480px !important;
 }
 
 @media (max-width: 900px) {
