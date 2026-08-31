@@ -1,5 +1,5 @@
 /**
- * Interactive 3D Lanyard Component with Full Lanyard Visibility & Authentic Physics
+ * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Physics
  * Supports multiple instances: Digifox Studio & Madras MindWorks
  */
 
@@ -14,16 +14,16 @@
         const existingCanvas = container.querySelector('canvas');
         if (existingCanvas) existingCanvas.remove();
 
-        let width = container.clientWidth || 320;
+        let width = container.clientWidth || 340;
         let height = container.clientHeight || 480;
-        if (width < 50) width = 320;
+        if (width < 50) width = 340;
         if (height < 50) height = 480;
 
         // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
-        // Position camera to frame full lanyard strap from top anchor to card bottom
-        camera.position.set(0, 0.1, 14.6);
+        // Position camera to frame the hanging lanyard starting from top ceiling border down to card
+        camera.position.set(0, 0.55, 14.5);
 
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
@@ -37,7 +37,7 @@
         container.appendChild(renderer.domElement);
 
         // Soft, authentic diffuse lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.84);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
         scene.add(ambientLight);
 
         const frontLight = new THREE.DirectionalLight(0xffffff, 0.42);
@@ -59,11 +59,11 @@
         const gravity = -38.0;
         const damping = 0.95;
         const angularDamping = 0.93;
-        const segmentLength = 0.52;
+        const segmentLength = 0.60;
         const numSegments = 4;
 
-        // Lower top anchor to Y = 2.50 so the full lanyard is fully visible in viewport
-        const fixedPos = new THREE.Vector3(0, 2.5, 0);
+        // Fixed anchor at top border of the 3D container box
+        const fixedPos = new THREE.Vector3(0, 3.45, 0);
         const joints = [];
         for (let i = 0; i < numSegments; i++) {
             joints.push({
@@ -270,7 +270,7 @@
 
         function updateSize() {
             if (!container) return;
-            const newW = container.clientWidth || 320;
+            const newW = container.clientWidth || 340;
             const newH = container.clientHeight || 480;
             if (newW > 50 && newH > 50) {
                 camera.aspect = newW / newH;
@@ -380,7 +380,7 @@
                 cardGroup.rotation.z = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.6;
             }
 
-            // 5. Update Ribbon Mesh Geometry along Spline (100% full PNG mapped from top to hook)
+            // 5. Update Ribbon Mesh Geometry along Spline
             curvePoints[0].copy(fixedPos);
             for (let i = 1; i < numSegments; i++) {
                 curvePoints[i].copy(joints[i].pos);
@@ -413,7 +413,7 @@
 
                 const vIndex = i * 2;
                 posAttr.setXYZ(vIndex, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
-                // Exact 1:1 mapping of the full PNG from t=0 (top) to t=1 (hook)
+                // Map texture: t=0 (top anchor) -> right text, t=1 (hook) -> left logo
                 uvAttr.setXY(vIndex, (1.0 - t), 0);
 
                 posAttr.setXYZ(vIndex + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
