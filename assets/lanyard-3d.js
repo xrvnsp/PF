@@ -1,5 +1,5 @@
 /**
- * Interactive 3D Lanyard Component with Verlet Physics & Balanced Studio Lighting
+ * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Lighting
  * Integrated for Saravana Prakash R - Digifox Studio / HEPL ID Card
  */
 
@@ -37,30 +37,24 @@
         renderer.setSize(width, height);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.98; // Balanced exposure to prevent white blowout
 
         container.appendChild(renderer.domElement);
 
-        // Balanced Studio Lighting: Soft ambient + key & fill lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+        // Soft, authentic diffuse lighting (prevents card washout / blowout)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
         scene.add(ambientLight);
 
-        const frontKeyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        frontKeyLight.position.set(3, 5, 10);
-        scene.add(frontKeyLight);
+        const frontLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        frontLight.position.set(2, 4, 8);
+        scene.add(frontLight);
 
-        const backFillLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        backFillLight.position.set(-3, 4, -10);
-        scene.add(backFillLight);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        backLight.position.set(-2, 3, -8);
+        scene.add(backLight);
 
-        const cyanRimLight = new THREE.DirectionalLight(0x00f5ff, 0.65);
-        cyanRimLight.position.set(-6, -2, 5);
-        scene.add(cyanRimLight);
-
-        const magentaRimLight = new THREE.DirectionalLight(0xff359a, 0.45);
-        magentaRimLight.position.set(6, -3, 4);
-        scene.add(magentaRimLight);
+        const softCyanRim = new THREE.DirectionalLight(0x00f5ff, 0.35);
+        softCyanRim.position.set(-6, -2, 5);
+        scene.add(softCyanRim);
 
         // Physics parameters (Verlet rope + rigid body)
         const gravity = -38.0;
@@ -98,14 +92,15 @@
         cardAtlasTex.flipY = false;
         cardAtlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Load lanyard strap texture
+        // Load lanyard strap texture (single repeating tile)
         const lanyardTex = textureLoader.load('assets/hepl_lanyard.png');
         lanyardTex.wrapS = THREE.RepeatWrapping;
         lanyardTex.wrapT = THREE.ClampToEdgeWrapping;
         lanyardTex.encoding = THREE.sRGBEncoding;
+        lanyardTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Create Ribbon Mesh (Flat band oriented toward camera)
-        const ribbonWidth = 0.44;
+        // Create Ribbon Mesh (Realistic wide lanyard strap)
+        const ribbonWidth = 0.58;
         const ribbonSegments = 36;
         const ribbonGeom = new THREE.BufferGeometry();
         
@@ -127,11 +122,9 @@
         ribbonGeom.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
         ribbonGeom.setIndex(indices);
 
-        const ribbonMat = new THREE.MeshStandardMaterial({
+        const ribbonMat = new THREE.MeshLambertMaterial({
             map: lanyardTex,
-            side: THREE.DoubleSide,
-            roughness: 0.7,
-            metalness: 0.05
+            side: THREE.DoubleSide
         });
         const ribbonMesh = new THREE.Mesh(ribbonGeom, ribbonMat);
         scene.add(ribbonMesh);
@@ -144,23 +137,19 @@
         gltfLoader.load('assets/card.glb', (gltf) => {
             const model = gltf.scene;
             
-            // Apply balanced PBR materials
+            // Apply authentic matte laminate material (no washout)
             model.traverse((child) => {
                 if (child.isMesh) {
                     if (child.name === 'card' || (child.material && child.material.name === 'base')) {
-                        child.material = new THREE.MeshPhysicalMaterial({
+                        child.material = new THREE.MeshLambertMaterial({
                             map: cardAtlasTex,
-                            roughness: 0.45,
-                            metalness: 0.0,
-                            clearcoat: 0.25,
-                            clearcoatRoughness: 0.25,
-                            reflectivity: 0.8
+                            reflectivity: 0.2
                         });
                     } else if (child.name === 'clip' || child.name === 'clamp' || (child.material && child.material.name === 'metal')) {
                         child.material = new THREE.MeshStandardMaterial({
-                            color: 0xd0d8e2,
-                            metalness: 0.9,
-                            roughness: 0.3
+                            color: 0xd5dfea,
+                            metalness: 0.95,
+                            roughness: 0.25
                         });
                     }
                 }
@@ -431,12 +420,11 @@
                 const vIndex = i * 2;
                 // Left vertex
                 posAttr.setXYZ(vIndex, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
-                // Map horizontal texture along ribbon length: U along length, V across width
-                uvAttr.setXY(vIndex, t * 3.5, 0);
+                uvAttr.setXY(vIndex, (1.0 - t) * 1.6, 1);
 
                 // Right vertex
                 posAttr.setXYZ(vIndex + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
-                uvAttr.setXY(vIndex + 1, t * 3.5, 1);
+                uvAttr.setXY(vIndex + 1, (1.0 - t) * 1.6, 0);
             }
 
             posAttr.needsUpdate = true;
