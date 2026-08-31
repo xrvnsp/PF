@@ -1,19 +1,14 @@
 /**
- * Interactive 3D Lanyard Component with Scaled-Up Presentation, Zero Hook Gap & High Clarity
- * Integrated for Saravana Prakash R - Digifox Studio / HEPL ID Card
+ * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Physics
+ * Supports multiple instances: Digifox Studio & Madras MindWorks
  */
 
 (function() {
     'use strict';
 
-    function initLanyard() {
-        const container = document.getElementById('lanyard-container');
+    function createLanyardInstance(config) {
+        const container = document.getElementById(config.containerId);
         if (!container) return;
-
-        if (typeof THREE === 'undefined' || typeof THREE.GLTFLoader === 'undefined') {
-            setTimeout(initLanyard, 100);
-            return;
-        }
 
         // Remove any existing canvas
         const existingCanvas = container.querySelector('canvas');
@@ -27,7 +22,6 @@
         // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
-        // Position camera closer (13.6) for scaled-up, crisp view
         camera.position.set(0, -0.3, 13.6);
 
         const renderer = new THREE.WebGLRenderer({
@@ -57,8 +51,7 @@
         softCyanRim.position.set(-6, -2, 5);
         scene.add(softCyanRim);
 
-        // Metal Hook ring parameters
-        // In local card space, the metal clip ring loop hole is at y = 1.48 to 1.56
+        // Metal Hook loop parameter
         let hookLocalY = 1.48;
 
         // Physics parameters (Verlet rope + rigid body)
@@ -93,20 +86,20 @@
         // Texture Loader
         const textureLoader = new THREE.TextureLoader();
         
-        // Load composite card texture
-        const cardAtlasTex = textureLoader.load('assets/card_composite.png');
+        // Load card composite texture
+        const cardAtlasTex = textureLoader.load(config.cardTexture);
         cardAtlasTex.encoding = THREE.sRGBEncoding;
         cardAtlasTex.flipY = false;
         cardAtlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Load lanyard strap texture (ultra-res 2048x512)
-        const lanyardTex = textureLoader.load('assets/hepl_lanyard.png');
+        // Load lanyard strap texture
+        const lanyardTex = textureLoader.load(config.lanyardTexture);
         lanyardTex.wrapS = THREE.RepeatWrapping;
         lanyardTex.wrapT = THREE.ClampToEdgeWrapping;
         lanyardTex.encoding = THREE.sRGBEncoding;
         lanyardTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Create Ribbon Mesh (Wide lanyard strap threading into metal hook)
+        // Create Ribbon Mesh
         const ribbonWidth = 0.62;
         const ribbonSegments = 36;
         const ribbonGeom = new THREE.BufferGeometry();
@@ -144,7 +137,6 @@
         gltfLoader.load('assets/card.glb', (gltf) => {
             const model = gltf.scene;
             
-            // Apply authentic matte laminate material (no washout)
             model.traverse((child) => {
                 if (child.isMesh) {
                     if (child.name === 'card' || (child.material && child.material.name === 'base')) {
@@ -164,26 +156,22 @@
 
             model.scale.set(2.35, 2.35, 2.35);
             
-            // Calculate model bounds to center X & Z
+            // Center X & Z
             const tempBox = new THREE.Box3().setFromObject(model);
             const center = new THREE.Vector3();
             tempBox.getCenter(center);
             
-            // Subtract center.x and center.z to cancel out GLTF translation offset
             model.position.set(-center.x, -1.2, -center.z);
             cardGroup.add(model);
 
-            // Hook loop connects at local y = 1.48 (through center of the clip metal ring)
             hookLocalY = 1.48;
 
-            // Hide loading overlay once model is ready
             const loadingOverlay = container.querySelector('.lanyard-loading');
             if (loadingOverlay) loadingOverlay.style.opacity = '0';
         }, undefined, (err) => {
-            console.error('Error loading card.glb:', err);
+            console.error('Error loading card.glb for ' + config.containerId, err);
         });
 
-        // Helper: Get exact world position of the metal hook ring on top (centered at X=0, Z=0)
         function getHookWorldPos() {
             return new THREE.Vector3(0, hookLocalY, 0).applyEuler(cardState.rot).add(cardState.pos);
         }
@@ -225,7 +213,6 @@
             const intersects = raycaster.intersectObjects(cardGroup.children, true);
             const worldPt = getWorldPointFromPointer(pos);
 
-            // Grab if clicked card mesh OR within card radius
             const distToCard = worldPt.distanceTo(cardState.pos);
             if (intersects.length > 0 || distToCard < 3.8) {
                 cardState.dragged = true;
@@ -269,19 +256,16 @@
                 cardState.dragged = false;
                 container.style.cursor = cardState.hovered ? 'grab' : 'default';
                 
-                // Add natural fling momentum
                 cardState.rotVel.y += THREE.MathUtils.clamp(mouseSpeed.x * 0.08, -15, 15);
                 cardState.rotVel.x -= THREE.MathUtils.clamp(mouseSpeed.y * 0.05, -10, 10);
             }
         }
 
-        // Use unified PointerEvents for reliable drag support on all devices
         renderer.domElement.addEventListener('pointerdown', onPointerDown);
         window.addEventListener('pointermove', onPointerMove);
         window.addEventListener('pointerup', onPointerUp);
         window.addEventListener('pointercancel', onPointerUp);
 
-        // Resize observer for responsive layout
         function updateSize() {
             if (!container) return;
             const newW = container.clientWidth || 320;
@@ -299,7 +283,6 @@
             ro.observe(container);
         }
 
-        // CatmullRom Spline for Ribbon
         const curvePoints = [
             fixedPos,
             joints[1].pos,
@@ -309,7 +292,6 @@
         ];
         const spline = new THREE.CatmullRomCurve3(curvePoints, false, 'chordal');
 
-        // Physics & Animation Loop
         let lastTime = performance.now();
 
         function animate() {
@@ -322,24 +304,20 @@
             // 1. Update Card Position from Drag or Physics
             if (cardState.dragged) {
                 cardState.oldPos.copy(cardState.pos);
-                // Tilt card toward drag movement
                 const targetRotZ = -THREE.MathUtils.clamp(mouseSpeed.x * 0.02, -0.6, 0.6);
                 const targetRotX = THREE.MathUtils.clamp(mouseSpeed.y * 0.02, -0.6, 0.6);
                 cardState.rot.z += (targetRotZ - cardState.rot.z) * 0.15;
                 cardState.rot.x += (targetRotX - cardState.rot.x) * 0.15;
             } else {
-                // Gravity & velocity verlet for card
                 const vel = cardState.pos.clone().sub(cardState.oldPos).multiplyScalar(damping);
                 vel.y += gravity * dt * dt;
                 cardState.oldPos.copy(cardState.pos);
                 cardState.pos.add(vel);
 
-                // Angular physics & natural sway
                 cardState.rot.x += cardState.rotVel.x * dt;
                 cardState.rot.y += cardState.rotVel.y * dt;
                 cardState.rot.z += cardState.rotVel.z * dt;
 
-                // Restoring torque (return to upright face-forward)
                 cardState.rotVel.x += (-cardState.rot.x * 7.5) * dt;
                 cardState.rotVel.y += (-cardState.rot.y * 1.8) * dt;
                 cardState.rotVel.z += (-cardState.rot.z * 10.0) * dt;
@@ -348,7 +326,7 @@
             }
 
             // 2. Verlet Physics for Rope Joints
-            joints[0].pos.copy(fixedPos); // Anchor is fixed
+            joints[0].pos.copy(fixedPos);
 
             for (let i = 1; i < numSegments; i++) {
                 const j = joints[i];
@@ -361,7 +339,6 @@
             // 3. Distance Constraints Relaxation
             const iterations = 8;
             for (let iter = 0; iter < iterations; iter++) {
-                // Fixed to joint 1
                 const d1 = joints[1].pos.clone().sub(joints[0].pos);
                 const dist1 = d1.length();
                 if (dist1 > 0.001) {
@@ -369,7 +346,6 @@
                     joints[1].pos.sub(d1.multiplyScalar(diff1));
                 }
 
-                // Joint to joint constraints
                 for (let i = 1; i < numSegments - 1; i++) {
                     const d = joints[i + 1].pos.clone().sub(joints[i].pos);
                     const dist = d.length();
@@ -380,7 +356,6 @@
                     }
                 }
 
-                // Last joint to top metal hook ring (zero gap constraint)
                 const hookPos = getHookWorldPos();
                 const dHook = hookPos.clone().sub(joints[numSegments - 1].pos);
                 const distHook = dHook.length();
@@ -397,19 +372,17 @@
             cardGroup.position.copy(cardState.pos);
             cardGroup.rotation.copy(cardState.rot);
 
-            // Natural pendular tilt around the top hook
             const hookPosFinal = getHookWorldPos();
             const swingDir = cardState.pos.clone().sub(joints[numSegments - 1].pos).normalize();
             if (!cardState.dragged) {
                 cardGroup.rotation.z = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.6;
             }
 
-            // 5. Update Ribbon Mesh Geometry along Spline (Feeds directly through metal hook loop)
+            // 5. Update Ribbon Mesh Geometry along Spline
             curvePoints[0].copy(fixedPos);
             for (let i = 1; i < numSegments; i++) {
                 curvePoints[i].copy(joints[i].pos);
             }
-            // Spline ends exactly inside the metal hook ring!
             curvePoints[numSegments].copy(hookPosFinal);
 
             const splinePoints = spline.getPoints(ribbonSegments);
@@ -418,12 +391,12 @@
 
             const camPos = camera.position;
             const halfW = ribbonWidth * 0.5;
+            const rep = config.repeat || 0.95;
 
             for (let i = 0; i <= ribbonSegments; i++) {
                 const pt = splinePoints[i];
                 const t = i / ribbonSegments;
 
-                // Calculate tangent
                 let tangent;
                 if (i === 0) {
                     tangent = splinePoints[1].clone().sub(pt).normalize();
@@ -433,39 +406,56 @@
                     tangent = splinePoints[i + 1].clone().sub(splinePoints[i - 1]).normalize();
                 }
 
-                // Normal perpendicular to tangent and camera forward
                 const toCam = camPos.clone().sub(pt).normalize();
                 const normal = new THREE.Vector3().crossVectors(tangent, toCam).normalize();
                 if (normal.lengthSq() < 0.001) normal.set(1, 0, 0);
 
                 const vIndex = i * 2;
-                // Left vertex
                 posAttr.setXYZ(vIndex, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
-                // 1.0 repeat along strap for true aspect ratio & uncompressed sharpness
-                uvAttr.setXY(vIndex, (1.0 - t) * 0.95, 0);
+                uvAttr.setXY(vIndex, (1.0 - t) * rep, 0);
 
-                // Right vertex
                 posAttr.setXYZ(vIndex + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
-                uvAttr.setXY(vIndex + 1, (1.0 - t) * 0.95, 1);
+                uvAttr.setXY(vIndex + 1, (1.0 - t) * rep, 1);
             }
 
             posAttr.needsUpdate = true;
             uvAttr.needsUpdate = true;
             ribbonGeom.computeVertexNormals();
 
-            // Render
             renderer.render(scene, camera);
         }
 
         animate();
     }
 
-    // Initialize on DOM ready or immediate
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initLanyard);
-    } else {
-        initLanyard();
+    function initAllLanyards() {
+        if (typeof THREE === 'undefined' || typeof THREE.GLTFLoader === 'undefined') {
+            setTimeout(initAllLanyards, 100);
+            return;
+        }
+
+        // 1. Digifox Studio Lanyard
+        createLanyardInstance({
+            containerId: 'lanyard-container',
+            cardTexture: 'assets/card_composite.png',
+            lanyardTexture: 'assets/hepl_lanyard.png',
+            repeat: 0.95
+        });
+
+        // 2. Madras MindWorks Lanyard
+        createLanyardInstance({
+            containerId: 'lanyard-container-mmw',
+            cardTexture: 'assets/mmw_card_composite.png',
+            lanyardTexture: 'assets/mmw_lanyard.png',
+            repeat: 0.95
+        });
     }
 
-    window.initLanyard = initLanyard;
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllLanyards);
+    } else {
+        initAllLanyards();
+    }
+
+    window.initAllLanyards = initAllLanyards;
 })();
