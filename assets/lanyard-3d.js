@@ -1,5 +1,5 @@
 /**
- * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Lighting
+ * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Physics
  * Integrated for Saravana Prakash R - Digifox Studio / HEPL ID Card
  */
 
@@ -27,7 +27,7 @@
         // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(23, width / height, 0.1, 100);
-        camera.position.set(0, 0.1, 17.0);
+        camera.position.set(0, -0.2, 17.5);
 
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
@@ -40,8 +40,8 @@
 
         container.appendChild(renderer.domElement);
 
-        // Soft, authentic diffuse lighting (prevents card washout / blowout)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+        // Soft, authentic diffuse lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
         scene.add(ambientLight);
 
         const frontLight = new THREE.DirectionalLight(0xffffff, 0.45);
@@ -56,11 +56,15 @@
         softCyanRim.position.set(-6, -2, 5);
         scene.add(softCyanRim);
 
+        // Model dimensions & Hook offset
+        // Top metal hook ring is located at local y = 1.66 above card center
+        const HOOK_LOCAL_OFFSET = new THREE.Vector3(0, 1.66, 0);
+
         // Physics parameters (Verlet rope + rigid body)
         const gravity = -38.0;
         const damping = 0.95;
         const angularDamping = 0.93;
-        const segmentLength = 0.82;
+        const segmentLength = 0.65;
         const numSegments = 4;
 
         const fixedPos = new THREE.Vector3(0, 3.8, 0);
@@ -74,9 +78,11 @@
         }
 
         // Card state
+        const restHookY = fixedPos.y - numSegments * segmentLength;
+        const initialCardY = restHookY - HOOK_LOCAL_OFFSET.y;
         const cardState = {
-            pos: new THREE.Vector3(0, fixedPos.y - numSegments * segmentLength - 0.4, 0),
-            oldPos: new THREE.Vector3(0, fixedPos.y - numSegments * segmentLength - 0.4, 0),
+            pos: new THREE.Vector3(0, initialCardY, 0),
+            oldPos: new THREE.Vector3(0, initialCardY, 0),
             rot: new THREE.Euler(0, 0, 0, 'YXZ'),
             rotVel: new THREE.Vector3(0, 0, 0),
             dragged: false,
@@ -92,14 +98,14 @@
         cardAtlasTex.flipY = false;
         cardAtlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Load lanyard strap texture (single repeating tile)
+        // Load lanyard strap texture (4:1 user image)
         const lanyardTex = textureLoader.load('assets/hepl_lanyard.png');
         lanyardTex.wrapS = THREE.RepeatWrapping;
         lanyardTex.wrapT = THREE.ClampToEdgeWrapping;
         lanyardTex.encoding = THREE.sRGBEncoding;
         lanyardTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Create Ribbon Mesh (Realistic wide lanyard strap)
+        // Create Ribbon Mesh (Wide lanyard strap connecting from top anchor to metal hook ring)
         const ribbonWidth = 0.58;
         const ribbonSegments = 36;
         const ribbonGeom = new THREE.BufferGeometry();
@@ -166,6 +172,11 @@
             console.error('Error loading card.glb:', err);
         });
 
+        // Helper: Get exact world position of the metal hook ring on top
+        function getHookWorldPos() {
+            return HOOK_LOCAL_OFFSET.clone().applyEuler(cardState.rot).add(cardState.pos);
+        }
+
         // Pointer / Dragging interaction
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2();
@@ -175,8 +186,8 @@
 
         function getPointerPos(e) {
             const rect = renderer.domElement.getBoundingClientRect();
-            const clientX = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX) || 0;
-            const clientY = (e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY) || 0;
+            const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+            const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
             return {
                 x: ((clientX - rect.left) / rect.width) * 2 - 1,
                 y: -((clientY - rect.top) / rect.height) * 2 + 1,
@@ -203,9 +214,9 @@
             const intersects = raycaster.intersectObjects(cardGroup.children, true);
             const worldPt = getWorldPointFromPointer(pos);
 
-            // Grab if clicked card mesh OR within card bounding radius
+            // Grab if clicked card mesh OR within card radius
             const distToCard = worldPt.distanceTo(cardState.pos);
-            if (intersects.length > 0 || distToCard < 3.2) {
+            if (intersects.length > 0 || distToCard < 3.8) {
                 cardState.dragged = true;
                 dragOffset.copy(cardState.pos).sub(worldPt);
                 container.style.cursor = 'grabbing';
@@ -253,13 +264,11 @@
             }
         }
 
-        renderer.domElement.addEventListener('mousedown', onPointerDown);
-        window.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('mouseup', onPointerUp);
-
-        renderer.domElement.addEventListener('touchstart', onPointerDown, { passive: false });
-        window.addEventListener('touchmove', onPointerMove, { passive: false });
-        window.addEventListener('touchend', onPointerUp);
+        // Use unified PointerEvents for reliable drag support on all devices
+        renderer.domElement.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        window.addEventListener('pointercancel', onPointerUp);
 
         // Resize observer for responsive layout
         function updateSize() {
@@ -285,7 +294,7 @@
             joints[1].pos,
             joints[2].pos,
             joints[3].pos,
-            cardState.pos
+            new THREE.Vector3()
         ];
         const spline = new THREE.CatmullRomCurve3(curvePoints, false, 'chordal');
 
@@ -301,8 +310,7 @@
 
             // 1. Update Card Position from Drag or Physics
             if (cardState.dragged) {
-                cardState.pos.lerp(targetWorldPos, 0.35);
-                
+                cardState.oldPos.copy(cardState.pos);
                 // Tilt card toward drag movement
                 const targetRotZ = -THREE.MathUtils.clamp(mouseSpeed.x * 0.02, -0.6, 0.6);
                 const targetRotX = THREE.MathUtils.clamp(mouseSpeed.y * 0.02, -0.6, 0.6);
@@ -361,15 +369,15 @@
                     }
                 }
 
-                // Last joint to card top attachment point
-                const cardTopPos = cardState.pos.clone().add(new THREE.Vector3(0, 0.4, 0));
-                const dCard = cardTopPos.clone().sub(joints[numSegments - 1].pos);
-                const distCard = dCard.length();
-                if (distCard > 0.001) {
-                    const diffCard = (distCard - 0.5) / distCard;
-                    joints[numSegments - 1].pos.add(dCard.clone().multiplyScalar(diffCard * 0.5));
+                // Last joint to top metal hook ring
+                const hookPos = getHookWorldPos();
+                const dHook = hookPos.clone().sub(joints[numSegments - 1].pos);
+                const distHook = dHook.length();
+                if (distHook > 0.001) {
+                    const diffHook = (distHook - 0.25) / distHook;
+                    joints[numSegments - 1].pos.add(dHook.clone().multiplyScalar(diffHook * 0.5));
                     if (!cardState.dragged) {
-                        cardState.pos.sub(dCard.multiplyScalar(diffCard * 0.5));
+                        cardState.pos.sub(dHook.multiplyScalar(diffHook * 0.5));
                     }
                 }
             }
@@ -378,18 +386,20 @@
             cardGroup.position.copy(cardState.pos);
             cardGroup.rotation.copy(cardState.rot);
 
-            // Natural pendular tilt based on attachment angle
+            // Natural pendular tilt around the top hook
+            const hookPosFinal = getHookWorldPos();
             const swingDir = cardState.pos.clone().sub(joints[numSegments - 1].pos).normalize();
             if (!cardState.dragged) {
-                cardGroup.rotation.z = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.7;
+                cardGroup.rotation.z = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.6;
             }
 
-            // 5. Update Ribbon Mesh Geometry along Spline
+            // 5. Update Ribbon Mesh Geometry along Spline (Sticking precisely to top metal hook ring)
             curvePoints[0].copy(fixedPos);
             for (let i = 1; i < numSegments; i++) {
                 curvePoints[i].copy(joints[i].pos);
             }
-            curvePoints[numSegments] = cardState.pos.clone().add(new THREE.Vector3(0, 0.35, 0));
+            // Spline ends exactly at the top metal hook ring!
+            curvePoints[numSegments].copy(hookPosFinal);
 
             const splinePoints = spline.getPoints(ribbonSegments);
             const posAttr = ribbonGeom.attributes.position;
