@@ -1020,8 +1020,8 @@ img {
 
 .timeline-exp-lanyard-grid {
     display: grid;
-    grid-template-columns: 1.1fr 280px;
-    gap: var(--spacing-lg);
+    grid-template-columns: 1fr 320px;
+    gap: var(--spacing-xl);
     align-items: center;
 }
 
@@ -1035,8 +1035,8 @@ img {
 
 .lanyard-container-inline {
     width: 100% !important;
-    height: 380px !important;
-    min-height: 380px !important;
+    height: 440px !important;
+    min-height: 440px !important;
 }
 
 @media (max-width: 900px) {
@@ -1044,8 +1044,8 @@ img {
         grid-template-columns: 1fr;
     }
     .lanyard-container-inline {
-        height: 340px !important;
-        min-height: 340px !important;
+        height: 380px !important;
+        min-height: 380px !important;
         margin-top: 15px;
     }
 }

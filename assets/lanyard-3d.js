@@ -1,5 +1,5 @@
 /**
- * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Physics
+ * Interactive 3D Lanyard Component with Scaled-Up Presentation, Zero Hook Gap & High Clarity
  * Integrated for Saravana Prakash R - Digifox Studio / HEPL ID Card
  */
 
@@ -20,14 +20,15 @@
         if (existingCanvas) existingCanvas.remove();
 
         let width = container.clientWidth || 320;
-        let height = container.clientHeight || 460;
+        let height = container.clientHeight || 440;
         if (width < 50) width = 320;
-        if (height < 50) height = 460;
+        if (height < 50) height = 440;
 
         // Scene setup
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(23, width / height, 0.1, 100);
-        camera.position.set(0, -0.2, 17.5);
+        const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
+        // Position camera closer (13.6) for scaled-up, crisp view
+        camera.position.set(0, -0.3, 13.6);
 
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
@@ -41,32 +42,33 @@
         container.appendChild(renderer.domElement);
 
         // Soft, authentic diffuse lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.82);
         scene.add(ambientLight);
 
-        const frontLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        const frontLight = new THREE.DirectionalLight(0xffffff, 0.42);
         frontLight.position.set(2, 4, 8);
         scene.add(frontLight);
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.38);
         backLight.position.set(-2, 3, -8);
         scene.add(backLight);
 
-        const softCyanRim = new THREE.DirectionalLight(0x00f5ff, 0.35);
+        const softCyanRim = new THREE.DirectionalLight(0x00f5ff, 0.3);
         softCyanRim.position.set(-6, -2, 5);
         scene.add(softCyanRim);
 
-        // Top metal hook local Y offset
-        let hookLocalY = 1.66;
+        // Metal Hook ring parameters
+        // In local card space, the metal clip ring loop hole is at y = 1.48 to 1.56
+        let hookLocalY = 1.48;
 
         // Physics parameters (Verlet rope + rigid body)
         const gravity = -38.0;
         const damping = 0.95;
         const angularDamping = 0.93;
-        const segmentLength = 0.65;
+        const segmentLength = 0.68;
         const numSegments = 4;
 
-        const fixedPos = new THREE.Vector3(0, 3.8, 0);
+        const fixedPos = new THREE.Vector3(0, 4.0, 0);
         const joints = [];
         for (let i = 0; i < numSegments; i++) {
             joints.push({
@@ -97,15 +99,15 @@
         cardAtlasTex.flipY = false;
         cardAtlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Load lanyard strap texture (4:1 user image)
+        // Load lanyard strap texture (ultra-res 2048x512)
         const lanyardTex = textureLoader.load('assets/hepl_lanyard.png');
         lanyardTex.wrapS = THREE.RepeatWrapping;
         lanyardTex.wrapT = THREE.ClampToEdgeWrapping;
         lanyardTex.encoding = THREE.sRGBEncoding;
         lanyardTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Create Ribbon Mesh (Wide lanyard strap connecting from top anchor to metal hook ring)
-        const ribbonWidth = 0.58;
+        // Create Ribbon Mesh (Wide lanyard strap threading into metal hook)
+        const ribbonWidth = 0.62;
         const ribbonSegments = 36;
         const ribbonGeom = new THREE.BufferGeometry();
         
@@ -162,18 +164,17 @@
 
             model.scale.set(2.35, 2.35, 2.35);
             
-            // Calculate model bounds to perfectly center X & Z and align Y
+            // Calculate model bounds to center X & Z
             const tempBox = new THREE.Box3().setFromObject(model);
             const center = new THREE.Vector3();
             tempBox.getCenter(center);
             
-            // Subtract center.x and center.z to cancel out the GLTF translation matrix offset
+            // Subtract center.x and center.z to cancel out GLTF translation offset
             model.position.set(-center.x, -1.2, -center.z);
             cardGroup.add(model);
 
-            // Compute exact top hook world Y in cardGroup local space
-            const finalBox = new THREE.Box3().setFromObject(cardGroup);
-            hookLocalY = finalBox.max.y - 0.04;
+            // Hook loop connects at local y = 1.48 (through center of the clip metal ring)
+            hookLocalY = 1.48;
 
             // Hide loading overlay once model is ready
             const loadingOverlay = container.querySelector('.lanyard-loading');
@@ -284,7 +285,7 @@
         function updateSize() {
             if (!container) return;
             const newW = container.clientWidth || 320;
-            const newH = container.clientHeight || 460;
+            const newH = container.clientHeight || 440;
             if (newW > 50 && newH > 50) {
                 camera.aspect = newW / newH;
                 camera.updateProjectionMatrix();
@@ -379,15 +380,15 @@
                     }
                 }
 
-                // Last joint to top metal hook ring
+                // Last joint to top metal hook ring (zero gap constraint)
                 const hookPos = getHookWorldPos();
                 const dHook = hookPos.clone().sub(joints[numSegments - 1].pos);
                 const distHook = dHook.length();
                 if (distHook > 0.001) {
-                    const diffHook = (distHook - 0.25) / distHook;
-                    joints[numSegments - 1].pos.add(dHook.clone().multiplyScalar(diffHook * 0.5));
+                    const diffHook = (distHook - 0.02) / distHook;
+                    joints[numSegments - 1].pos.add(dHook.clone().multiplyScalar(diffHook * 0.7));
                     if (!cardState.dragged) {
-                        cardState.pos.sub(dHook.multiplyScalar(diffHook * 0.5));
+                        cardState.pos.sub(dHook.multiplyScalar(diffHook * 0.3));
                     }
                 }
             }
@@ -403,12 +404,12 @@
                 cardGroup.rotation.z = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.6;
             }
 
-            // 5. Update Ribbon Mesh Geometry along Spline (Centered at X=0, Z=0)
+            // 5. Update Ribbon Mesh Geometry along Spline (Feeds directly through metal hook loop)
             curvePoints[0].copy(fixedPos);
             for (let i = 1; i < numSegments; i++) {
                 curvePoints[i].copy(joints[i].pos);
             }
-            // Spline ends exactly at the top metal hook ring!
+            // Spline ends exactly inside the metal hook ring!
             curvePoints[numSegments].copy(hookPosFinal);
 
             const splinePoints = spline.getPoints(ribbonSegments);
@@ -440,11 +441,12 @@
                 const vIndex = i * 2;
                 // Left vertex
                 posAttr.setXYZ(vIndex, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
-                uvAttr.setXY(vIndex, (1.0 - t) * 1.5, 0);
+                // 1.0 repeat along strap for true aspect ratio & uncompressed sharpness
+                uvAttr.setXY(vIndex, (1.0 - t) * 0.95, 0);
 
                 // Right vertex
                 posAttr.setXYZ(vIndex + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
-                uvAttr.setXY(vIndex + 1, (1.0 - t) * 1.5, 1);
+                uvAttr.setXY(vIndex + 1, (1.0 - t) * 0.95, 1);
             }
 
             posAttr.needsUpdate = true;
