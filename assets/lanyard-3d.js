@@ -56,9 +56,8 @@
         softCyanRim.position.set(-6, -2, 5);
         scene.add(softCyanRim);
 
-        // Model dimensions & Hook offset
-        // Top metal hook ring is located at local y = 1.66 above card center
-        const HOOK_LOCAL_OFFSET = new THREE.Vector3(0, 1.66, 0);
+        // Top metal hook local Y offset
+        let hookLocalY = 1.66;
 
         // Physics parameters (Verlet rope + rigid body)
         const gravity = -38.0;
@@ -79,7 +78,7 @@
 
         // Card state
         const restHookY = fixedPos.y - numSegments * segmentLength;
-        const initialCardY = restHookY - HOOK_LOCAL_OFFSET.y;
+        const initialCardY = restHookY - hookLocalY;
         const cardState = {
             pos: new THREE.Vector3(0, initialCardY, 0),
             oldPos: new THREE.Vector3(0, initialCardY, 0),
@@ -162,8 +161,19 @@
             });
 
             model.scale.set(2.35, 2.35, 2.35);
-            model.position.set(0, -1.2, -0.05);
+            
+            // Calculate model bounds to perfectly center X & Z and align Y
+            const tempBox = new THREE.Box3().setFromObject(model);
+            const center = new THREE.Vector3();
+            tempBox.getCenter(center);
+            
+            // Subtract center.x and center.z to cancel out the GLTF translation matrix offset
+            model.position.set(-center.x, -1.2, -center.z);
             cardGroup.add(model);
+
+            // Compute exact top hook world Y in cardGroup local space
+            const finalBox = new THREE.Box3().setFromObject(cardGroup);
+            hookLocalY = finalBox.max.y - 0.04;
 
             // Hide loading overlay once model is ready
             const loadingOverlay = container.querySelector('.lanyard-loading');
@@ -172,9 +182,9 @@
             console.error('Error loading card.glb:', err);
         });
 
-        // Helper: Get exact world position of the metal hook ring on top
+        // Helper: Get exact world position of the metal hook ring on top (centered at X=0, Z=0)
         function getHookWorldPos() {
-            return HOOK_LOCAL_OFFSET.clone().applyEuler(cardState.rot).add(cardState.pos);
+            return new THREE.Vector3(0, hookLocalY, 0).applyEuler(cardState.rot).add(cardState.pos);
         }
 
         // Pointer / Dragging interaction
@@ -393,7 +403,7 @@
                 cardGroup.rotation.z = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.6;
             }
 
-            // 5. Update Ribbon Mesh Geometry along Spline (Sticking precisely to top metal hook ring)
+            // 5. Update Ribbon Mesh Geometry along Spline (Centered at X=0, Z=0)
             curvePoints[0].copy(fixedPos);
             for (let i = 1; i < numSegments; i++) {
                 curvePoints[i].copy(joints[i].pos);
