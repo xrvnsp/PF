@@ -22,8 +22,8 @@
         // Scene setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
-        // Camera framing to show full lanyard strap and card at normal rest
-        camera.position.set(0, 0.50, 14.8);
+        // Camera framing to show full lanyard strap starting exactly flush with top box ceiling
+        camera.position.set(0, 0.35, 14.8);
 
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
@@ -55,15 +55,22 @@
         // Metal Hook loop parameter
         let hookLocalY = 1.48;
 
+        // Calculate dynamic ceiling anchor point sitting EXACTLY flush with the top border of the box
+        function getCeilingAnchorY() {
+            const halfFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
+            const visibleHalfHeight = camera.position.z * Math.tan(halfFovRad);
+            return camera.position.y + visibleHalfHeight; // Perfectly at the top border
+        }
+
         // Physics parameters (Verlet rope + rigid body)
         const gravity = -38.0;
         const damping = 0.95;
         const angularDamping = 0.93;
-        const segmentLength = 0.70;
+        const segmentLength = 0.52;
         const numSegments = 4;
 
-        // Fixed anchor at top ceiling border of 3D box
-        const fixedPos = new THREE.Vector3(0, 3.50, 0);
+        // Fixed anchor sitting perfectly flush at the top ceiling border of the 3D box
+        const fixedPos = new THREE.Vector3(0, getCeilingAnchorY(), 0);
         const joints = [];
         for (let i = 0; i < numSegments; i++) {
             joints.push({
@@ -276,6 +283,8 @@
                 camera.aspect = newW / newH;
                 camera.updateProjectionMatrix();
                 renderer.setSize(newW, newH);
+                fixedPos.y = getCeilingAnchorY();
+                joints[0].pos.copy(fixedPos);
             }
         }
 
