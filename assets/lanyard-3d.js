@@ -92,17 +92,18 @@
             hovered: false
         };
 
-        // Texture Loader
+        // Texture Loader with cache-busting
         const textureLoader = new THREE.TextureLoader();
+        const vQuery = '?v=10';
         
         // Load card composite texture
-        const cardAtlasTex = textureLoader.load(config.cardTexture);
+        const cardAtlasTex = textureLoader.load(config.cardTexture + vQuery);
         cardAtlasTex.encoding = THREE.sRGBEncoding;
         cardAtlasTex.flipY = false;
         cardAtlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
         // Load lanyard strap texture
-        const lanyardTex = textureLoader.load(config.lanyardTexture);
+        const lanyardTex = textureLoader.load(config.lanyardTexture + vQuery);
         lanyardTex.wrapS = THREE.ClampToEdgeWrapping;
         lanyardTex.wrapT = THREE.ClampToEdgeWrapping;
         lanyardTex.encoding = THREE.sRGBEncoding;
