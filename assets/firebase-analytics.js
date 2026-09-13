@@ -39,7 +39,6 @@
     const BROWSER_NAME = getBrowserName();
 
     let db = null;
-    let rtdb = null;
     let isInitialized = false;
 
     function initFirebase() {
@@ -54,11 +53,6 @@
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
-            try {
-                rtdb = firebase.database();
-            } catch (e) {
-                // RTDB optional
-            }
             isInitialized = true;
             return true;
         } catch (err) {
@@ -77,7 +71,6 @@
          */
         async logEvent(eventType, details = {}) {
             if (!db && !initFirebase()) {
-                // Try again shortly if SDK is still loading
                 setTimeout(() => PortfolioAnalytics.logEvent(eventType, details), 500);
                 return;
             }
@@ -99,12 +92,12 @@
                 await db.collection("analytics_events").add(eventData);
                 console.log(`[Analytics Event] Logged "${eventType}":`, details);
             } catch (e) {
-                console.warn("[Analytics Event] Write notice (ensure Firestore rules allow read/write):", e);
+                console.warn("[Analytics Event] Write notice (ensure Firestore database is created & rules allow write):", e);
             }
         },
 
         /**
-         * Real-time presence heartbeat (updates live online counter)
+         * Real-time presence heartbeat (updates live online counter via active_sessions)
          */
         initPresence() {
             if (!db && !initFirebase()) {
@@ -112,34 +105,7 @@
                 return;
             }
 
-            // 1. RTDB live presence
-            if (rtdb) {
-                try {
-                    const presenceRef = rtdb.ref(`/live_visitors/${SESSION_ID}`);
-                    const sessionPayload = {
-                        sessionId: SESSION_ID,
-                        device: DEVICE_TYPE,
-                        browser: BROWSER_NAME,
-                        online: true,
-                        page: window.location.pathname,
-                        joinedAt: firebase.database.ServerValue.TIMESTAMP,
-                        lastActive: firebase.database.ServerValue.TIMESTAMP
-                    };
-
-                    presenceRef.onDisconnect().remove();
-                    presenceRef.set(sessionPayload);
-
-                    setInterval(() => {
-                        presenceRef.update({
-                            lastActive: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    }, 25000);
-                } catch (e) {
-                    // RTDB optional
-                }
-            }
-
-            // 2. Firestore active_sessions
+            // Firestore active_sessions
             if (db) {
                 try {
                     const sessionDocRef = db.collection("active_sessions").doc(SESSION_ID);
@@ -147,14 +113,16 @@
                         sessionId: SESSION_ID,
                         device: DEVICE_TYPE,
                         browser: BROWSER_NAME,
-                        page: window.location.pathname,
-                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                        page: window.location.pathname || "/",
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        clientTime: new Date().toISOString()
                     }, { merge: true });
 
                     const heartbeat = setInterval(() => {
                         sessionDocRef.set({
-                            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
+                            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                            clientTime: new Date().toISOString()
+                        }, { merge: true }).catch(() => {});
                     }, 25000);
 
                     window.addEventListener('beforeunload', () => {

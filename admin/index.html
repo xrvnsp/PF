@@ -907,7 +907,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
 
     <!-- Admin Dashboard Logic -->
     <script>
@@ -927,8 +926,6 @@
 
         const auth = firebase.auth();
         const db = firebase.firestore();
-        let rtdb = null;
-        try { rtdb = firebase.database(); } catch(e) {}
 
         let streamsInitialized = false;
 
@@ -1029,31 +1026,22 @@
             document.getElementById('auth-modal').style.display = 'flex';
         }
 
-        // 1. Subscribe to Live Visitors
+        // 1. Subscribe to Live Visitors via Firestore active_sessions
         function initLivePresenceStream() {
-            if (rtdb) {
-                try {
-                    const presenceRef = rtdb.ref("/live_visitors");
-                    presenceRef.on("value", (snapshot) => {
-                        const data = snapshot.val();
-                        const count = data ? Object.keys(data).length : 0;
-                        updateLiveCounter(count);
-                    });
-                } catch(e) {}
-            }
-
-            // Fallback: Firestore active_sessions
             try {
                 db.collection("active_sessions").onSnapshot((snapshot) => {
-                    if (!rtdb) {
-                        updateLiveCounter(snapshot.docs.length);
-                    }
+                    const count = Math.max(1, snapshot.docs.length);
+                    updateLiveCounter(count);
+                }, (err) => {
+                    updateLiveCounter(1);
                 });
-            } catch(e) {}
+            } catch(e) {
+                updateLiveCounter(1);
+            }
         }
 
         function updateLiveCounter(count) {
-            const countStr = String(count || 0);
+            const countStr = String(count || 1);
             document.getElementById('kpi-live-count').textContent = countStr;
             document.getElementById('val-active-visitors').textContent = countStr;
         }
