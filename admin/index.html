@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
     <style>
-        /* 1. CRITICAL: Force Visible Mouse Pointer */
+        /* Force Visible Native Mouse Cursor */
         html, body, *, div, p, span, h1, h2, h3, h4, section, nav, header, main {
             cursor: default !important;
         }
@@ -790,7 +790,7 @@
                             <span>⚡ Live Activity Stream</span>
                             <span style="font-size: 0.75rem; color: var(--cyan); background: rgba(0, 242, 254, 0.1); padding: 3px 8px; border-radius: 20px;" id="event-count-badge">0 Events</span>
                         </div>
-                        <button class="btn-portal" style="font-size: 0.75rem; padding: 4px 10px;" onclick="window.triggerRefreshEvents()">🔄 Refresh</button>
+                        <button class="btn-portal" style="font-size: 0.75rem; padding: 4px 10px;" onclick="initAnalyticsStream()">🔄 Refresh</button>
                     </div>
 
                     <div id="activity-feed" class="activity-feed">
@@ -903,13 +903,14 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Imports & Real-Time Engine -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
 
+    <!-- Admin Dashboard Logic -->
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyASUyq4jd6utNMHte8aNF_-UWouVeAUT_w",
             authDomain: "myportfolio-814e2.firebaseapp.com",
@@ -920,53 +921,31 @@
             measurementId: "G-M3Z7FWHX8R"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
         let rtdb = null;
-        try { rtdb = getDatabase(app); } catch(e) {}
+        try { rtdb = firebase.database(); } catch(e) {}
 
         let streamsInitialized = false;
 
-        // Check if already authenticated via PIN session or Firebase Auth
+        // Check authentication status
         function checkExistingAuth() {
-            const pinAuth = localStorage.getItem('admin_auth') || sessionStorage.getItem('admin_auth');
-            if (pinAuth === 'true') {
+            const isAuth = localStorage.getItem('admin_auth') || sessionStorage.getItem('admin_auth');
+            if (isAuth === 'true') {
                 grantAccess();
                 return;
             }
 
-            onAuthStateChanged(auth, (user) => {
+            auth.onAuthStateChanged((user) => {
                 if (user) {
                     grantAccess();
                 }
             });
         }
-
-        // Expose Firebase login function to window
-        window.firebaseLogin = async (email, password) => {
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const remember = document.getElementById('remember-me').checked;
-                if (remember) localStorage.setItem('admin_auth', 'true');
-                else sessionStorage.setItem('admin_auth', 'true');
-                grantAccess();
-                return { success: true };
-            } catch (err) {
-                return { success: false, message: err.message || "Invalid email or password" };
-            }
-        };
-
-        // Expose Firebase signout
-        window.firebaseLogout = async () => {
-            try {
-                await signOut(auth);
-            } catch(e) {}
-            localStorage.removeItem('admin_auth');
-            sessionStorage.removeItem('admin_auth');
-            document.getElementById('admin-app').style.display = 'none';
-            document.getElementById('auth-modal').style.display = 'flex';
-        };
 
         function grantAccess() {
             document.getElementById('auth-modal').style.display = 'none';
@@ -978,27 +957,94 @@
                 initAnalyticsStream();
             }
         }
-        window.grantAccess = grantAccess;
 
-        // 1. Subscribe to Live Visitors (Realtime Database / Firestore active_sessions)
+        function setAuthMode(mode) {
+            const errorMsg = document.getElementById('auth-error-msg');
+            errorMsg.style.display = 'none';
+
+            if (mode === 'pin') {
+                document.getElementById('mode-pin-btn').classList.add('active');
+                document.getElementById('mode-email-btn').classList.remove('active');
+                document.getElementById('form-pin').style.display = 'block';
+                document.getElementById('form-email').style.display = 'none';
+            } else {
+                document.getElementById('mode-email-btn').classList.add('active');
+                document.getElementById('mode-pin-btn').classList.remove('active');
+                document.getElementById('form-pin').style.display = 'none';
+                document.getElementById('form-email').style.display = 'block';
+            }
+        }
+
+        function handlePinLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('admin-pin').value.trim();
+            const errorMsg = document.getElementById('auth-error-msg');
+            const remember = document.getElementById('remember-me').checked;
+
+            if (pin === '2026' || pin === 'admin' || pin === 'saravana') {
+                if (remember) localStorage.setItem('admin_auth', 'true');
+                else sessionStorage.setItem('admin_auth', 'true');
+                
+                errorMsg.style.display = 'none';
+                grantAccess();
+            } else {
+                errorMsg.textContent = '❌ Incorrect passcode. Please try again.';
+                errorMsg.style.display = 'block';
+                document.getElementById('admin-pin').value = '';
+                document.getElementById('admin-pin').focus();
+            }
+        }
+
+        async function handleFirebaseLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('auth-error-msg');
+            const btn = document.getElementById('btn-firebase-login');
+
+            btn.textContent = 'Verifying...';
+            btn.disabled = true;
+            errorMsg.style.display = 'none';
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                const remember = document.getElementById('remember-me').checked;
+                if (remember) localStorage.setItem('admin_auth', 'true');
+                else sessionStorage.setItem('admin_auth', 'true');
+                grantAccess();
+            } catch (err) {
+                errorMsg.textContent = `❌ ${err.message || "Invalid credentials"}`;
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.textContent = 'Sign In with Firebase';
+                btn.disabled = false;
+            }
+        }
+
+        function handleLogout() {
+            auth.signOut().catch(() => {});
+            localStorage.removeItem('admin_auth');
+            sessionStorage.removeItem('admin_auth');
+            document.getElementById('admin-app').style.display = 'none';
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+
+        // 1. Subscribe to Live Visitors
         function initLivePresenceStream() {
             if (rtdb) {
                 try {
-                    const presenceRef = ref(rtdb, "/live_visitors");
-                    onValue(presenceRef, (snapshot) => {
+                    const presenceRef = rtdb.ref("/live_visitors");
+                    presenceRef.on("value", (snapshot) => {
                         const data = snapshot.val();
                         const count = data ? Object.keys(data).length : 0;
                         updateLiveCounter(count);
                     });
-                } catch(e) {
-                    console.debug("RTDB presence notice:", e);
-                }
+                } catch(e) {}
             }
 
             // Fallback: Firestore active_sessions
             try {
-                const sessionsQuery = collection(db, "active_sessions");
-                onSnapshot(sessionsQuery, (snapshot) => {
+                db.collection("active_sessions").onSnapshot((snapshot) => {
                     if (!rtdb) {
                         updateLiveCounter(snapshot.docs.length);
                     }
@@ -1012,36 +1058,62 @@
             document.getElementById('val-active-visitors').textContent = countStr;
         }
 
-        // 2. Subscribe to Real-Time Analytics Events Stream
+        // 2. Subscribe to Real-Time Analytics Events
         function initAnalyticsStream() {
-            const eventsQuery = query(
-                collection(db, "analytics_events"),
-                orderBy("timestamp", "desc"),
-                limit(100)
-            );
+            try {
+                db.collection("analytics_events")
+                    .limit(300)
+                    .onSnapshot((snapshot) => {
+                        const allEvents = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
 
-            onSnapshot(eventsQuery, (snapshot) => {
-                const allEvents = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                        // Sort newest first robustly using server timestamp or clientTime
+                        allEvents.sort((a, b) => {
+                            const getMillis = (item) => {
+                                if (item.timestamp && typeof item.timestamp.toDate === 'function') {
+                                    return item.timestamp.toDate().getTime();
+                                }
+                                if (item.timestamp && item.timestamp.seconds) {
+                                    return item.timestamp.seconds * 1000;
+                                }
+                                if (item.clientTime) {
+                                    return new Date(item.clientTime).getTime();
+                                }
+                                return 0;
+                            };
+                            return getMillis(b) - getMillis(a);
+                        });
 
-                renderDashboard(allEvents);
-            }, (error) => {
-                console.warn("Analytics stream error:", error);
-                const feed = document.getElementById('activity-feed');
-                feed.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-                        <p style="color: #f87171; margin-bottom: 8px;">⚠️ Waiting for Firebase Data...</p>
-                        <p style="font-size: 0.8rem;">Ensure Firestore Database is created in Test Mode in Firebase Console.</p>
-                    </div>
-                `;
-            });
+                        renderDashboard(allEvents);
+                    }, (error) => {
+                        console.warn("Analytics stream notice:", error);
+                        const feed = document.getElementById('activity-feed');
+                        const isPermError = error.code === 'permission-denied' || String(error.message).includes('permission');
+                        feed.innerHTML = `
+                            <div style="text-align: center; padding: 30px 20px; color: var(--text-muted); background: rgba(244, 63, 94, 0.08); border-radius: 12px; border: 1px solid rgba(244, 63, 94, 0.25); margin: 15px 0;">
+                                <p style="color: #fb7185; font-weight: 700; font-size: 1rem; margin-bottom: 8px;">
+                                    ${isPermError ? '🔒 Firebase Security Rules Need Update' : '⚠️ Waiting for Firebase Data'}
+                                </p>
+                                <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
+                                    ${isPermError ? 
+                                        'Firestore is currently rejecting read/write access. Go to <strong>Firebase Console &rarr; Firestore Database &rarr; Rules</strong>, set <code>allow read, write: if true;</code> and click <strong>Publish</strong>.' : 
+                                        'Connecting to Firebase stream. If this persists, ensure your Cloud Firestore is active.'}
+                                </p>
+                                <button class="btn-action" style="max-width: 200px; margin: 0 auto; font-size: 0.8rem; padding: 8px 14px;" onclick="initAnalyticsStream()">
+                                    🔄 Retry Connection
+                                </button>
+                            </div>
+                        `;
+                    });
+            } catch (err) {
+                console.warn("Error initializing Firestore stream:", err);
+            }
         }
 
         // Render KPI & Activity Stream
         function renderDashboard(events) {
-            // KPIs
             const pageViews = events.filter(e => e.type === 'page_view').length;
             const resumes = events.filter(e => e.type === 'resume_download').length;
             const social = events.filter(e => e.type === 'linkedin_click' || e.type === 'github_click' || e.type === 'email_click' || e.type === 'external_link').length;
@@ -1053,12 +1125,11 @@
             document.getElementById('val-xr-interactions').textContent = xrCards;
             document.getElementById('event-count-badge').textContent = `${events.length} Events`;
 
-            // Activity Stream Feed
             const feed = document.getElementById('activity-feed');
             if (events.length === 0) {
                 feed.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-                        <p>No events recorded yet. Open your portfolio in another tab to see real-time events!</p>
+                        <p>No events recorded yet. Open your portfolio in another tab or download the resume to see live updates!</p>
                     </div>
                 `;
                 return;
@@ -1068,7 +1139,7 @@
                 const icon = getEventIcon(e.type);
                 const title = formatEventTitle(e);
                 const timeAgo = formatTimeAgo(e.timestamp || e.clientTime);
-                const details = e.anchorText || e.sectionTitle || e.href || e.url || '';
+                const details = e.anchorText || e.sectionTitle || e.buttonText || e.href || e.url || '';
 
                 return `
                     <div class="event-item">
@@ -1175,12 +1246,6 @@
                 .replace(/>/g, '&gt;');
         }
 
-        // Run check on load
-        checkExistingAuth();
-    </script>
-
-    <script>
-        // Tab Switcher
         function switchTab(tabId) {
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             event.currentTarget.classList.add('active');
@@ -1188,77 +1253,6 @@
             document.getElementById('tab-analytics').style.display = tabId === 'analytics' ? 'block' : 'none';
             document.getElementById('tab-resume').style.display = tabId === 'resume' ? 'block' : 'none';
             document.getElementById('tab-projects').style.display = tabId === 'projects' ? 'block' : 'none';
-        }
-
-        function setAuthMode(mode) {
-            const errorMsg = document.getElementById('auth-error-msg');
-            errorMsg.style.display = 'none';
-
-            if (mode === 'pin') {
-                document.getElementById('mode-pin-btn').classList.add('active');
-                document.getElementById('mode-email-btn').classList.remove('active');
-                document.getElementById('form-pin').style.display = 'block';
-                document.getElementById('form-email').style.display = 'none';
-            } else {
-                document.getElementById('mode-email-btn').classList.add('active');
-                document.getElementById('mode-pin-btn').classList.remove('active');
-                document.getElementById('form-pin').style.display = 'none';
-                document.getElementById('form-email').style.display = 'block';
-            }
-        }
-
-        function handlePinLogin(e) {
-            e.preventDefault();
-            const pin = document.getElementById('admin-pin').value.trim();
-            const errorMsg = document.getElementById('auth-error-msg');
-            const remember = document.getElementById('remember-me').checked;
-
-            if (pin === '2026' || pin === 'admin' || pin === 'saravana') {
-                if (remember) localStorage.setItem('admin_auth', 'true');
-                else sessionStorage.setItem('admin_auth', 'true');
-                
-                errorMsg.style.display = 'none';
-                if (window.grantAccess) window.grantAccess();
-            } else {
-                errorMsg.textContent = '❌ Incorrect passcode. Please try again.';
-                errorMsg.style.display = 'block';
-                document.getElementById('admin-pin').value = '';
-                document.getElementById('admin-pin').focus();
-            }
-        }
-
-        async function handleFirebaseLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-password').value;
-            const errorMsg = document.getElementById('auth-error-msg');
-            const btn = document.getElementById('btn-firebase-login');
-
-            btn.textContent = 'Verifying...';
-            btn.disabled = true;
-            errorMsg.style.display = 'none';
-
-            if (window.firebaseLogin) {
-                const res = await window.firebaseLogin(email, password);
-                if (!res.success) {
-                    errorMsg.textContent = `❌ ${res.message}`;
-                    errorMsg.style.display = 'block';
-                }
-            }
-
-            btn.textContent = 'Sign In with Firebase';
-            btn.disabled = false;
-        }
-
-        function handleLogout() {
-            if (window.firebaseLogout) {
-                window.firebaseLogout();
-            } else {
-                localStorage.removeItem('admin_auth');
-                sessionStorage.removeItem('admin_auth');
-                document.getElementById('admin-app').style.display = 'none';
-                document.getElementById('auth-modal').style.display = 'flex';
-            }
         }
 
         function handleResumeUpload() {
@@ -1288,6 +1282,9 @@
             document.getElementById('proj-tags').value = '';
             setTimeout(() => status.style.display = 'none', 3500);
         }
+
+        // Initialize on load
+        checkExistingAuth();
     </script>
 </body>
 
