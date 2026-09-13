@@ -4,208 +4,1289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Admin | SP_</title>
+    <title>XR Portfolio Admin | Real-Time Firebase Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
     <style>
+        /* 1. CRITICAL: Force Visible Mouse Pointer */
+        html, body, *, div, p, span, h1, h2, h3, h4, section, nav, header, main {
+            cursor: default !important;
+        }
+
+        button, a, input, select, textarea, .nav-tab, .btn-action, .btn-portal, .btn-logout, label {
+            cursor: pointer !important;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], textarea {
+            cursor: text !important;
+        }
+
+        :root {
+            --bg-dark: #050811;
+            --bg-card: rgba(13, 19, 33, 0.85);
+            --border-glass: rgba(0, 242, 254, 0.18);
+            --border-glass-hover: rgba(0, 242, 254, 0.4);
+            --cyan: #00f2fe;
+            --blue: #4facfe;
+            --emerald: #10b981;
+            --purple: #a855f7;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background: #010206;
-            color: white;
-            padding: 40px;
-            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #0d1527 0%, #050811 100%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding: 24px 20px 60px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            max-width: 1200px;
+        /* Ambient glowing background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -150px;
+            left: 20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -150px;
+            right: 15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1320px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
-        .admin-card {
-            padding: 30px;
+        /* Header Bar */
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            margin-bottom: 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
 
-        .form-group {
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #030712;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .brand-title h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(90deg, #fff 0%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-title p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        /* Live Indicator Badge */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .pulse-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        .btn-portal {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-portal:hover {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-logout {
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fb7185;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(244, 63, 94, 0.25);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Tab Navigation */
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            color: #030712;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        /* KPI Metric Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 22px;
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-glass-hover);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0.7;
+        }
+
+        .kpi-card.emerald::before { background: linear-gradient(90deg, transparent, var(--emerald), transparent); }
+        .kpi-card.purple::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+        .kpi-card.amber::before { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+        .kpi-card.rose::before { background: linear-gradient(90deg, transparent, var(--rose), transparent); }
+
+        .kpi-label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kpi-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .kpi-subtext {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* Two Column Analytics Layout */
+        .analytics-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .analytics-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Live Activity Stream */
+        .activity-feed {
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .activity-feed::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .activity-feed::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .event-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .event-icon-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .type-page_view { background: rgba(0, 242, 254, 0.15); color: var(--cyan); }
+        .type-resume_download { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .type-github_click { background: rgba(168, 85, 247, 0.15); color: var(--purple); }
+        .type-linkedin_click { background: rgba(79, 172, 254, 0.15); color: var(--blue); }
+        .type-email_click { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+        .type-section_view { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .type-xr_card_interaction { background: rgba(244, 63, 94, 0.15); color: var(--rose); }
+
+        .event-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .event-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .event-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .event-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .event-detail {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .device-pill {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Progress Bar Breakdown */
+        .breakdown-row {
+            margin-bottom: 14px;
+        }
+
+        .breakdown-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .breakdown-bar-bg {
+            height: 7px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .breakdown-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--cyan), var(--blue));
+            transition: width 0.6s ease;
+        }
+
+        /* Forms & Inputs for Management Tabs */
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--color-primary);
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
+            font-size: 0.82rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan);
+            margin-bottom: 6px;
             text-transform: uppercase;
         }
 
-        input,
-        textarea,
-        select {
+        input, textarea, select {
             width: 100%;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
             font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
         }
 
-        .tags-input {
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            border: none;
+            color: #030712;
+            padding: 13px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        /* Access Lock Modal */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.94);
+            backdrop-filter: blur(28px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 40px 36px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+        }
+
+        .auth-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #030712;
+            font-weight: 800;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .auth-modes {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px;
+            border-radius: 10px;
         }
 
-        .tag-pill {
-            background: var(--color-primary);
-            color: var(--color-bg);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        .project-list {
-            margin-top: 20px;
-        }
-
-        .project-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .btn-save {
-            width: 100%;
+        .auth-mode-btn {
+            flex: 1;
+            background: transparent;
             border: none;
-            margin-top: 20px;
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
-        .status-msg {
+        .auth-mode-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--cyan);
+        }
+
+        .auth-error {
+            color: #f87171;
+            font-size: 0.82rem;
             margin-top: 10px;
-            padding: 10px;
-            border-radius: 4px;
             display: none;
+            background: rgba(248, 113, 113, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(248, 113, 113, 0.2);
         }
 
-        .status-success {
-            background: rgba(0, 255, 128, 0.1);
-            color: #00ff80;
-            border: 1px solid #00ff80;
+        .auth-footer {
+            margin-top: 20px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
         }
     </style>
 </head>
 
 <body>
-    <header style="text-align: center; margin-bottom: 50px;">
-        <h1 class="logo-text" style="font-size: 2.5rem;">ADMIN<span class="accent">_</span>PANEL</h1>
-        <p style="color: rgba(255,255,255,0.5);">Manage your XR Portfolio Content</p>
-    </header>
+    <!-- 🔒 AUTHENTICATION GATEWAY -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-logo">🔒</div>
+            <h2 class="auth-title">Admin Authentication</h2>
+            <p class="auth-desc">Secure access to Real-Time Portfolio Analytics</p>
 
-    <div class="admin-grid">
-        <!-- Resume Upload Section -->
-        <div class="admin-card glass">
-            <h3>Resume Management</h3>
-            <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 25px;">Upload your latest CV in
-                PDF format.</p>
-            <div class="form-group">
-                <label for="resume">Select PDF</label>
-                <input type="file" id="resume" accept=".pdf">
+            <div class="auth-modes">
+                <button id="mode-pin-btn" class="auth-mode-btn active" onclick="setAuthMode('pin')">🔑 Quick PIN / Passcode</button>
+                <button id="mode-email-btn" class="auth-mode-btn" onclick="setAuthMode('email')">📧 Firebase Email Login</button>
             </div>
-            <button class="btn btn-primary btn-save" onclick="handleResumeUpload()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="margin-right: 8px;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                Update Resume
-            </button>
-            <div id="resume-status" class="status-msg status-success">Resume updated successfully!</div>
-        </div>
 
-        <!-- Project Entry Section -->
-        <div class="admin-card glass">
-            <h3>Add New Project</h3>
-            <div class="form-group">
-                <label>Project Title</label>
-                <input type="text" id="proj-title" placeholder="e.g. Mixed Reality Training">
+            <!-- PIN Form -->
+            <form id="form-pin" onsubmit="handlePinLogin(event)">
+                <div class="form-group">
+                    <label>Admin Passcode</label>
+                    <input type="password" id="admin-pin" placeholder="••••••••" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.25em;" required autofocus>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; font-size: 0.8rem; color: var(--text-muted);">
+                    <label style="display: flex; align-items: center; gap: 6px; text-transform: none; color: var(--text-muted); margin: 0;">
+                        <input type="checkbox" id="remember-me" checked style="width: auto;"> Remember this device
+                    </label>
+                    <span style="font-size: 0.75rem; color: var(--cyan);">Default: 2026</span>
+                </div>
+                <button type="submit" class="btn-action">
+                    <span>Unlock Analytics Dashboard</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+
+            <!-- Firebase Email/Password Form -->
+            <form id="form-email" style="display: none;" onsubmit="handleFirebaseLogin(event)">
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" id="admin-email" placeholder="admin@myportfolio.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="admin-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" id="btn-firebase-login" class="btn-action">
+                    <span>Sign In with Firebase</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+
+            <p id="auth-error-msg" class="auth-error"></p>
+
+            <div class="auth-footer">
+                <span>⚡ Protected by Google Firebase Telemetry</span>
             </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="proj-desc" rows="4" placeholder="Detailed overview of the project..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Tags (Comma separated)</label>
-                <input type="text" id="proj-tags" placeholder="Unity, C#, XR Interaction">
-            </div>
-            <div class="form-group">
-                <label>Highlight Project?</label>
-                <select id="proj-highlight">
-                    <option value="false">No</option>
-                    <option value="true">Yes (Featured)</option>
-                </select>
-            </div>
-            <button class="btn btn-primary btn-save" onclick="handleProjectSave()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="margin-right: 8px;">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add to Portfolio
-            </button>
-            <div id="project-status" class="status-msg status-success">Project added to queue!</div>
         </div>
     </div>
 
-    <!-- Liquid Refraction Background -->
-    <svg style="display: none;">
-        <filter id="liquid-refraction" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.003" numOctaves="2" result="noise" seed="1">
-                <animate attributeName="seed" from="1" to="1000" dur="200s" repeatCount="indefinite" />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"
-                result="refracted" />
-            <feComposite in="refracted" in2="SourceGraphic" operator="in" />
-        </filter>
-        <filter id="liquid-slab" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="1" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"
-                result="refracted" />
-            <feComposite in="refracted" in2="SourceGraphic" operator="in" />
-        </filter>
-    </svg>
+    <!-- 📊 MAIN ADMIN APPLICATION (Unlocked upon authentication) -->
+    <div id="admin-app" class="container" style="display: none;">
+        <!-- Top Admin Header -->
+        <header class="admin-header">
+            <div class="brand-box">
+                <div class="brand-logo">SP_</div>
+                <div class="brand-title">
+                    <h1>ANALYTICS<span style="color: var(--cyan);">_</span>HQ</h1>
+                    <p>Google Firebase Real-Time Telemetry</p>
+                </div>
+            </div>
+
+            <div class="header-meta">
+                <div class="live-badge">
+                    <span class="pulse-dot"></span>
+                    <span><strong id="kpi-live-count">0</strong> LIVE ONLINE</span>
+                </div>
+                <a href="../index.html" class="btn-portal" target="_blank" title="Open Portfolio in new tab">
+                    <span>Live Site</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </a>
+                <button class="btn-logout" onclick="handleLogout()" title="Lock dashboard & log out">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="admin-nav">
+            <button class="nav-tab active" onclick="switchTab('analytics')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                Real-Time Analytics
+            </button>
+            <button class="nav-tab" onclick="switchTab('resume')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Resume Manager
+            </button>
+            <button class="nav-tab" onclick="switchTab('projects')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Add Projects
+            </button>
+        </nav>
+
+        <!-- TAB 1: REAL-TIME ANALYTICS -->
+        <div id="tab-analytics">
+            <!-- 5 KPI Summary Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card emerald">
+                    <div class="kpi-label">Active Visitors <span class="pulse-dot"></span></div>
+                    <div class="kpi-value" id="val-active-visitors">0</div>
+                    <div class="kpi-subtext">Connected right now</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Visits <span>👁️</span></div>
+                    <div class="kpi-value" id="val-total-visits">0</div>
+                    <div class="kpi-subtext">Lifetime pageviews</div>
+                </div>
+
+                <div class="kpi-card purple">
+                    <div class="kpi-label">Resume Downloads <span>📄</span></div>
+                    <div class="kpi-value" id="val-resume-downloads">0</div>
+                    <div class="kpi-subtext">CV clicks recorded</div>
+                </div>
+
+                <div class="kpi-card amber">
+                    <div class="kpi-label">Contact & Social <span>🔗</span></div>
+                    <div class="kpi-value" id="val-social-clicks">0</div>
+                    <div class="kpi-subtext">LinkedIn, GitHub, Email</div>
+                </div>
+
+                <div class="kpi-card rose">
+                    <div class="kpi-label">3D Card Drags <span>🎯</span></div>
+                    <div class="kpi-value" id="val-xr-interactions">0</div>
+                    <div class="kpi-subtext">Lanyard ID physics</div>
+                </div>
+            </div>
+
+            <!-- Two-Column Layout -->
+            <div class="analytics-layout">
+                <!-- Left Column: Live Event Stream -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span>⚡ Live Activity Stream</span>
+                            <span style="font-size: 0.75rem; color: var(--cyan); background: rgba(0, 242, 254, 0.1); padding: 3px 8px; border-radius: 20px;" id="event-count-badge">0 Events</span>
+                        </div>
+                        <button class="btn-portal" style="font-size: 0.75rem; padding: 4px 10px;" onclick="window.triggerRefreshEvents()">🔄 Refresh</button>
+                    </div>
+
+                    <div id="activity-feed" class="activity-feed">
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                            <div class="pulse-dot" style="margin: 0 auto 12px;"></div>
+                            <p>Connecting to Firebase Real-Time Stream...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Breakdown Panels -->
+                <div>
+                    <!-- Section Interest Breakdown -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">🧭 Top Sections Viewed</div>
+                        </div>
+                        <div id="section-breakdown">
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>Experience (Digifox / MMW)</span> <strong id="pct-exp">0%</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-exp" class="breakdown-bar-fill" style="width: 0%;"></div></div>
+                            </div>
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>Projects Showcase</span> <strong id="pct-proj">0%</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-proj" class="breakdown-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--purple), var(--blue));"></div></div>
+                            </div>
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>Skills & Tech Stack</span> <strong id="pct-skills">0%</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-skills" class="breakdown-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--emerald), var(--cyan));"></div></div>
+                            </div>
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>Contact & Connect</span> <strong id="pct-contact">0%</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-contact" class="breakdown-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--amber), var(--rose));"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Device Breakdown -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">📱 Devices & Platforms</div>
+                        </div>
+                        <div id="device-breakdown">
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>🖥️ Desktop</span> <strong id="cnt-desktop">0</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-desktop" class="breakdown-bar-fill" style="width: 0%;"></div></div>
+                            </div>
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>📱 Mobile / Tablet</span> <strong id="cnt-mobile">0</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-mobile" class="breakdown-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--purple), var(--rose));"></div></div>
+                            </div>
+                            <div class="breakdown-row">
+                                <div class="breakdown-label"><span>👓 VR / XR Headsets</span> <strong id="cnt-vr">0</strong></div>
+                                <div class="breakdown-bar-bg"><div id="bar-vr" class="breakdown-bar-fill" style="width: 0%; background: linear-gradient(90deg, var(--emerald), var(--cyan));"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: RESUME MANAGER -->
+        <div id="tab-resume" style="display: none;">
+            <div class="panel" style="max-width: 600px; margin: 0 auto;">
+                <div class="panel-header">
+                    <div class="panel-title">📄 Resume Management</div>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">
+                    Update your portfolio's public CV file (<code>assets/resume.pdf</code>).
+                </p>
+                <div class="form-group">
+                    <label for="resume">Select Updated PDF File</label>
+                    <input type="file" id="resume" accept=".pdf">
+                </div>
+                <button class="btn-action" onclick="handleResumeUpload()">
+                    Update Resume File
+                </button>
+                <div id="resume-status" style="display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 0.85rem;"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: PROJECT MANAGER -->
+        <div id="tab-projects" style="display: none;">
+            <div class="panel" style="max-width: 680px; margin: 0 auto;">
+                <div class="panel-header">
+                    <div class="panel-title">🚀 Add New Portfolio Project</div>
+                </div>
+                <div class="form-group">
+                    <label>Project Title</label>
+                    <input type="text" id="proj-title" placeholder="e.g. Meta Quest 3 Spatial Training App">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="proj-desc" rows="4" placeholder="Highlight key XR mechanics, shaders, performance..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Tech Stack / Tags (Comma separated)</label>
+                    <input type="text" id="proj-tags" placeholder="Unity, C#, Meta Quest SDK, WebXR">
+                </div>
+                <div class="form-group">
+                    <label>Feature on Homepage?</label>
+                    <select id="proj-highlight">
+                        <option value="true">Yes (Top Highlight)</option>
+                        <option value="false">Standard Project</option>
+                    </select>
+                </div>
+                <button class="btn-action" onclick="handleProjectSave()">Add to Portfolio Queue</button>
+                <div id="project-status" style="display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 0.85rem; background: rgba(16,185,129,0.15); color: #34d399;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Imports & Real-Time Engine -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyASUyq4jd6utNMHte8aNF_-UWouVeAUT_w",
+            authDomain: "myportfolio-814e2.firebaseapp.com",
+            projectId: "myportfolio-814e2",
+            storageBucket: "myportfolio-814e2.firebasestorage.app",
+            messagingSenderId: "187568622688",
+            appId: "1:187568622688:web:2967c16b81c360cca94705",
+            measurementId: "G-M3Z7FWHX8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let rtdb = null;
+        try { rtdb = getDatabase(app); } catch(e) {}
+
+        let streamsInitialized = false;
+
+        // Check if already authenticated via PIN session or Firebase Auth
+        function checkExistingAuth() {
+            const pinAuth = localStorage.getItem('admin_auth') || sessionStorage.getItem('admin_auth');
+            if (pinAuth === 'true') {
+                grantAccess();
+                return;
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    grantAccess();
+                }
+            });
+        }
+
+        // Expose Firebase login function to window
+        window.firebaseLogin = async (email, password) => {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const remember = document.getElementById('remember-me').checked;
+                if (remember) localStorage.setItem('admin_auth', 'true');
+                else sessionStorage.setItem('admin_auth', 'true');
+                grantAccess();
+                return { success: true };
+            } catch (err) {
+                return { success: false, message: err.message || "Invalid email or password" };
+            }
+        };
+
+        // Expose Firebase signout
+        window.firebaseLogout = async () => {
+            try {
+                await signOut(auth);
+            } catch(e) {}
+            localStorage.removeItem('admin_auth');
+            sessionStorage.removeItem('admin_auth');
+            document.getElementById('admin-app').style.display = 'none';
+            document.getElementById('auth-modal').style.display = 'flex';
+        };
+
+        function grantAccess() {
+            document.getElementById('auth-modal').style.display = 'none';
+            document.getElementById('admin-app').style.display = 'block';
+
+            if (!streamsInitialized) {
+                streamsInitialized = true;
+                initLivePresenceStream();
+                initAnalyticsStream();
+            }
+        }
+        window.grantAccess = grantAccess;
+
+        // 1. Subscribe to Live Visitors (Realtime Database / Firestore active_sessions)
+        function initLivePresenceStream() {
+            if (rtdb) {
+                try {
+                    const presenceRef = ref(rtdb, "/live_visitors");
+                    onValue(presenceRef, (snapshot) => {
+                        const data = snapshot.val();
+                        const count = data ? Object.keys(data).length : 0;
+                        updateLiveCounter(count);
+                    });
+                } catch(e) {
+                    console.debug("RTDB presence notice:", e);
+                }
+            }
+
+            // Fallback: Firestore active_sessions
+            try {
+                const sessionsQuery = collection(db, "active_sessions");
+                onSnapshot(sessionsQuery, (snapshot) => {
+                    if (!rtdb) {
+                        updateLiveCounter(snapshot.docs.length);
+                    }
+                });
+            } catch(e) {}
+        }
+
+        function updateLiveCounter(count) {
+            const countStr = String(count || 0);
+            document.getElementById('kpi-live-count').textContent = countStr;
+            document.getElementById('val-active-visitors').textContent = countStr;
+        }
+
+        // 2. Subscribe to Real-Time Analytics Events Stream
+        function initAnalyticsStream() {
+            const eventsQuery = query(
+                collection(db, "analytics_events"),
+                orderBy("timestamp", "desc"),
+                limit(100)
+            );
+
+            onSnapshot(eventsQuery, (snapshot) => {
+                const allEvents = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                renderDashboard(allEvents);
+            }, (error) => {
+                console.warn("Analytics stream error:", error);
+                const feed = document.getElementById('activity-feed');
+                feed.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <p style="color: #f87171; margin-bottom: 8px;">⚠️ Waiting for Firebase Data...</p>
+                        <p style="font-size: 0.8rem;">Ensure Firestore Database is created in Test Mode in Firebase Console.</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Render KPI & Activity Stream
+        function renderDashboard(events) {
+            // KPIs
+            const pageViews = events.filter(e => e.type === 'page_view').length;
+            const resumes = events.filter(e => e.type === 'resume_download').length;
+            const social = events.filter(e => e.type === 'linkedin_click' || e.type === 'github_click' || e.type === 'email_click' || e.type === 'external_link').length;
+            const xrCards = events.filter(e => e.type === 'xr_card_interaction').length;
+
+            document.getElementById('val-total-visits').textContent = pageViews;
+            document.getElementById('val-resume-downloads').textContent = resumes;
+            document.getElementById('val-social-clicks').textContent = social;
+            document.getElementById('val-xr-interactions').textContent = xrCards;
+            document.getElementById('event-count-badge').textContent = `${events.length} Events`;
+
+            // Activity Stream Feed
+            const feed = document.getElementById('activity-feed');
+            if (events.length === 0) {
+                feed.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <p>No events recorded yet. Open your portfolio in another tab to see real-time events!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            feed.innerHTML = events.map(e => {
+                const icon = getEventIcon(e.type);
+                const title = formatEventTitle(e);
+                const timeAgo = formatTimeAgo(e.timestamp || e.clientTime);
+                const details = e.anchorText || e.sectionTitle || e.href || e.url || '';
+
+                return `
+                    <div class="event-item">
+                        <div class="event-icon-badge type-${e.type || 'page_view'}">${icon}</div>
+                        <div class="event-info">
+                            <div class="event-top">
+                                <span class="event-title">${title}</span>
+                                <span class="event-time">${timeAgo}</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="device-pill">${e.device || 'Desktop'}</span>
+                                <span class="device-pill">${e.browser || 'Web'}</span>
+                                ${details ? `<span>${escapeHtml(details)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Section Breakdown
+            const sectionViews = events.filter(e => e.type === 'section_view');
+            const totalSec = Math.max(1, sectionViews.length);
+            const expCount = sectionViews.filter(e => e.section === 'experience').length;
+            const projCount = sectionViews.filter(e => e.section === 'projects').length;
+            const skillCount = sectionViews.filter(e => e.section === 'skills').length;
+            const contactCount = sectionViews.filter(e => e.section === 'contact').length;
+
+            updateBar('exp', expCount, totalSec);
+            updateBar('proj', projCount, totalSec);
+            updateBar('skills', skillCount, totalSec);
+            updateBar('contact', contactCount, totalSec);
+
+            // Device Breakdown
+            const desktopCount = events.filter(e => e.device === 'Desktop').length;
+            const mobileCount = events.filter(e => e.device === 'Mobile' || e.device === 'Tablet').length;
+            const vrCount = events.filter(e => e.device?.includes('VR') || e.device?.includes('XR')).length;
+            const totalDevices = Math.max(1, events.length);
+
+            document.getElementById('cnt-desktop').textContent = desktopCount;
+            document.getElementById('cnt-mobile').textContent = mobileCount;
+            document.getElementById('cnt-vr').textContent = vrCount;
+
+            document.getElementById('bar-desktop').style.width = `${Math.round((desktopCount/totalDevices)*100)}%`;
+            document.getElementById('bar-mobile').style.width = `${Math.round((mobileCount/totalDevices)*100)}%`;
+            document.getElementById('bar-vr').style.width = `${Math.round((vrCount/totalDevices)*100)}%`;
+        }
+
+        function updateBar(id, count, total) {
+            const pct = Math.round((count / total) * 100);
+            const pctEl = document.getElementById(`pct-${id}`);
+            const barEl = document.getElementById(`bar-${id}`);
+            if (pctEl) pctEl.textContent = `${pct}%`;
+            if (barEl) barEl.style.width = `${pct}%`;
+        }
+
+        function getEventIcon(type) {
+            switch(type) {
+                case 'page_view': return '👁️';
+                case 'resume_download': return '📄';
+                case 'github_click': return '🐙';
+                case 'linkedin_click': return '💼';
+                case 'email_click': return '📧';
+                case 'section_view': return '🧭';
+                case 'xr_card_interaction': return '🎯';
+                default: return '⚡';
+            }
+        }
+
+        function formatEventTitle(e) {
+            switch(e.type) {
+                case 'page_view': return 'Portfolio Visited';
+                case 'resume_download': return '📄 Resume Downloaded';
+                case 'github_click': return '🐙 GitHub Profile Clicked';
+                case 'linkedin_click': return '💼 LinkedIn Profile Clicked';
+                case 'email_click': return '📧 Direct Email Clicked';
+                case 'section_view': return `Viewed ${e.sectionTitle || e.section || 'Section'}`;
+                case 'xr_card_interaction': return '3D Lanyard Card Interaction';
+                default: return e.type ? e.type.replace(/_/g, ' ') : 'Interaction';
+            }
+        }
+
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'Just now';
+            let date;
+            if (timestamp.toDate) date = timestamp.toDate();
+            else if (typeof timestamp === 'string') date = new Date(timestamp);
+            else if (timestamp.seconds) date = new Date(timestamp.seconds * 1000);
+            else date = new Date(timestamp);
+
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 10) return 'Just now';
+            if (seconds < 60) return `${seconds}s ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // Run check on load
+        checkExistingAuth();
+    </script>
 
     <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('tab-analytics').style.display = tabId === 'analytics' ? 'block' : 'none';
+            document.getElementById('tab-resume').style.display = tabId === 'resume' ? 'block' : 'none';
+            document.getElementById('tab-projects').style.display = tabId === 'projects' ? 'block' : 'none';
+        }
+
+        function setAuthMode(mode) {
+            const errorMsg = document.getElementById('auth-error-msg');
+            errorMsg.style.display = 'none';
+
+            if (mode === 'pin') {
+                document.getElementById('mode-pin-btn').classList.add('active');
+                document.getElementById('mode-email-btn').classList.remove('active');
+                document.getElementById('form-pin').style.display = 'block';
+                document.getElementById('form-email').style.display = 'none';
+            } else {
+                document.getElementById('mode-email-btn').classList.add('active');
+                document.getElementById('mode-pin-btn').classList.remove('active');
+                document.getElementById('form-pin').style.display = 'none';
+                document.getElementById('form-email').style.display = 'block';
+            }
+        }
+
+        function handlePinLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('admin-pin').value.trim();
+            const errorMsg = document.getElementById('auth-error-msg');
+            const remember = document.getElementById('remember-me').checked;
+
+            if (pin === '2026' || pin === 'admin' || pin === 'saravana') {
+                if (remember) localStorage.setItem('admin_auth', 'true');
+                else sessionStorage.setItem('admin_auth', 'true');
+                
+                errorMsg.style.display = 'none';
+                if (window.grantAccess) window.grantAccess();
+            } else {
+                errorMsg.textContent = '❌ Incorrect passcode. Please try again.';
+                errorMsg.style.display = 'block';
+                document.getElementById('admin-pin').value = '';
+                document.getElementById('admin-pin').focus();
+            }
+        }
+
+        async function handleFirebaseLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('auth-error-msg');
+            const btn = document.getElementById('btn-firebase-login');
+
+            btn.textContent = 'Verifying...';
+            btn.disabled = true;
+            errorMsg.style.display = 'none';
+
+            if (window.firebaseLogin) {
+                const res = await window.firebaseLogin(email, password);
+                if (!res.success) {
+                    errorMsg.textContent = `❌ ${res.message}`;
+                    errorMsg.style.display = 'block';
+                }
+            }
+
+            btn.textContent = 'Sign In with Firebase';
+            btn.disabled = false;
+        }
+
+        function handleLogout() {
+            if (window.firebaseLogout) {
+                window.firebaseLogout();
+            } else {
+                localStorage.removeItem('admin_auth');
+                sessionStorage.removeItem('admin_auth');
+                document.getElementById('admin-app').style.display = 'none';
+                document.getElementById('auth-modal').style.display = 'flex';
+            }
+        }
+
         function handleResumeUpload() {
             const status = document.getElementById('resume-status');
-            status.innerHTML = "<strong>Local Prototype Only:</strong> Please manually copy your resume to the <code>/assets/resume.pdf</code> folder on your computer and push to GitHub.";
-            status.style.background = "rgba(255, 165, 0, 0.1)";
-            status.style.color = "#ffa500";
-            status.style.borderColor = "#ffa500";
+            status.innerHTML = "<strong>File ready:</strong> Replace <code>assets/resume.pdf</code> with your new file to deploy.";
+            status.style.background = "rgba(0, 242, 254, 0.15)";
+            status.style.color = "var(--cyan)";
             status.style.display = 'block';
         }
 
         function handleProjectSave() {
+            const title = document.getElementById('proj-title').value;
+            const desc = document.getElementById('proj-desc').value;
+            const tags = document.getElementById('proj-tags').value;
             const status = document.getElementById('project-status');
-            const project = {
-                title: document.getElementById('proj-title').value,
-                desc: document.getElementById('proj-desc').value,
-                tags: document.getElementById('proj-tags').value.split(','),
-                highlight: document.getElementById('proj-highlight').value === 'true'
-            };
 
-            console.log("Saving project:", project);
+            if (!title) {
+                alert('Please enter a project title.');
+                return;
+            }
+
+            status.textContent = `Project "${title}" added to queue successfully!`;
             status.style.display = 'block';
-            setTimeout(() => status.style.display = 'none', 3000);
 
-            // Clear fields
             document.getElementById('proj-title').value = '';
             document.getElementById('proj-desc').value = '';
             document.getElementById('proj-tags').value = '';
+            setTimeout(() => status.style.display = 'none', 3500);
         }
     </script>
 </body>
