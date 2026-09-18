@@ -673,6 +673,159 @@
             border: 1px solid rgba(248, 113, 113, 0.2);
         }
 
+        /* Peak Pointed Graph Styling */
+        .chart-panel {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .chart-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple), var(--amber));
+        }
+
+        .peak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(244, 63, 94, 0.18));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+            animation: peakGlow 2.2s infinite ease-in-out;
+            white-space: nowrap;
+        }
+
+        @keyframes peakGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+            50% { transform: scale(1.03); box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
+        }
+
+        .chart-filters {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            cursor: pointer !important;
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .filter-pill:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .filter-pill.active {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.25));
+            color: var(--cyan);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            background: rgba(4, 7, 18, 0.65);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 10px 10px;
+            margin-top: 10px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .peak-chart-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            display: block;
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(13, 19, 33, 0.95);
+            border: 1px solid var(--cyan);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.76rem;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 242, 254, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 25;
+            transform: translate(-50%, -125%);
+            transition: opacity 0.15s ease, transform 0.12s ease;
+            white-space: nowrap;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.4;
+        }
+
+        .chart-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .legend-dot.cyan { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+        .legend-dot.emerald { background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+        .legend-dot.peak { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+
+        .pulse-peak-ring {
+            animation: ringExpand 2s infinite ease-out;
+            transform-origin: center;
+        }
+
+        @keyframes ringExpand {
+            0% { r: 7; opacity: 1; }
+            100% { r: 18; opacity: 0; }
+        }
+
         .auth-footer {
             margin-top: 18px;
             font-size: 0.76rem;
@@ -979,6 +1132,57 @@
                     <div class="kpi-label">3D Card Drags <span>🎯</span></div>
                     <div class="kpi-value" id="val-xr-interactions">0</div>
                     <div class="kpi-subtext">Lanyard ID physics</div>
+                </div>
+            </div>
+
+            <!-- 📈 PEAK POINTED ACTIVITY GRAPH PANEL -->
+            <div class="panel chart-panel">
+                <div class="panel-header" style="border-bottom: none; margin-bottom: 8px; padding-bottom: 0;">
+                    <div class="panel-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <span>Activity Velocity & Peak Trends</span>
+                        <span id="chart-peak-badge" class="peak-badge">🔥 Peak Point: 0 Events</span>
+                    </div>
+                    <div class="chart-filters">
+                        <button id="btn-chart-7d" class="filter-pill active" onclick="setChartRange('7d')">7 Days</button>
+                        <button id="btn-chart-24h" class="filter-pill" onclick="setChartRange('24h')">24 Hours</button>
+                        <button id="btn-chart-30d" class="filter-pill" onclick="setChartRange('30d')">30 Days</button>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper" id="chart-wrapper-box">
+                    <div id="chart-tooltip" class="chart-tooltip" style="display: none; opacity: 0;"></div>
+                    <svg id="peak-activity-svg" class="peak-chart-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="chart-area-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.35" />
+                                <stop offset="60%" stop-color="#a855f7" stop-opacity="0.12" />
+                                <stop offset="100%" stop-color="#050811" stop-opacity="0" />
+                            </linearGradient>
+                            <filter id="neon-glow" x="-30%" y="-30%" width="160%" height="160%">
+                                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                                <feMerge>
+                                    <feMergeNode in="blur" />
+                                    <feMergeNode in="SourceGraphic" />
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <g id="chart-grid-lines"></g>
+                        <path id="chart-area-path" fill="url(#chart-area-grad)" d="" />
+                        <path id="chart-line-path" fill="none" stroke="#00f2fe" stroke-width="3" filter="url(#neon-glow)" d="" />
+                        <line id="chart-crosshair" x1="0" y1="15" x2="0" y2="175" stroke="rgba(0, 242, 254, 0.45)" stroke-dasharray="3,3" style="display: none;" />
+                        <g id="chart-data-nodes"></g>
+                        <g id="chart-peak-tags"></g>
+                        <g id="chart-x-labels"></g>
+                    </svg>
+                </div>
+
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-dot cyan"></span> Activity Trend Curve</div>
+                    <div class="legend-item"><span class="legend-dot peak"></span> Peak Spike Point</div>
+                    <div class="legend-item" style="color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;">⚡ Tap/Hover points for details</div>
                 </div>
             </div>
 
@@ -1301,8 +1505,22 @@
             }
         }
 
-        // Render KPI & Activity Stream
+        // Current chart range & cached events
+        let currentChartRange = '7d';
+        let cachedAnalyticsEvents = [];
+
+        function setChartRange(range) {
+            currentChartRange = range;
+            document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-chart-${range}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderPeakChart(cachedAnalyticsEvents);
+        }
+
+        // Render KPI, Activity Stream & Peak Chart
         function renderDashboard(events) {
+            cachedAnalyticsEvents = events || [];
+
             const pageViews = events.filter(e => e.type === 'page_view').length;
             const resumes = events.filter(e => e.type === 'resume_download').length;
             const social = events.filter(e => e.type === 'linkedin_click' || e.type === 'github_click' || e.type === 'email_click' || e.type === 'external_link').length;
@@ -1313,6 +1531,9 @@
             document.getElementById('val-social-clicks').textContent = social;
             document.getElementById('val-xr-interactions').textContent = xrCards;
             document.getElementById('event-count-badge').textContent = `${events.length} Events`;
+
+            // 📈 Render the Peak Pointed Graph
+            renderPeakChart(events);
 
             const feed = document.getElementById('activity-feed');
             if (events.length === 0) {
@@ -1374,6 +1595,270 @@
             document.getElementById('bar-desktop').style.width = `${Math.round((desktopCount/totalDevices)*100)}%`;
             document.getElementById('bar-mobile').style.width = `${Math.round((mobileCount/totalDevices)*100)}%`;
             document.getElementById('bar-vr').style.width = `${Math.round((vrCount/totalDevices)*100)}%`;
+        }
+
+        // 📈 PEAK POINTED CHART RENDERER
+        function renderPeakChart(events) {
+            cachedAnalyticsEvents = events || [];
+            const svg = document.getElementById('peak-activity-svg');
+            if (!svg) return;
+
+            const gridGroup = document.getElementById('chart-grid-lines');
+            const areaPath = document.getElementById('chart-area-path');
+            const linePath = document.getElementById('chart-line-path');
+            const nodesGroup = document.getElementById('chart-data-nodes');
+            const peakTagsGroup = document.getElementById('chart-peak-tags');
+            const xLabelsGroup = document.getElementById('chart-x-labels');
+            const peakBadge = document.getElementById('chart-peak-badge');
+            const tooltip = document.getElementById('chart-tooltip');
+            const crosshair = document.getElementById('chart-crosshair');
+            const wrapper = document.getElementById('chart-wrapper-box');
+
+            const now = new Date();
+            let buckets = [];
+
+            if (currentChartRange === '24h') {
+                // Last 24 hours in 2-hour increments (12 points)
+                for (let i = 11; i >= 0; i--) {
+                    const d = new Date(now.getTime() - i * 2 * 3600 * 1000);
+                    const label = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    buckets.push({
+                        label: label,
+                        fullLabel: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' }),
+                        startTime: d.getTime() - 2 * 3600 * 1000,
+                        endTime: d.getTime(),
+                        views: 0,
+                        resumes: 0,
+                        interactions: 0,
+                        total: 0
+                    });
+                }
+            } else if (currentChartRange === '30d') {
+                // Last 30 days in 3-day buckets (10 points)
+                for (let i = 9; i >= 0; i--) {
+                    const d = new Date(now.getTime() - i * 3 * 86400 * 1000);
+                    const label = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    buckets.push({
+                        label: label,
+                        fullLabel: d.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }),
+                        startTime: d.getTime() - 3 * 86400 * 1000,
+                        endTime: d.getTime(),
+                        views: 0,
+                        resumes: 0,
+                        interactions: 0,
+                        total: 0
+                    });
+                }
+            } else {
+                // Default: Last 7 days (7 daily points)
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date(now);
+                    d.setDate(now.getDate() - i);
+                    d.setHours(0, 0, 0, 0);
+                    const nextD = new Date(d);
+                    nextD.setDate(d.getDate() + 1);
+
+                    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    const label = i === 0 ? 'Today' : `${dayNames[d.getDay()]} ${d.getDate()}`;
+                    buckets.push({
+                        label: label,
+                        fullLabel: d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }),
+                        startTime: d.getTime(),
+                        endTime: nextD.getTime(),
+                        views: 0,
+                        resumes: 0,
+                        interactions: 0,
+                        total: 0
+                    });
+                }
+            }
+
+            // Populate counts from events
+            events.forEach(e => {
+                let t = 0;
+                if (e.timestamp && typeof e.timestamp.toDate === 'function') t = e.timestamp.toDate().getTime();
+                else if (e.timestamp && e.timestamp.seconds) t = e.timestamp.seconds * 1000;
+                else if (e.clientTime) t = new Date(e.clientTime).getTime();
+
+                if (!t) return;
+
+                const bucket = buckets.find(b => t >= b.startTime && t <= b.endTime);
+                if (bucket) {
+                    bucket.total += 1;
+                    if (e.type === 'page_view') bucket.views += 1;
+                    else if (e.type === 'resume_download') bucket.resumes += 1;
+                    else bucket.interactions += 1;
+                }
+            });
+
+            // Peak identification
+            const counts = buckets.map(b => b.total);
+            const maxVal = Math.max(...counts, 0);
+            const globalPeakIndex = counts.indexOf(maxVal);
+
+            if (peakBadge) {
+                peakBadge.innerHTML = `🔥 Peak Point: <strong>${maxVal} Events</strong> (${buckets[globalPeakIndex]?.label || 'Now'})`;
+            }
+
+            // Dimensions
+            const svgWidth = 800;
+            const svgHeight = 200;
+            const padX = 45;
+            const padTop = 38;
+            const padBottom = 30;
+            const plotWidth = svgWidth - padX * 2;
+            const plotHeight = svgHeight - padTop - padBottom;
+            const yMax = Math.max(maxVal + 2, 4);
+
+            // Compute point coordinates
+            const points = buckets.map((b, i) => {
+                const x = padX + (i / Math.max(1, buckets.length - 1)) * plotWidth;
+                const y = padTop + plotHeight - (b.total / yMax) * plotHeight;
+                return { x, y, bucket: b, index: i, isPeak: b.total === maxVal && maxVal > 0 };
+            });
+
+            // Render Grid Lines & Y-axis labels
+            let gridHtml = '';
+            const gridSteps = 3;
+            for (let i = 0; i <= gridSteps; i++) {
+                const gy = padTop + (plotHeight / gridSteps) * i;
+                const val = Math.round(yMax - (i / gridSteps) * yMax);
+                gridHtml += `
+                    <line x1="${padX}" y1="${gy}" x2="${svgWidth - padX}" y2="${gy}" stroke="rgba(255, 255, 255, 0.06)" stroke-dasharray="4,4" />
+                    <text x="${padX - 10}" y="${gy + 4}" fill="#6b7280" font-size="10" font-family="'JetBrains Mono', monospace" text-anchor="end">${val}</text>
+                `;
+            }
+            gridGroup.innerHTML = gridHtml;
+
+            // Render X-axis labels
+            let xLabelsHtml = '';
+            points.forEach(pt => {
+                xLabelsHtml += `
+                    <text x="${pt.x}" y="${svgHeight - 8}" fill="#9ca3af" font-size="10.5" font-family="'Outfit', sans-serif" text-anchor="middle">${pt.bucket.label}</text>
+                `;
+            });
+            xLabelsGroup.innerHTML = xLabelsHtml;
+
+            // Compute Smooth Bezier Path
+            function getBezierPath(pts) {
+                if (pts.length === 0) return '';
+                if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+
+                let d = `M ${pts[0].x} ${pts[0].y}`;
+                for (let i = 0; i < pts.length - 1; i++) {
+                    const p0 = pts[i === 0 ? 0 : i - 1];
+                    const p1 = pts[i];
+                    const p2 = pts[i + 1];
+                    const p3 = pts[i + 2] || p2;
+
+                    const cp1x = p1.x + (p2.x - p0.x) / 6;
+                    const cp1y = p1.y + (p2.y - p0.y) / 6;
+                    const cp2x = p2.x - (p3.x - p1.x) / 6;
+                    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+                    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+                }
+                return d;
+            }
+
+            const curveD = getBezierPath(points);
+            linePath.setAttribute('d', curveD);
+
+            // Area path
+            const baselineY = padTop + plotHeight;
+            const areaD = `${curveD} L ${points[points.length - 1].x} ${baselineY} L ${points[0].x} ${baselineY} Z`;
+            areaPath.setAttribute('d', areaD);
+
+            // Render Nodes & Peak Points
+            let nodesHtml = '';
+            let peakTagsHtml = '';
+
+            points.forEach(pt => {
+                if (pt.isPeak) {
+                    // Apex Peak Node with Pulsing Halos
+                    nodesHtml += `
+                        <circle class="pulse-peak-ring" cx="${pt.x}" cy="${pt.y}" r="8" fill="none" stroke="#fbbf24" stroke-width="2" />
+                        <circle cx="${pt.x}" cy="${pt.y}" r="8" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5" filter="url(#neon-glow)" />
+                        <circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#030712" />
+                    `;
+
+                    // Floating Peak Callout Tag pointing directly to the apex point
+                    peakTagsHtml += `
+                        <g transform="translate(${pt.x}, ${Math.max(14, pt.y - 26)})" style="filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.5));">
+                            <rect x="-38" y="-12" width="76" height="20" rx="6" fill="#f59e0b" />
+                            <polygon points="-4,8 4,8 0,13" fill="#f59e0b" />
+                            <text x="0" y="2" fill="#030712" font-size="10" font-weight="800" font-family="'JetBrains Mono', monospace" text-anchor="middle">▲ PEAK: ${pt.bucket.total}</text>
+                        </g>
+                    `;
+                } else {
+                    // Normal Data Point Node
+                    nodesHtml += `
+                        <circle class="chart-point-node" data-index="${pt.index}" cx="${pt.x}" cy="${pt.y}" r="4.5" fill="#00f2fe" stroke="#0d1321" stroke-width="2" style="cursor: pointer; transition: r 0.2s ease;" />
+                    `;
+                }
+            });
+
+            nodesGroup.innerHTML = nodesHtml;
+            peakTagsGroup.innerHTML = peakTagsHtml;
+
+            // Interactive Hover / Touch handling
+            function handlePointerMove(e) {
+                const rect = svg.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const relX = ((clientX - rect.left) / rect.width) * svgWidth;
+
+                let nearest = points[0];
+                let minDist = Infinity;
+                points.forEach(pt => {
+                    const dist = Math.abs(pt.x - relX);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        nearest = pt;
+                    }
+                });
+
+                if (nearest) {
+                    crosshair.style.display = 'block';
+                    crosshair.setAttribute('x1', nearest.x);
+                    crosshair.setAttribute('x2', nearest.x);
+                    crosshair.setAttribute('y1', padTop);
+                    crosshair.setAttribute('y2', padTop + plotHeight);
+
+                    const b = nearest.bucket;
+                    const tooltipX = (nearest.x / svgWidth) * rect.width;
+                    const tooltipY = (nearest.y / svgHeight) * rect.height;
+
+                    tooltip.innerHTML = `
+                        <div style="font-weight: 700; color: var(--cyan); margin-bottom: 4px; font-size: 0.8rem;">📅 ${b.fullLabel}</div>
+                        <div style="display: flex; gap: 10px; font-size: 0.75rem; margin-bottom: 2px;">
+                            <span>👁️ Views: <strong>${b.views}</strong></span>
+                            <span style="color: #34d399;">📄 CV: <strong>${b.resumes}</strong></span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: ${nearest.isPeak ? '#fbbf24' : 'var(--text-muted)'}; font-weight: 700;">
+                            ${nearest.isPeak ? '🔥 PEAK SPIKE: ' : '⚡ Total: '}<strong>${b.total} events</strong>
+                        </div>
+                    `;
+                    tooltip.style.left = `${tooltipX}px`;
+                    tooltip.style.top = `${tooltipY}px`;
+                    tooltip.style.display = 'block';
+                    tooltip.style.opacity = '1';
+                }
+            }
+
+            function handlePointerLeave() {
+                crosshair.style.display = 'none';
+                tooltip.style.opacity = '0';
+                setTimeout(() => { tooltip.style.display = 'none'; }, 200);
+            }
+
+            if (wrapper) {
+                wrapper.onmousemove = handlePointerMove;
+                wrapper.onmouseleave = handlePointerLeave;
+                wrapper.ontouchstart = handlePointerMove;
+                wrapper.ontouchmove = handlePointerMove;
+                wrapper.ontouchend = handlePointerLeave;
+            }
         }
 
         function updateBar(id, count, total) {
