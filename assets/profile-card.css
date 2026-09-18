@@ -408,32 +408,36 @@
 .pc-details {
   width: 100%;
   position: absolute;
-  top: 3em;
+  top: 2.4em;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .pc-details h3 {
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
-  font-size: min(5svh, 3em);
-  background-image: linear-gradient(to bottom, #fff, #6f6fbe);
-  background-size: 1em 1.5em;
+  font-size: min(4.5svh, 2.2em);
+  line-height: 1.15;
+  background-image: linear-gradient(180deg, #ffffff 40%, #818cf8 100%);
   -webkit-text-fill-color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
+  text-align: center;
 }
 
 .pc-details p {
-  font-weight: 600;
+  font-weight: 500;
   position: relative;
-  top: -12px;
-  white-space: nowrap;
-  font-size: 16px;
-  margin: 0 auto;
-  width: min-content;
-  background-image: linear-gradient(to bottom, #fff, #4a4ac0);
-  background-size: 1em 1.5em;
+  top: 0;
+  margin: 4px 0 0;
+  white-space: normal;
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: center;
+  background-image: linear-gradient(180deg, #ffffff 40%, #38bdf8 100%);
   -webkit-text-fill-color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
@@ -472,15 +476,19 @@
   }
 
   .pc-details {
-    top: 2em;
+    top: 1.8em;
+    padding: 0 12px;
   }
 
   .pc-details h3 {
-    font-size: min(4svh, 2.5em);
+    font-size: min(4svh, 1.8em);
+    line-height: 1.15;
   }
 
   .pc-details p {
-    font-size: 14px;
+    font-size: 13px;
+    margin-top: 3px;
+    top: 0;
   }
 
   .pc-user-info {
@@ -518,16 +526,19 @@
   }
 
   .pc-details {
-    top: 1.5em;
+    top: 1.2em;
+    padding: 0 10px;
   }
 
   .pc-details h3 {
-    font-size: min(3.5svh, 2em);
+    font-size: clamp(1.2rem, 5.5vw, 1.55rem);
+    line-height: 1.15;
   }
 
   .pc-details p {
-    font-size: 12px;
-    top: -8px;
+    font-size: 0.76rem;
+    top: 0;
+    margin-top: 2px;
   }
 
   .pc-user-info {
@@ -565,12 +576,19 @@
     max-height: 320px;
   }
 
+  .pc-details {
+    top: 0.8em;
+  }
+
   .pc-details h3 {
-    font-size: min(3svh, 1.5em);
+    font-size: 1.15rem;
+    line-height: 1.15;
   }
 
   .pc-details p {
-    font-size: 11px;
+    font-size: 0.7rem;
+    top: 0;
+    margin-top: 2px;
   }
 
   .pc-user-info {
