@@ -3,8 +3,9 @@ const path = require('path');
 
 function copyRecursiveSync(src, dest) {
   const exists = fs.existsSync(src);
-  const stats = exists && fs.statSync(src);
-  const isDirectory = exists && stats.isDirectory();
+  if (!exists) return;
+  const stats = fs.statSync(src);
+  const isDirectory = stats.isDirectory();
   if (isDirectory) {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
@@ -15,15 +16,22 @@ function copyRecursiveSync(src, dest) {
         path.join(dest, childItemName)
       );
     });
-  } else if (exists) {
+  } else {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
   }
 }
 
-// Copy static assets and models
+// Copy static assets, models, and scripts
 const itemsToCopy = [
   'assets',
+  'main.js',
+  'loader.js',
+  'loader.css',
+  'style.css',
+  'loader-preview.js',
+  'loader-preview.css',
+  'admin',
   'Quest3.glb',
   'vision_pro.glb',
   'QUEST3.png',
@@ -46,4 +54,4 @@ itemsToCopy.forEach((item) => {
   }
 });
 
-console.log('✅ Static assets, resume.pdf, and 3D models copied to dist/');
+console.log('✅ All static assets, scripts (loader.js, main.js), and models copied to dist/');

@@ -58,6 +58,20 @@
     <link rel="stylesheet" href="assets/star-border.css?v=30">
     <link rel="stylesheet" href="assets/pixel-card.css?v=30">
     <link rel="stylesheet" href="assets/glass-surface.css?v=30">
+    <script>
+        // Emergency fail-safe: Ensure loader is unlocked even if network or scripts lag
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                var ldr = document.getElementById('terminal-loader');
+                var cnt = document.getElementById('portfolio-content');
+                if (ldr && !ldr.classList.contains('transition-complete')) {
+                    ldr.classList.add('transition-complete');
+                    if (cnt) cnt.classList.add('active');
+                    document.body.style.overflow = 'auto';
+                }
+            }, 3000);
+        });
+    </script>
 </head>
 
 <body>
