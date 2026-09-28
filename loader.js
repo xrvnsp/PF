@@ -1,13 +1,17 @@
 /* Terminal Loader Script - Preview Version */
 const terminalLines = [
-    { text: "[ SYSTEM ] 0xF0::init... INITIALIZING", type: "header" },
-    { text: "[ CORE   ] neural_network_v5.1 ── LOADED", status: "OK" },
-    { text: "[ MODULE ] spatial_rendering_v2.0 ── ONLINE", status: "OK" },
-    { text: "[ MODULE ] ai_inference_engine ── ONLINE", status: "OK" },
-    { text: "[ MODULE ] llm_orchestrator ── ONLINE", status: "OK" },
-    { text: "[ NET    ] establishing_uplink... OK", status: "OK" },
-    { text: "[ SECURE ] 0xID::VERIFY // OPERATOR IDENTIFIED", type: "launch" },
-    { text: "LAUNCHING_SARAVANA_PRAKASH_PORTFOLIO...", type: "launch" }
+    { text: "[ SYSTEM ] 0xXR::BOOT // INITIALIZING_EXTENDED_REALITY", type: "header" },
+    { text: "[ CORE   ] adaptive_intelligence_v∞ ── LOADED", status: "OK" },
+    { text: "[ XR     ] spatial_computing_engine_v5.0 ── ONLINE", status: "OK" },
+    { text: "[ VISION ] multimodal_world_model ── ONLINE", status: "OK" },
+    { text: "[ AGI    ] autonomous_reasoning_core ── SYNCHRONIZED", status: "OK" },
+    { text: "[ NEURAL ] real_time_inference_mesh ── ONLINE", status: "OK" },
+    { text: "[ XR     ] environment_mapping // 3D_SPACE ── LOCKED", status: "OK" },
+    { text: "[ AGENT  ] adaptive_ai_orchestrator ── ONLINE", status: "OK" },
+    { text: "[ SECURE ] 0xID::VERIFY // HUMAN_OPERATOR_AUTHENTICATED", type: "launch" },
+    { text: "[ FUTURE ] cognition_layer // READY_FOR_INTERACTION", type: "launch" },
+    { text: "INITIALIZING_SARAVANA_PRAKASH_XR_AI_PORTFOLIO...", type: "launch" },
+    { text: "ENTERING_SPATIAL_INTELLIGENCE_MODE...", type: "launch" }
 ];
 
 const asciiLogo = `
@@ -84,7 +88,7 @@ function initTerminalLoader() {
 
     if (!loader || !terminalContainer) return;
 
-    // Safety Fallback: If loader hasn't completed in 3.5 seconds, force unlock
+    // Safety Fallback: Only activates if scripts completely hang (15 seconds)
     setTimeout(() => {
         if (loader && !loader.classList.contains('transition-complete')) {
             loader.classList.add('transition-complete');
@@ -92,7 +96,7 @@ function initTerminalLoader() {
             document.body.style.overflow = 'auto';
             runGSAPHeroEntrance();
         }
-    }, 3500);
+    }, 15000);
 
     // Inject Glitch Flash Overlay
     if (!document.querySelector('.glitch-flash')) {
@@ -150,7 +154,7 @@ function initTerminalLoader() {
                     if (typeof gsap !== 'undefined' && window.particlesBlast) {
                         gsap.to(window.particlesBlast, {
                             progress: 1,
-                            duration: 1.4,
+                            duration: 1.2,
                             ease: 'power4.out',
                             onComplete: () => {
                                 window.particlesBlast._done = true;
@@ -158,16 +162,16 @@ function initTerminalLoader() {
                         });
                     }
 
-                    // Make Portfolio Container Active
-                    if (portfolioContent) {
-                        portfolioContent.classList.add('active');
-                        
-                        // Execute GSAP Entrance Choreography
-                        runGSAPHeroEntrance();
-                    }
+                    // ✨ REVEAL WEBPAGE ONLY AFTER FLASHY ANIMATION & SHUTTERS COMPLETE (1000ms after blast/flash begins)
+                    setTimeout(() => {
+                        if (portfolioContent) {
+                            portfolioContent.classList.add('active');
+                            runGSAPHeroEntrance();
+                        }
+                    }, 1000);
                 }, 420);
 
-                // Wait for shutters to finish + blast to settle, then restore canvas
+                // Wait for animations to conclude fully, then mark transition complete and unlock page scroll
                 setTimeout(() => {
                     loader.classList.add('transition-complete');
                     document.body.style.overflow = 'auto';
@@ -180,9 +184,9 @@ function initTerminalLoader() {
                     if (typeof ScrollTrigger !== 'undefined') {
                         ScrollTrigger.refresh();
                     }
-                }, 1600);
+                }, 1700);
 
-            }, 400);
+            }, 300);
             return;
         }
 

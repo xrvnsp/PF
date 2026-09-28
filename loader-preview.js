@@ -1,13 +1,17 @@
 /* Terminal Loader Script - Preview Version */
 const terminalLines = [
-    { text: "[ SYSTEM ] 0xF0::init... INITIALIZING", type: "header" },
-    { text: "[ CORE   ] neural_network_v5.1 ── LOADED", status: "OK" },
-    { text: "[ MODULE ] spatial_rendering_v2.0 ── ONLINE", status: "OK" },
-    { text: "[ MODULE ] ai_inference_engine ── ONLINE", status: "OK" },
-    { text: "[ MODULE ] llm_orchestrator ── ONLINE", status: "OK" },
-    { text: "[ NET    ] establishing_uplink... OK", status: "OK" },
-    { text: "[ SECURE ] 0xID::VERIFY // OPERATOR IDENTIFIED", type: "launch" },
-    { text: "LAUNCHING_SARAVANA_PRAKASH_PORTFOLIO...", type: "launch" }
+    { text: "[ SYSTEM ] 0xXR::BOOT // INITIALIZING_EXTENDED_REALITY", type: "header" },
+    { text: "[ CORE   ] adaptive_intelligence_v∞ ── LOADED", status: "OK" },
+    { text: "[ XR     ] spatial_computing_engine_v5.0 ── ONLINE", status: "OK" },
+    { text: "[ VISION ] multimodal_world_model ── ONLINE", status: "OK" },
+    { text: "[ AGI    ] autonomous_reasoning_core ── SYNCHRONIZED", status: "OK" },
+    { text: "[ NEURAL ] real_time_inference_mesh ── ONLINE", status: "OK" },
+    { text: "[ XR     ] environment_mapping // 3D_SPACE ── LOCKED", status: "OK" },
+    { text: "[ AGENT  ] adaptive_ai_orchestrator ── ONLINE", status: "OK" },
+    { text: "[ SECURE ] 0xID::VERIFY // HUMAN_OPERATOR_AUTHENTICATED", type: "launch" },
+    { text: "[ FUTURE ] cognition_layer // READY_FOR_INTERACTION", type: "launch" },
+    { text: "INITIALIZING_SARAVANA_PRAKASH_XR_AI_PORTFOLIO...", type: "launch" },
+    { text: "ENTERING_SPATIAL_INTELLIGENCE_MODE...", type: "launch" }
 ];
 
 const asciiLogo = `

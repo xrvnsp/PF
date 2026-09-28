@@ -59,7 +59,7 @@
     <link rel="stylesheet" href="assets/pixel-card.css?v=30">
     <link rel="stylesheet" href="assets/glass-surface.css?v=30">
     <script>
-        // Emergency fail-safe: Ensure loader is unlocked even if network or scripts lag
+        // Emergency fail-safe: Ensure loader is unlocked only if scripts crash/stall (14s emergency threshold)
         window.addEventListener('load', function () {
             setTimeout(function () {
                 var ldr = document.getElementById('terminal-loader');
@@ -69,7 +69,7 @@
                     if (cnt) cnt.classList.add('active');
                     document.body.style.overflow = 'auto';
                 }
-            }, 3000);
+            }, 14000);
         });
     </script>
 </head>
