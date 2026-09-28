@@ -76,7 +76,7 @@ function runGSAPHeroEntrance() {
     }, '-=0.2');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initTerminalLoader() {
     const loader = document.getElementById('terminal-loader');
     const terminalBody = document.getElementById('terminal-body');
     const terminalContainer = document.getElementById('terminal-content');
@@ -84,24 +84,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!loader || !terminalContainer) return;
 
+    // Safety Fallback: If loader hasn't completed in 3.5 seconds, force unlock
+    setTimeout(() => {
+        if (loader && !loader.classList.contains('transition-complete')) {
+            loader.classList.add('transition-complete');
+            if (portfolioContent) portfolioContent.classList.add('active');
+            document.body.style.overflow = 'auto';
+            runGSAPHeroEntrance();
+        }
+    }, 3500);
+
     // Inject Glitch Flash Overlay
-    const flash = document.createElement('div');
-    flash.className = 'glitch-flash';
-    document.body.appendChild(flash);
+    if (!document.querySelector('.glitch-flash')) {
+        const flash = document.createElement('div');
+        flash.className = 'glitch-flash';
+        document.body.appendChild(flash);
+    }
 
     // Inject Shutter Panels
-    const shutterTop = document.createElement('div');
-    shutterTop.className = 'terminal-shutter shutter-top';
-    const shutterBottom = document.createElement('div');
-    shutterBottom.className = 'terminal-shutter shutter-bottom';
-    loader.appendChild(shutterTop);
-    loader.appendChild(shutterBottom);
+    if (!loader.querySelector('.shutter-top')) {
+        const shutterTop = document.createElement('div');
+        shutterTop.className = 'terminal-shutter shutter-top';
+        const shutterBottom = document.createElement('div');
+        shutterBottom.className = 'terminal-shutter shutter-bottom';
+        loader.appendChild(shutterTop);
+        loader.appendChild(shutterBottom);
+    }
 
     // Add ASCII Logo first (instant)
-    const logoDiv = document.createElement('div');
-    logoDiv.className = 'ascii-logo';
-    logoDiv.textContent = asciiLogo;
-    terminalContainer.appendChild(logoDiv);
+    if (!terminalContainer.querySelector('.ascii-logo')) {
+        const logoDiv = document.createElement('div');
+        logoDiv.className = 'ascii-logo';
+        logoDiv.textContent = asciiLogo;
+        terminalContainer.appendChild(logoDiv);
+    }
 
     let currentLineIndex = 0;
 
@@ -114,10 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     win.classList.add('crt-off');
                 }
 
+                const flash = document.querySelector('.glitch-flash');
+
                 // Wait 420ms for CRT off flatline animation
                 setTimeout(() => {
                     // Trigger Fullscreen Glitch Flash
-                    flash.classList.add('active');
+                    if (flash) flash.classList.add('active');
 
                     // Slide Open Shutters
                     loader.classList.add('shutters-open');
@@ -222,5 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         document.body.style.overflow = 'hidden';
         typeLine();
-    }, 200);
-});
+    }, 100);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTerminalLoader);
+} else {
+    initTerminalLoader();
+}
