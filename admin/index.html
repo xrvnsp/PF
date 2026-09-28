@@ -344,8 +344,13 @@
         /* Two Column Analytics Layout */
         .analytics-layout {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: minmax(0, 1fr) 360px;
             gap: 22px;
+            width: 100%;
+        }
+
+        .analytics-layout > * {
+            min-width: 0;
         }
 
         .panel {
@@ -444,9 +449,10 @@
         .event-top {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             margin-bottom: 4px;
-            gap: 8px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .event-title {
@@ -461,7 +467,23 @@
             color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
             white-space: nowrap;
-            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .event-datetime {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .event-relative {
+            opacity: 0.75;
+            font-size: 0.68rem;
         }
 
         .event-detail {
@@ -751,6 +773,7 @@
         .chart-wrapper {
             position: relative;
             width: 100%;
+            max-width: 100%;
             height: 230px;
             background: rgba(4, 7, 18, 0.65);
             border-radius: 14px;
@@ -759,6 +782,7 @@
             margin-top: 10px;
             user-select: none;
             touch-action: none;
+            overflow: hidden;
         }
 
         .peak-chart-svg {
@@ -835,6 +859,13 @@
         /* ========================================================
            📱 MOBILE & TABLET RESPONSIVE SYSTEM
            ======================================================== */
+        @media (max-width: 1280px) {
+            .analytics-layout {
+                grid-template-columns: minmax(0, 1fr) 320px;
+                gap: 16px;
+            }
+        }
+
         @media (max-width: 1024px) {
             .analytics-layout {
                 grid-template-columns: 1fr;
@@ -1303,7 +1334,7 @@
 
                 <div class="chart-wrapper" id="chart-wrapper-box">
                     <div id="chart-tooltip" class="chart-tooltip" style="display: none; opacity: 0;"></div>
-                    <svg id="peak-activity-svg" class="peak-chart-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
+                    <svg id="peak-activity-svg" class="peak-chart-svg" viewBox="0 0 800 200">
                         <defs>
                             <linearGradient id="chart-area-grad" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.35" />
@@ -1697,8 +1728,13 @@
             feed.innerHTML = events.map(e => {
                 const icon = getEventIcon(e.type);
                 const title = formatEventTitle(e);
-                const timeAgo = formatTimeAgo(e.timestamp || e.clientTime);
+                const ts = formatEventTimestamp(e.timestamp || e.clientTime);
                 const details = e.anchorText || e.sectionTitle || e.buttonText || e.href || e.url || '';
+
+                const dateTimeDisplay = ts.dateStr && ts.timeStr 
+                    ? `<span class="event-datetime">📅 ${ts.dateStr}, ${ts.timeStr}</span>`
+                    : '';
+                const relDisplay = ts.relStr ? `<span class="event-relative">• ${ts.relStr}</span>` : '';
 
                 return `
                     <div class="event-item">
@@ -1706,7 +1742,10 @@
                         <div class="event-info">
                             <div class="event-top">
                                 <span class="event-title">${title}</span>
-                                <span class="event-time">${timeAgo}</span>
+                                <span class="event-time" title="${ts.dateStr} ${ts.timeStr} (${ts.relStr})">
+                                    ${dateTimeDisplay}
+                                    ${relDisplay}
+                                </span>
                             </div>
                             <div class="event-detail">
                                 <span class="device-pill">${e.device || 'Desktop'}</span>
@@ -1855,9 +1894,14 @@
                 }
             }
 
-            // Dimensions
-            const svgWidth = 800;
+            // Dimensions dynamically calculated from container width to avoid horizontal stretching
+            const wrapperWidth = wrapper && wrapper.clientWidth > 0 ? wrapper.clientWidth : 800;
+            const svgWidth = Math.max(320, wrapperWidth);
             const svgHeight = 200;
+
+            svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+            svg.removeAttribute('preserveAspectRatio');
+
             const padX = isMobile ? 35 : 45;
             const padTop = 38;
             const padBottom = 28;
@@ -2061,22 +2105,27 @@
             }
         }
 
-        function formatTimeAgo(timestamp) {
-            if (!timestamp) return 'Just now';
+        function formatEventTimestamp(timestamp) {
+            if (!timestamp) return { dateStr: '', timeStr: '', relStr: 'Just now' };
             let date;
-            if (timestamp.toDate) date = timestamp.toDate();
-            else if (typeof timestamp === 'string') date = new Date(timestamp);
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') date = timestamp.toDate();
             else if (timestamp.seconds) date = new Date(timestamp.seconds * 1000);
+            else if (typeof timestamp === 'string' || typeof timestamp === 'number') date = new Date(timestamp);
             else date = new Date(timestamp);
 
+            if (isNaN(date.getTime())) return { dateStr: '', timeStr: '', relStr: 'Just now' };
+
+            const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             const seconds = Math.floor((new Date() - date) / 1000);
-            if (seconds < 10) return 'Just now';
-            if (seconds < 60) return `${seconds}s ago`;
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            return date.toLocaleDateString();
+            let relStr = 'Just now';
+            if (seconds >= 10 && seconds < 60) relStr = `${seconds}s ago`;
+            else if (seconds >= 60 && seconds < 3600) relStr = `${Math.floor(seconds / 60)}m ago`;
+            else if (seconds >= 3600 && seconds < 86400) relStr = `${Math.floor(seconds / 3600)}h ago`;
+            else if (seconds >= 86400) relStr = `${Math.floor(seconds / 86400)}d ago`;
+
+            return { dateStr, timeStr, relStr };
         }
 
         function escapeHtml(str) {
@@ -2122,6 +2171,17 @@
             document.getElementById('proj-tags').value = '';
             setTimeout(() => status.style.display = 'none', 3500);
         }
+
+        // Re-render chart dynamically on window resize to maintain 1:1 aspect ratio without stretching
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (cachedAnalyticsEvents) {
+                    renderPeakChart(cachedAnalyticsEvents);
+                }
+            }, 100);
+        });
 
         // Initialize on load
         checkExistingAuth();
