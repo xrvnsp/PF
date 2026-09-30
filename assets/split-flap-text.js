@@ -102,9 +102,9 @@
       this.init();
     }
 
-    createSingleTile(char) {
+    createSingleTile(char, isHidden = false) {
       const tile = document.createElement('span');
-      tile.className = 'split-flap-text__tile' + (char === ' ' ? ' tile--space' : '');
+      tile.className = 'split-flap-text__tile' + (char === ' ' ? ' tile--space' : '') + (isHidden ? ' tile--hidden' : '');
       tile.setAttribute('aria-hidden', 'true');
 
       const halfTop = document.createElement('span');
@@ -255,18 +255,75 @@
       targetPhrase = String(targetPhrase ?? '').trim().toUpperCase();
       const targetChars = targetPhrase.split('');
 
-      // Expand tiles if target is longer
+      const heroContainer = this.container.closest ? this.container.closest('.hero-greeting-container') : null;
+      const startWidth = heroContainer ? heroContainer.getBoundingClientRect().width : 0;
+
+      // Expand tiles smoothly if target is longer
+      const newlyAdded = [];
       while (this.tileNodes.length < targetChars.length) {
-        this.tileNodes.push(this.createSingleTile(' '));
+        const newTileNode = this.createSingleTile(' ', true);
+        this.tileNodes.push(newTileNode);
+        newlyAdded.push(newTileNode);
       }
 
-      // Hide excess tiles if target is shorter
+      // Smoothly animate reveal / collapse of tiles
       for (let i = 0; i < this.tileNodes.length; i++) {
         if (i < targetChars.length) {
-          this.tileNodes[i].tile.style.display = '';
+          if (!newlyAdded.includes(this.tileNodes[i])) {
+            this.tileNodes[i].tile.classList.remove('tile--hidden');
+          }
         } else {
-          this.tileNodes[i].tile.style.display = 'none';
+          this.tileNodes[i].tile.classList.add('tile--hidden');
         }
+      }
+
+      if (newlyAdded.length > 0) {
+        // Trigger reflow to record starting width: 0 hidden state
+        void this.domRoot.offsetWidth;
+        requestAnimationFrame(() => {
+          newlyAdded.forEach(n => n.tile.classList.remove('tile--hidden'));
+        });
+      }
+
+      // Clean up excess collapsed tiles from DOM after transition completes
+      if (this.tileNodes.length > targetChars.length) {
+        setTimeout(() => {
+          if (this.isDestroyed) return;
+          while (this.tileNodes.length > targetChars.length) {
+            const removed = this.tileNodes.pop();
+            if (removed && removed.tile && removed.tile.parentNode) {
+              removed.tile.parentNode.removeChild(removed.tile);
+            }
+          }
+        }, 500);
+      }
+
+      // Butter-smooth morphing of hero container width
+      if (heroContainer && startWidth > 0) {
+        requestAnimationFrame(() => {
+          heroContainer.style.transition = 'none';
+          heroContainer.style.width = 'auto';
+          const targetWidth = heroContainer.getBoundingClientRect().width;
+
+          if (Math.abs(targetWidth - startWidth) > 1.5) {
+            heroContainer.style.width = `${startWidth}px`;
+            void heroContainer.offsetWidth; // force reflow
+            heroContainer.style.transition = 'width 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+            heroContainer.style.width = `${targetWidth}px`;
+
+            const onTransitionEnd = (e) => {
+              if (e && e.propertyName && e.propertyName !== 'width') return;
+              heroContainer.style.transition = '';
+              heroContainer.style.width = '';
+              heroContainer.removeEventListener('transitionend', onTransitionEnd);
+            };
+            heroContainer.addEventListener('transitionend', onTransitionEnd);
+            setTimeout(onTransitionEnd, 520);
+          } else {
+            heroContainer.style.transition = '';
+            heroContainer.style.width = '';
+          }
+        });
       }
 
       if (this.prefersReducedMotion) {

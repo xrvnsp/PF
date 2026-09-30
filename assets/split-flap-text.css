@@ -7,7 +7,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--split-flap-gap, 3px);
   color: var(--split-flap-text-color, #00f2ff);
   font-family: 'Roboto Mono', 'SFMono-Regular', 'Cascadia Code', monospace;
   font-size: var(--split-flap-font-size, 20px);
@@ -18,7 +17,6 @@
   user-select: none;
   font-variant-numeric: tabular-nums;
   max-width: 100%;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .split-flap-text__tile {
@@ -42,7 +40,16 @@
   transform-style: preserve-3d;
   isolation: isolate;
   flex-shrink: 0;
-  transition: width 0.3s ease, opacity 0.3s ease;
+  margin-right: var(--split-flap-gap, 3px);
+  transition:
+    width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+    margin-right 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.35s ease,
+    transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.split-flap-text__tile:last-child {
+  margin-right: 0 !important;
 }
 
 /* Seamless space between words */
@@ -53,13 +60,25 @@
   border: none !important;
 }
 
+/* Hidden / collapsing tile state for butter-smooth resizing */
+.split-flap-text__tile.tile--hidden {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  transform: scaleX(0);
+  pointer-events: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  visibility: hidden;
+}
+
 .split-flap-text__tile.tile--space::before,
 .split-flap-text__tile.tile--space::after {
   display: none !important;
-}
-
-.split-flap-text__tile.tile--space .split-flap-text__half {
-  background: transparent !important;
 }
 
 /* Straight mechanical razor-sharp division seam line */
@@ -187,15 +206,23 @@
   }
 }
 
-/* ===================================================
-   HERO GREETING HUD POD STYLING (PERFECTLY CENTERED)
-   =================================================== */
+/* ==========================================================================
+   HERO GREETING HUD POD STYLING
+   Mathematically strictly equal 4-sided gap around text container:
+   - Top gap: 12px
+   - Bottom gap: 12px
+   - Left gap (to dot): 12px (via flex gap: 12px)
+   - Right gap: 12px (via padding-right: 12px)
+   - Dot left clearance: 14px (nestled comfortably in pill round cap)
+   - Smooth container resizing via CSS width transitions
+   ========================================================================== */
 
 .hero-greeting-container {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 38px;
+  gap: 13px;
+  padding: 12px 12px 12px 14px;
   background: rgba(6, 12, 28, 0.72);
   border: 1px solid rgba(0, 242, 255, 0.28);
   border-radius: 100px;
@@ -210,7 +237,12 @@
   z-index: 10;
   max-width: 98vw;
   box-sizing: border-box;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: width;
+  transition:
+    width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+    max-width 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .hero-greeting-container:hover {
@@ -222,88 +254,96 @@
 }
 
 .greeting-dot {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 9px;
-  height: 9px;
+  position: static;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #00f2ff;
-  box-shadow: 0 0 10px #00f2ff, 0 0 20px rgba(0, 242, 255, 0.6);
+  box-shadow: 0 0 10px #00f2ff, 0 0 18px rgba(0, 242, 255, 0.6);
   animation: greetingPulse 2s infinite ease-in-out;
   flex-shrink: 0;
+  margin: 0;
   pointer-events: none;
 }
 
 @keyframes greetingPulse {
   0%, 100% {
-    transform: translateY(-50%) scale(1);
+    transform: scale(1);
     opacity: 0.85;
-    box-shadow: 0 0 10px #00f2ff;
+    box-shadow: 0 0 8px #00f2ff;
   }
   50% {
-    transform: translateY(-50%) scale(1.35);
+    transform: scale(1.35);
     opacity: 1;
-    box-shadow: 0 0 16px #00f2ff, 0 0 25px rgba(0, 242, 255, 0.6);
+    box-shadow: 0 0 14px #00f2ff, 0 0 22px rgba(0, 242, 255, 0.7);
   }
 }
 
-/* Responsive adjustments */
+#hero-greeting-board,
+.hero-split-flap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments maintaining equal 4-sided text gap */
 @media (max-width: 1200px) {
   .split-flap-text {
     font-size: 19px !important;
-    gap: 3px !important;
   }
   .hero-greeting-container {
-    padding: 10px 34px;
-  }
-  .greeting-dot {
-    left: 14px;
+    gap: 11px;
+    padding: 11px 11px 11px 13px;
   }
 }
 
 @media (max-width: 900px) {
   .split-flap-text {
     font-size: 16px !important;
-    gap: 2.5px !important;
   }
   .hero-greeting-container {
-    padding: 9px 30px;
+    gap: 10px;
+    padding: 10px 10px 10px 12px;
     margin-bottom: 18px;
   }
   .greeting-dot {
-    left: 12px;
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
   }
 }
 
 @media (max-width: 600px) {
   .split-flap-text {
-    font-size: 12.5px !important;
-    gap: 2px !important;
+    font-size: 12px !important;
   }
   .hero-greeting-container {
-    padding: 7px 24px;
+    gap: 8px;
+    padding: 8px 8px 8px 10px;
     margin-bottom: 15px;
   }
   .greeting-dot {
-    left: 10px;
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
   }
 }
 
 @media (max-width: 400px) {
   .split-flap-text {
     font-size: 10.5px !important;
-    gap: 1.5px !important;
   }
   .hero-greeting-container {
-    padding: 6px 20px;
+    gap: 6px;
+    padding: 6px 6px 6px 8px;
   }
   .greeting-dot {
-    left: 8px;
+    width: 5px;
+    height: 5px;
   }
 }
