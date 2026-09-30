@@ -374,12 +374,6 @@
     if (heroBoard && !heroBoard.__splitFlapInstance) {
       const timeData = getTimeBasedGreetings();
 
-      // Update greeting badge label if present
-      const badgeLabel = document.querySelector('.greeting-label');
-      if (badgeLabel) {
-        badgeLabel.textContent = `${timeData.period} LINK`;
-      }
-
       heroBoard.__splitFlapInstance = new SplitFlapText(heroBoard, {
         words: timeData.words,
         cycleDelay: 3000,
