@@ -31,6 +31,7 @@ function runGSAPHeroEntrance() {
 
     // Reset initial states of landing elements
     gsap.set('#navbar', { y: -50, opacity: 0 });
+    gsap.set('.hero-greeting-container', { y: -30, opacity: 0, scale: 0.95 });
     gsap.set('.name-line-1', { x: -80, opacity: 0, skewX: 15 });
     gsap.set('.name-line-2', { x: 80, opacity: 0, skewX: -15 });
     gsap.set('.hero-designation', { letterSpacing: '0.3em', opacity: 0 });
@@ -45,6 +46,13 @@ function runGSAPHeroEntrance() {
         duration: 0.6,
         ease: 'power3.out'
     })
+    .to('.hero-greeting-container', {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.5,
+        ease: 'power2.out'
+    }, '-=0.25')
     .to('.name-line-1', {
         x: 0,
         opacity: 1,
