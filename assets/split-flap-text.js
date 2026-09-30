@@ -20,8 +20,12 @@
   };
 
   const normalizePhrase = (phrase, width) => {
-    const safe = String(phrase ?? '').toUpperCase();
-    return safe.padEnd(width, ' ').slice(0, width);
+    const safe = String(phrase ?? '').trim().toUpperCase();
+    if (safe.length >= width) return safe.slice(0, width);
+    const totalPad = width - safe.length;
+    const padLeft = Math.floor(totalPad / 2);
+    const padRight = totalPad - padLeft;
+    return ' '.repeat(padLeft) + safe + ' '.repeat(padRight);
   };
 
   const sampleChar = (charset) =>
@@ -62,8 +66,7 @@
       period,
       words: [
         primaryGreeting,
-        'WELCOME VISITOR',
-        'SYSTEMS ONLINE',
+        'WELCOME TO MY PORTFOLIO',
         'EXPLORE XR TECH'
       ]
     };
@@ -90,10 +93,10 @@
           tileColor: '#080d1a',
           textColor: '#00f2ff',
           tileRadius: 6,
-          gap: 5,
-          fontSize: 20,
+          gap: 4,
+          fontSize: 24,
           loop: true,
-          padTo: 15,
+          padTo: 23,
           className: ''
         },
         options
@@ -376,15 +379,15 @@
 
       heroBoard.__splitFlapInstance = new SplitFlapText(heroBoard, {
         words: timeData.words,
-        cycleDelay: 3000,
+        cycleDelay: 3200,
         flipDuration: 0.1,
-        stagger: 0.04,
+        stagger: 0.035,
         flipsPerChar: 6,
         tileColor: '#070c18',
         textColor: '#00f2ff',
-        padTo: 15,
-        fontSize: 20,
-        gap: 5
+        padTo: 23,
+        fontSize: 24,
+        gap: 4
       });
     }
 

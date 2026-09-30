@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './SplitFlapText.css';
 
-const DEFAULT_WORDS = ['LAUNCH READY', 'SYNC ONLINE', 'SIGNAL LIVE'];
+const DEFAULT_WORDS = ['GOOD MORNING', 'WELCOME TO MY PORTFOLIO', 'EXPLORE XR TECH'];
 
 const CHARSETS = {
   alpha: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',

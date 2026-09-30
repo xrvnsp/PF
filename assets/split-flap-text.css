@@ -7,13 +7,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--split-flap-gap, 5px);
+  gap: var(--split-flap-gap, 4px);
   color: var(--split-flap-text-color, #00f2ff);
-  font-family: 'Orbitron', 'SFMono-Regular', 'Roboto Mono', 'Cascadia Code', monospace;
-  font-size: var(--split-flap-font-size, 22px);
+  font-family: 'Roboto Mono', 'SFMono-Regular', 'Cascadia Code', monospace;
+  font-size: var(--split-flap-font-size, 24px);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   white-space: pre;
   user-select: none;
   font-variant-numeric: tabular-nums;
@@ -28,21 +28,21 @@
 
 .split-flap-text__tile {
   position: relative;
-  width: 0.76em;
-  height: 1.15em;
+  width: 0.82em;
+  height: 1.25em;
   overflow: hidden;
   border-radius: var(--split-flap-radius, 6px);
   background:
-    radial-gradient(circle at 50% 0%, rgba(0, 242, 255, 0.12), transparent 50%),
+    radial-gradient(circle at 50% 0%, rgba(0, 242, 255, 0.16), transparent 55%),
     linear-gradient(
       180deg,
-      rgba(20, 32, 56, 0.95),
-      var(--split-flap-tile-color, #080d1a)
+      rgba(22, 34, 60, 0.96),
+      var(--split-flap-tile-color, #070c18)
     );
   box-shadow:
-    0 0.035em 0.08em rgba(0, 242, 255, 0.15) inset,
-    0 -0.05em 0.1em rgba(0, 0, 0, 0.8) inset,
-    0 4px 14px rgba(0, 0, 0, 0.6);
+    0 0.04em 0.1em rgba(0, 242, 255, 0.18) inset,
+    0 -0.06em 0.12em rgba(0, 0, 0, 0.85) inset,
+    0 5px 16px rgba(0, 0, 0, 0.65);
   perspective: 600px;
   transform-style: preserve-3d;
   isolation: isolate;
@@ -61,14 +61,14 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(0, 242, 255, 0.3) 15%,
+    rgba(0, 242, 255, 0.35) 15%,
     rgba(0, 0, 0, 0.95) 50%,
-    rgba(0, 242, 255, 0.3) 85%,
+    rgba(0, 242, 255, 0.35) 85%,
     transparent
   );
   box-shadow:
-    0 -1px 0 rgba(255, 255, 255, 0.06),
-    0 1px 0 rgba(0, 0, 0, 0.8);
+    0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 0 rgba(0, 0, 0, 0.85);
   pointer-events: none;
 }
 
@@ -78,9 +78,9 @@
   position: absolute;
   inset: 0;
   z-index: 9;
-  border: 1px solid rgba(0, 242, 255, 0.18);
+  border: 1px solid rgba(0, 242, 255, 0.22);
   border-radius: inherit;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45) inset;
   pointer-events: none;
 }
 
@@ -92,8 +92,8 @@
   height: 50%;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 40%),
-    var(--split-flap-tile-color, #080d1a);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 40%),
+    var(--split-flap-tile-color, #070c18);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -107,8 +107,8 @@
 .split-flap-text__flap--back {
   bottom: 0;
   background:
-    linear-gradient(0deg, rgba(0, 242, 255, 0.04), transparent 45%),
-    #050811;
+    linear-gradient(0deg, rgba(0, 242, 255, 0.05), transparent 45%),
+    #040711;
 }
 
 .split-flap-text__char {
@@ -119,10 +119,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   color: var(--split-flap-text-color, #00f2ff);
   text-shadow:
-    0 0 6px rgba(0, 242, 255, 0.5),
-    0 0 15px rgba(0, 242, 255, 0.2);
+    0 0 8px rgba(0, 242, 255, 0.6),
+    0 0 18px rgba(0, 242, 255, 0.25);
+  font-family: inherit;
 }
 
 .split-flap-text__half--top .split-flap-text__char,
@@ -155,11 +157,11 @@
 @keyframes split-flap-front {
   0% {
     transform: rotateX(0deg);
-    filter: brightness(1.1);
+    filter: brightness(1.15);
   }
   100% {
     transform: rotateX(-90deg);
-    filter: brightness(0.4);
+    filter: brightness(0.38);
   }
 }
 
@@ -167,7 +169,7 @@
   0%,
   45% {
     transform: rotateX(90deg);
-    filter: brightness(0.5);
+    filter: brightness(0.48);
   }
   100% {
     transform: rotateX(0deg);
@@ -182,44 +184,45 @@
 }
 
 /* ===================================================
-   HERO GREETING HUD POD STYLING
+   HERO GREETING HUD POD STYLING (ENLARGED & CENTERED)
    =================================================== */
 
 .hero-greeting-container {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 18px 8px 14px;
-  background: rgba(6, 12, 26, 0.65);
-  border: 1px solid rgba(0, 242, 255, 0.22);
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 28px 12px 20px;
+  background: rgba(6, 12, 28, 0.72);
+  border: 1px solid rgba(0, 242, 255, 0.28);
   border-radius: 100px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(0, 242, 255, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  margin-bottom: 18px;
+    0 10px 35px rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(0, 242, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  margin-bottom: 24px;
   position: relative;
   z-index: 10;
-  max-width: 96vw;
+  max-width: 98vw;
   transition: all 0.3s ease;
 }
 
 .hero-greeting-container:hover {
-  border-color: rgba(0, 242, 255, 0.45);
+  border-color: rgba(0, 242, 255, 0.55);
   box-shadow:
-    0 12px 35px rgba(0, 0, 0, 0.5),
-    0 0 25px rgba(0, 242, 255, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 14px 40px rgba(0, 0, 0, 0.6),
+    0 0 32px rgba(0, 242, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .greeting-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #00f2ff;
-  box-shadow: 0 0 10px #00f2ff;
+  box-shadow: 0 0 10px #00f2ff, 0 0 20px rgba(0, 242, 255, 0.6);
   animation: greetingPulse 2s infinite ease-in-out;
   flex-shrink: 0;
 }
@@ -228,37 +231,66 @@
   0%, 100% {
     transform: scale(1);
     opacity: 0.85;
-    box-shadow: 0 0 8px #00f2ff;
+    box-shadow: 0 0 10px #00f2ff;
   }
   50% {
     transform: scale(1.4);
     opacity: 1;
-    box-shadow: 0 0 14px #00f2ff, 0 0 22px rgba(0, 242, 255, 0.5);
+    box-shadow: 0 0 16px #00f2ff, 0 0 25px rgba(0, 242, 255, 0.6);
   }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .hero-greeting-container {
-    gap: 9px;
-    padding: 6px 12px;
-    margin-bottom: 14px;
+/* Responsive adjustments for 23 tiles */
+@media (max-width: 1200px) {
+  .split-flap-text {
+    font-size: 20px !important;
+    gap: 3.5px !important;
   }
+  .hero-greeting-container {
+    padding: 10px 22px 10px 16px;
+    gap: 13px;
+  }
+}
 
+@media (max-width: 900px) {
+  .split-flap-text {
+    font-size: 16px !important;
+    gap: 3px !important;
+  }
+  .hero-greeting-container {
+    padding: 8px 18px 8px 14px;
+    gap: 11px;
+    margin-bottom: 18px;
+  }
+  .greeting-dot {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .split-flap-text {
+    font-size: 12.5px !important;
+    gap: 2px !important;
+  }
+  .hero-greeting-container {
+    padding: 7px 12px 7px 10px;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
   .greeting-dot {
     width: 7px;
     height: 7px;
   }
-
-  .split-flap-text {
-    font-size: 15px !important;
-    gap: 3px !important;
-  }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 400px) {
   .split-flap-text {
-    font-size: 13px !important;
-    gap: 2.5px !important;
+    font-size: 10.5px !important;
+    gap: 1.5px !important;
+  }
+  .hero-greeting-container {
+    padding: 5px 8px;
+    gap: 6px;
   }
 }
