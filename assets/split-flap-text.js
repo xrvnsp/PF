@@ -19,15 +19,6 @@
     return typeof charset === 'string' && charset.length > 0 ? charset : CHARSETS.alphanumeric;
   };
 
-  const normalizePhrase = (phrase, width) => {
-    const safe = String(phrase ?? '').trim().toUpperCase();
-    if (safe.length >= width) return safe.slice(0, width);
-    const totalPad = width - safe.length;
-    const padLeft = Math.floor(totalPad / 2);
-    const padRight = totalPad - padLeft;
-    return ' '.repeat(padLeft) + safe + ' '.repeat(padRight);
-  };
-
   const sampleChar = (charset) =>
     charset.charAt(Math.floor(Math.random() * charset.length)) || ' ';
 
@@ -66,8 +57,7 @@
       period,
       words: [
         primaryGreeting,
-        'WELCOME TO MY PORTFOLIO',
-        'EXPLORE XR TECH'
+        'WELCOME TO MY PORTFOLIO'
       ]
     };
   }
@@ -85,18 +75,17 @@
         {
           words: timeData.words,
           text: undefined,
-          flipDuration: 0.12,
-          stagger: 0.05,
-          cycleDelay: 2800,
+          flipDuration: 0.1,
+          stagger: 0.035,
+          cycleDelay: 3200,
           charset: 'alphanumeric',
           flipsPerChar: 6,
-          tileColor: '#080d1a',
+          tileColor: '#070c18',
           textColor: '#00f2ff',
-          tileRadius: 6,
-          gap: 4,
-          fontSize: 24,
+          tileRadius: 4,
+          gap: 3,
+          fontSize: 20,
           loop: true,
-          padTo: 23,
           className: ''
         },
         options
@@ -112,6 +101,43 @@
       this.init();
     }
 
+    createSingleTile(char) {
+      const tile = document.createElement('span');
+      tile.className = 'split-flap-text__tile' + (char === ' ' ? ' tile--space' : '');
+      tile.setAttribute('aria-hidden', 'true');
+
+      const halfTop = document.createElement('span');
+      halfTop.className = 'split-flap-text__half split-flap-text__half--top';
+      const charTop = document.createElement('span');
+      charTop.className = 'split-flap-text__char';
+      charTop.textContent = char === ' ' ? '\u00A0' : char;
+      halfTop.appendChild(charTop);
+
+      const halfBottom = document.createElement('span');
+      halfBottom.className = 'split-flap-text__half split-flap-text__half--bottom';
+      const charBottom = document.createElement('span');
+      charBottom.className = 'split-flap-text__char';
+      charBottom.textContent = char === ' ' ? '\u00A0' : char;
+      halfBottom.appendChild(charBottom);
+
+      tile.appendChild(halfTop);
+      tile.appendChild(halfBottom);
+      this.domRoot.appendChild(tile);
+
+      return {
+        tile,
+        charTop,
+        charBottom,
+        flapFront: null,
+        flapBack: null,
+        charFront: null,
+        charBack: null,
+        current: char,
+        next: char,
+        flipping: false
+      };
+    }
+
     init() {
       const sourceWords = Array.isArray(this.options.words) && this.options.words.length > 0
         ? this.options.words
@@ -119,14 +145,9 @@
 
       this.phrases = typeof this.options.text === 'string'
         ? [this.options.text]
-        : sourceWords.map(w => String(w ?? ''));
+        : sourceWords.map(w => String(w ?? '').trim().toUpperCase());
 
-      const longest = this.phrases.reduce((max, p) => Math.max(max, p.length), 1);
-      this.width = Math.max(1, Math.ceil(Number(this.options.padTo) || 0), longest);
-
-      this.normalizedPhrases = this.phrases.map(p => normalizePhrase(p, this.width));
-
-      // Build DOM structure
+      // Build DOM root structure
       this.domRoot = document.createElement('div');
       this.domRoot.className = `split-flap-text ${this.options.className}`.trim();
       this.domRoot.setAttribute('role', 'text');
@@ -137,7 +158,7 @@
         '--split-flap-radius': toCssUnit(this.options.tileRadius),
         '--split-flap-gap': toCssUnit(this.options.gap),
         '--split-flap-font-size': toCssUnit(this.options.fontSize),
-        '--split-flap-flip-duration': `${Math.max(0.04, Number(this.options.flipDuration) || 0.12)}s`
+        '--split-flap-flip-duration': `${Math.max(0.04, Number(this.options.flipDuration) || 0.1)}s`
       };
 
       for (const [key, val] of Object.entries(styleVars)) {
@@ -145,58 +166,25 @@
       }
 
       this.tileNodes = [];
-      const firstPhrase = this.normalizedPhrases[0] || '';
+      const firstPhrase = this.phrases[0] || '';
       this.currentText = firstPhrase;
 
-      for (let i = 0; i < this.width; i++) {
+      for (let i = 0; i < firstPhrase.length; i++) {
         const char = firstPhrase[i] || ' ';
-        const tile = document.createElement('span');
-        tile.className = 'split-flap-text__tile';
-        tile.setAttribute('aria-hidden', 'true');
-
-        const halfTop = document.createElement('span');
-        halfTop.className = 'split-flap-text__half split-flap-text__half--top';
-        const charTop = document.createElement('span');
-        charTop.className = 'split-flap-text__char';
-        charTop.textContent = char === ' ' ? '\u00A0' : char;
-        halfTop.appendChild(charTop);
-
-        const halfBottom = document.createElement('span');
-        halfBottom.className = 'split-flap-text__half split-flap-text__half--bottom';
-        const charBottom = document.createElement('span');
-        charBottom.className = 'split-flap-text__char';
-        charBottom.textContent = char === ' ' ? '\u00A0' : char;
-        halfBottom.appendChild(charBottom);
-
-        tile.appendChild(halfTop);
-        tile.appendChild(halfBottom);
-        this.domRoot.appendChild(tile);
-
-        this.tileNodes.push({
-          tile,
-          charTop,
-          charBottom,
-          flapFront: null,
-          flapBack: null,
-          charFront: null,
-          charBack: null,
-          current: char,
-          next: char,
-          flipping: false
-        });
+        this.tileNodes.push(this.createSingleTile(char));
       }
 
       this.container.innerHTML = '';
       this.container.appendChild(this.domRoot);
       this.updateAria();
 
-      if (this.normalizedPhrases.length > 1) {
+      if (this.phrases.length > 1) {
         this.scheduleNext(this.options.cycleDelay);
       }
     }
 
     updateAria() {
-      const settled = this.currentText.trimEnd();
+      const settled = this.currentText.trim();
       if (settled) {
         this.domRoot.setAttribute('aria-label', settled);
       }
@@ -213,6 +201,12 @@
       node.next = next;
       node.charTop.textContent = safeCurrent;
       node.charBottom.textContent = flipping ? safeNext : safeCurrent;
+
+      if (current === ' ') {
+        node.tile.classList.add('tile--space');
+      } else {
+        node.tile.classList.remove('tile--space');
+      }
 
       if (flipping) {
         if (!node.flapFront) {
@@ -257,27 +251,46 @@
     }
 
     animateTo(targetPhrase) {
+      targetPhrase = String(targetPhrase ?? '').trim().toUpperCase();
+      const targetChars = targetPhrase.split('');
+
+      // Expand tiles if target is longer
+      while (this.tileNodes.length < targetChars.length) {
+        this.tileNodes.push(this.createSingleTile(' '));
+      }
+
+      // Hide excess tiles if target is shorter
+      for (let i = 0; i < this.tileNodes.length; i++) {
+        if (i < targetChars.length) {
+          this.tileNodes[i].tile.style.display = '';
+        } else {
+          this.tileNodes[i].tile.style.display = 'none';
+        }
+      }
+
       if (this.prefersReducedMotion) {
         this.currentText = targetPhrase;
-        for (let i = 0; i < this.width; i++) {
-          const ch = targetPhrase[i] || ' ';
+        for (let i = 0; i < targetChars.length; i++) {
+          const ch = targetChars[i] || ' ';
           this.setTile(i, ch, ch, false);
         }
         this.updateAria();
         return 0;
       }
 
-      const fromPhrase = normalizePhrase(this.currentText, this.width);
-      const targetChars = targetPhrase.split('');
-      const safeFlipMs = Math.max(40, (Number(this.options.flipDuration) || 0.12) * 1000);
-      const safeStaggerMs = Math.max(0, (Number(this.options.stagger) || 0.05) * 1000);
+      const fromChars = this.currentText.split('');
+      const safeFlipMs = Math.max(40, (Number(this.options.flipDuration) || 0.1) * 1000);
+      const safeStaggerMs = Math.max(0, (Number(this.options.stagger) || 0.035) * 1000);
       const safeFlips = Math.max(0, Math.floor(Number(this.options.flipsPerChar) || 6));
       const activeCharset = resolveCharset(this.options.charset);
 
       const plans = targetChars
         .map((targetChar, index) => {
-          const fromChar = fromPhrase[index] || ' ';
-          if (fromChar === targetChar) return null;
+          const fromChar = fromChars[index] || ' ';
+          if (fromChar === targetChar) {
+            this.setTile(index, targetChar, targetChar, false);
+            return null;
+          }
 
           return {
             index,
@@ -354,11 +367,11 @@
         if (this.isDestroyed) return;
 
         const nextIndex = this.phraseIndex + 1;
-        if (nextIndex >= this.normalizedPhrases.length && !this.options.loop) return;
+        if (nextIndex >= this.phrases.length && !this.options.loop) return;
 
-        this.phraseIndex = nextIndex % this.normalizedPhrases.length;
-        const animDuration = this.animateTo(this.normalizedPhrases[this.phraseIndex]);
-        const nextDelay = Math.max(600, Number(this.options.cycleDelay) || 2800) + animDuration;
+        this.phraseIndex = nextIndex % this.phrases.length;
+        const animDuration = this.animateTo(this.phrases[this.phraseIndex]);
+        const nextDelay = Math.max(600, Number(this.options.cycleDelay) || 3200) + animDuration;
         this.scheduleNext(nextDelay);
       }, delay);
     }
@@ -379,15 +392,14 @@
 
       heroBoard.__splitFlapInstance = new SplitFlapText(heroBoard, {
         words: timeData.words,
-        cycleDelay: 3200,
+        cycleDelay: 3400,
         flipDuration: 0.1,
         stagger: 0.035,
         flipsPerChar: 6,
         tileColor: '#070c18',
         textColor: '#00f2ff',
-        padTo: 23,
-        fontSize: 24,
-        gap: 4
+        fontSize: 20,
+        gap: 3
       });
     }
 
