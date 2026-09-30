@@ -56,6 +56,7 @@
     return {
       period,
       words: [
+        'HELLO VISITOR',
         primaryGreeting,
         'WELCOME TO MY PORTFOLIO'
       ]
