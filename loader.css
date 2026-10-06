@@ -1,3 +1,12 @@
+/* Session-Aware Fast Boot Skip (Direct to Hero) */
+html.fast-boot #terminal-loader {
+    display: none !important;
+}
+html.fast-boot #portfolio-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 /* Terminal Loader Styles - Windows Mode */
 #terminal-loader {
     position: fixed;
@@ -190,6 +199,66 @@
     content: ">_";
     font-weight: bold;
     color: #888;
+}
+
+.terminal-titlebar-right {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 12px;
+}
+
+.terminal-skip-btn {
+    background: rgba(0, 245, 255, 0.08);
+    border: 1px solid rgba(0, 245, 255, 0.35);
+    color: #00f5ff;
+    font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    text-shadow: 0 0 8px rgba(0, 245, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);
+    user-select: none;
+    outline: none;
+    animation: skipGlowPulse 2.4s infinite ease-in-out;
+}
+
+@keyframes skipGlowPulse {
+    0%, 100% {
+        border-color: rgba(0, 245, 255, 0.35);
+        box-shadow: 0 0 8px rgba(0, 245, 255, 0.15);
+    }
+    50% {
+        border-color: rgba(0, 245, 255, 0.8);
+        box-shadow: 0 0 14px rgba(0, 245, 255, 0.45);
+        color: #ffffff;
+    }
+}
+
+.terminal-skip-btn:hover {
+    background: rgba(0, 245, 255, 0.25);
+    border-color: #00f5ff;
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(0, 245, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+.terminal-skip-btn:active {
+    transform: scale(0.96);
+}
+
+@media (max-width: 600px) {
+    .terminal-skip-btn {
+        font-size: 0.65rem;
+        padding: 2px 7px;
+    }
 }
 
 .window-controls {

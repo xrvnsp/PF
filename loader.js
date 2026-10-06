@@ -96,13 +96,112 @@ function initTerminalLoader() {
 
     if (!loader || !terminalContainer) return;
 
+    // Session-Aware Check: If already booted in this session, skip sequence immediately
+    let hasBooted = false;
+    try {
+        hasBooted = sessionStorage.getItem('hasBooted') === 'true';
+    } catch (e) {}
+
+    if (hasBooted) {
+        loader.classList.add('transition-complete');
+        loader.style.display = 'none';
+        if (portfolioContent) portfolioContent.classList.add('active');
+        document.body.style.overflow = 'auto';
+        runGSAPHeroEntrance();
+        if (typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+        }
+        return;
+    }
+
+    let hasFinished = false;
+
+    function finishTransition(fast = false) {
+        if (hasFinished) return;
+        hasFinished = true;
+
+        try {
+            sessionStorage.setItem('hasBooted', 'true');
+        } catch (e) {}
+
+        window.removeEventListener('keydown', handleKeyDown);
+
+        const win = loader.querySelector('.terminal-window');
+        if (win) {
+            win.classList.add('crt-off');
+        }
+
+        const flash = document.querySelector('.glitch-flash');
+        const transitionDelay = fast ? 180 : 420;
+
+        setTimeout(() => {
+            if (flash) flash.classList.add('active');
+            loader.classList.add('shutters-open');
+
+            const canvas = document.getElementById('bg-canvas');
+            if (canvas) canvas.style.zIndex = '10001';
+
+            if (typeof gsap !== 'undefined' && window.particlesBlast) {
+                gsap.to(window.particlesBlast, {
+                    progress: 1,
+                    duration: fast ? 0.7 : 1.2,
+                    ease: 'power4.out',
+                    onComplete: () => {
+                        window.particlesBlast._done = true;
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                if (portfolioContent) {
+                    portfolioContent.classList.add('active');
+                    runGSAPHeroEntrance();
+                }
+            }, fast ? 400 : 1000);
+        }, transitionDelay);
+
+        setTimeout(() => {
+            loader.classList.add('transition-complete');
+            document.body.style.overflow = 'auto';
+
+            const canvas = document.getElementById('bg-canvas');
+            if (canvas) canvas.style.zIndex = '';
+
+            if (typeof ScrollTrigger !== 'undefined') {
+                ScrollTrigger.refresh();
+            }
+        }, fast ? 900 : 1700);
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+            finishTransition(true);
+        }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Setup skip triggers on Skip button and Close control
+    const skipBtn = document.getElementById('terminal-skip-btn');
+    if (skipBtn) {
+        skipBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            finishTransition(true);
+        });
+    }
+
+    const closeBtn = document.getElementById('terminal-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            finishTransition(true);
+        });
+    }
+
     // Safety Fallback: Only activates if scripts completely hang (15 seconds)
     setTimeout(() => {
         if (loader && !loader.classList.contains('transition-complete')) {
-            loader.classList.add('transition-complete');
-            if (portfolioContent) portfolioContent.classList.add('active');
-            document.body.style.overflow = 'auto';
-            runGSAPHeroEntrance();
+            finishTransition(true);
         }
     }, 15000);
 
@@ -134,66 +233,11 @@ function initTerminalLoader() {
     let currentLineIndex = 0;
 
     function typeLine() {
+        if (hasFinished) return;
+
         if (currentLineIndex >= terminalLines.length) {
-            // End sequence - Triggers the transition
             setTimeout(() => {
-                const win = loader.querySelector('.terminal-window');
-                if (win) {
-                    win.classList.add('crt-off');
-                }
-
-                const flash = document.querySelector('.glitch-flash');
-
-                // Wait 420ms for CRT off flatline animation
-                setTimeout(() => {
-                    // Trigger Fullscreen Glitch Flash
-                    if (flash) flash.classList.add('active');
-
-                    // Slide Open Shutters
-                    loader.classList.add('shutters-open');
-
-                    // === PARTICLE BLAST: raise canvas above loader so blast is visible ===
-                    const canvas = document.getElementById('bg-canvas');
-                    if (canvas) {
-                        canvas.style.zIndex = '10001'; // Above terminal-loader (10000)
-                    }
-
-                    // Fire GSAP blast animation
-                    if (typeof gsap !== 'undefined' && window.particlesBlast) {
-                        gsap.to(window.particlesBlast, {
-                            progress: 1,
-                            duration: 1.2,
-                            ease: 'power4.out',
-                            onComplete: () => {
-                                window.particlesBlast._done = true;
-                            }
-                        });
-                    }
-
-                    // ✨ REVEAL WEBPAGE ONLY AFTER FLASHY ANIMATION & SHUTTERS COMPLETE (1000ms after blast/flash begins)
-                    setTimeout(() => {
-                        if (portfolioContent) {
-                            portfolioContent.classList.add('active');
-                            runGSAPHeroEntrance();
-                        }
-                    }, 1000);
-                }, 420);
-
-                // Wait for animations to conclude fully, then mark transition complete and unlock page scroll
-                setTimeout(() => {
-                    loader.classList.add('transition-complete');
-                    document.body.style.overflow = 'auto';
-
-                    // Restore canvas z-index to normal (behind content)
-                    const canvas = document.getElementById('bg-canvas');
-                    if (canvas) canvas.style.zIndex = '';
-
-                    // Force refresh GSAP ScrollTriggers
-                    if (typeof ScrollTrigger !== 'undefined') {
-                        ScrollTrigger.refresh();
-                    }
-                }, 1700);
-
+                finishTransition(false);
             }, 300);
             return;
         }
@@ -218,6 +262,8 @@ function initTerminalLoader() {
         const typingSpeed = Math.random() * 8 + 2; // Fast typing
 
         function typeChar() {
+            if (hasFinished) return;
+
             if (charIndex < lineData.text.length) {
                 lineElement.textContent += lineData.text.charAt(charIndex);
                 charIndex++;
@@ -250,8 +296,10 @@ function initTerminalLoader() {
 
     // Start delay
     setTimeout(() => {
-        document.body.style.overflow = 'hidden';
-        typeLine();
+        if (!hasFinished) {
+            document.body.style.overflow = 'hidden';
+            typeLine();
+        }
     }, 100);
 }
 
