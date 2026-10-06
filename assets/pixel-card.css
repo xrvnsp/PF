@@ -68,3 +68,10 @@
     position: relative;
     z-index: 3;
 }
+
+@media (max-width: 768px), (pointer: coarse) {
+    .pixel-canvas {
+        display: none !important;
+    }
+}
+

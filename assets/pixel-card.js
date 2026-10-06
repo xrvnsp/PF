@@ -263,6 +263,11 @@
         }
 
         bindEvents() {
+            // Disable canvas animation loops on mobile devices to prevent lag
+            if (window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches) {
+                return;
+            }
+
             this.container.addEventListener('mouseenter', this.onMouseEnter);
             this.container.addEventListener('mouseleave', this.onMouseLeave);
 

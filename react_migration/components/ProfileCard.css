@@ -432,6 +432,21 @@
 }
 
 @media (max-width: 768px) {
+  .pc-card-wrapper {
+    --grain: none !important;
+  }
+
+  .pc-shine,
+  .pc-shine::before,
+  .pc-shine::after,
+  .pc-glare {
+    display: none !important;
+    animation: none !important;
+    background-image: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+  }
+
   .pc-card {
     height: 70svh;
     max-height: 450px;

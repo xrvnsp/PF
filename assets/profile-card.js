@@ -241,6 +241,12 @@ class ProfileCardController {
 
     this.shell.addEventListener('click', this.handleClick);
 
+    // Skip heavy animation loops on mobile devices
+    if (window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches) {
+      this.toCenter();
+      return;
+    }
+
     const initialX = (this.shell.clientWidth || 0) - ANIMATION_CONFIG.INITIAL_X_OFFSET;
     const initialY = ANIMATION_CONFIG.INITIAL_Y_OFFSET;
     this.setImmediate(initialX, initialY);

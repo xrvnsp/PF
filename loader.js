@@ -125,6 +125,8 @@ function initTerminalLoader() {
         } catch (e) {}
 
         window.removeEventListener('keydown', handleKeyDown);
+        loader.removeEventListener('touchstart', handleTouchSkip);
+        loader.removeEventListener('pointerdown', handlePointerSkip);
 
         const win = loader.querySelector('.terminal-window');
         if (win) {
@@ -179,7 +181,21 @@ function initTerminalLoader() {
         }
     }
 
+    function handleTouchSkip(e) {
+        finishTransition(true);
+    }
+
+    function handlePointerSkip(e) {
+        if (e.pointerType === 'touch') {
+            finishTransition(true);
+        }
+    }
+
     window.addEventListener('keydown', handleKeyDown);
+
+    // Touch anywhere on terminal to close on mobile devices
+    loader.addEventListener('touchstart', handleTouchSkip, { passive: true });
+    loader.addEventListener('pointerdown', handlePointerSkip, { passive: true });
 
     // Setup skip triggers on Skip button and Close control
     const skipBtn = document.getElementById('terminal-skip-btn');
@@ -188,6 +204,10 @@ function initTerminalLoader() {
             e.stopPropagation();
             finishTransition(true);
         });
+        skipBtn.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            finishTransition(true);
+        }, { passive: true });
     }
 
     const closeBtn = document.getElementById('terminal-close-btn');
@@ -196,6 +216,10 @@ function initTerminalLoader() {
             e.stopPropagation();
             finishTransition(true);
         });
+        closeBtn.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            finishTransition(true);
+        }, { passive: true });
     }
 
     // Safety Fallback: Only activates if scripts completely hang (15 seconds)

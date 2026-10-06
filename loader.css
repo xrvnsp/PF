@@ -254,10 +254,32 @@ html.fast-boot #portfolio-content {
     transform: scale(0.96);
 }
 
-@media (max-width: 600px) {
+.skip-btn-desktop {
+    display: inline;
+}
+
+.skip-btn-mobile {
+    display: none;
+}
+
+@media (max-width: 768px), (pointer: coarse), (hover: none) {
+    #terminal-loader {
+        cursor: pointer !important;
+    }
+
+    .skip-btn-desktop {
+        display: none !important;
+    }
+
+    .skip-btn-mobile {
+        display: inline !important;
+    }
+
     .terminal-skip-btn {
-        font-size: 0.65rem;
-        padding: 2px 7px;
+        font-size: 0.68rem;
+        padding: 3px 8px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
 }
 

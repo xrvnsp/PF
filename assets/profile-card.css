@@ -94,6 +94,7 @@
 @media (hover: none), (pointer: coarse), (max-width: 768px) {
   .pc-card-wrapper {
     touch-action: pan-y !important;
+    --grain: none !important;
   }
 
   .pc-card,
@@ -108,10 +109,19 @@
     opacity: 0.5 !important;
   }
 
-  .pc-shine {
-    animation-play-state: running !important;
+  /* Completely remove shimmering texture PNG and heavy blend modes on mobile alone to eliminate lag */
+  .pc-shine,
+  .pc-shine::before,
+  .pc-shine::after,
+  .pc-glare {
+    display: none !important;
+    animation: none !important;
+    background-image: none !important;
+    filter: none !important;
+    opacity: 0 !important;
   }
 }
+
 
 .pc-card-shell {
   position: relative;
@@ -470,6 +480,21 @@
 }
 
 @media (max-width: 768px) {
+  .pc-card-wrapper {
+    --grain: none !important;
+  }
+
+  .pc-shine,
+  .pc-shine::before,
+  .pc-shine::after,
+  .pc-glare {
+    display: none !important;
+    animation: none !important;
+    background-image: none !important;
+    filter: none !important;
+    opacity: 0 !important;
+  }
+
   .pc-card {
     height: 70svh;
     max-height: 450px;
