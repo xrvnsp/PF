@@ -442,6 +442,8 @@
         .type-linkedin_click { background: rgba(79, 172, 254, 0.15); color: var(--blue); }
         .type-email_click { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
         .type-section_view { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .type-section_dwell { background: rgba(245, 158, 11, 0.18); color: var(--amber); }
+        .type-session_end { background: rgba(100, 116, 139, 0.2); color: #cbd5e1; }
         .type-xr_card_interaction { background: rgba(244, 63, 94, 0.15); color: var(--rose); }
 
         .event-info {
@@ -505,6 +507,65 @@
             font-size: 0.68rem;
             font-family: 'JetBrains Mono', monospace;
             white-space: nowrap;
+        }
+
+        .geo-pill {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .org-pill {
+            background: rgba(168, 85, 247, 0.1);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dwell-pill {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ref-pill {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         /* Progress Bar Breakdown */
@@ -1436,6 +1497,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 🌍 Visitor Locations & Companies Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">🌍 Top Locations & Companies</div>
+                        </div>
+                        <div id="geo-breakdown" style="font-size: 0.8rem; color: var(--text-muted);">
+                            <div style="padding: 6px 0; text-align: center; color: var(--text-muted); font-size: 0.78rem;">
+                                Listening for visitor locations & companies...
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1732,12 +1805,18 @@
                 const icon = getEventIcon(e.type);
                 const title = formatEventTitle(e);
                 const ts = formatEventTimestamp(e.timestamp || e.clientTime);
-                const details = e.anchorText || e.sectionTitle || e.buttonText || e.href || e.url || '';
+                const details = e.anchorText || e.buttonText || e.href || e.url || '';
 
                 const dateTimeDisplay = ts.dateStr && ts.timeStr 
                     ? `<span class="event-datetime">📅 ${ts.dateStr}, ${ts.timeStr}</span>`
                     : '';
                 const relDisplay = ts.relStr ? `<span class="event-relative">• ${ts.relStr}</span>` : '';
+
+                const locParts = [e.city, e.country].filter(Boolean);
+                const locStr = locParts.length > 0 ? locParts.join(', ') : '';
+                const orgStr = e.org || e.isp || '';
+                const refStr = e.refTag ? ('Ref: ' + e.refTag) : (e.referrer && e.referrer !== 'Direct / Bookmark' ? e.referrer : '');
+                const dwellVal = e.dwellSeconds ? (e.dwellSeconds + 's dwell') : (e.totalDwellSeconds ? (e.totalDwellSeconds + 's total') : '');
 
                 return `
                     <div class="event-item">
@@ -1753,7 +1832,11 @@
                             <div class="event-detail">
                                 <span class="device-pill">${e.device || 'Desktop'}</span>
                                 <span class="device-pill">${e.browser || 'Web'}</span>
-                                ${details ? `<span>${escapeHtml(details)}</span>` : ''}
+                                ${locStr ? `<span class="geo-pill" title="Location: ${escapeHtml(locStr)}">📍 ${escapeHtml(locStr)}</span>` : ''}
+                                ${orgStr ? `<span class="org-pill" title="Organization / ISP: ${escapeHtml(orgStr)}">🏢 ${escapeHtml(orgStr)}</span>` : ''}
+                                ${refStr ? `<span class="ref-pill" title="Referral: ${escapeHtml(refStr)}">🔗 ${escapeHtml(refStr)}</span>` : ''}
+                                ${dwellVal ? `<span class="dwell-pill">⏱️ ${escapeHtml(dwellVal)}</span>` : ''}
+                                ${details ? `<span style="opacity: 0.85;">${escapeHtml(details)}</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1761,7 +1844,7 @@
             }).join('');
 
             // Section Breakdown
-            const sectionViews = events.filter(e => e.type === 'section_view');
+            const sectionViews = events.filter(e => e.type === 'section_view' || e.type === 'section_dwell');
             const totalSec = Math.max(1, sectionViews.length);
             const expCount = sectionViews.filter(e => e.section === 'experience').length;
             const projCount = sectionViews.filter(e => e.section === 'projects').length;
@@ -1776,7 +1859,7 @@
             // Device Breakdown
             const desktopCount = events.filter(e => e.device === 'Desktop').length;
             const mobileCount = events.filter(e => e.device === 'Mobile' || e.device === 'Tablet').length;
-            const vrCount = events.filter(e => e.device?.includes('VR') || e.device?.includes('XR')).length;
+            const vrCount = events.filter(e => e.device?.includes('VR') || e.device?.includes('XR') || e.device?.includes('Quest') || e.device?.includes('Vision')).length;
             const totalDevices = Math.max(1, events.length);
 
             document.getElementById('cnt-desktop').textContent = desktopCount;
@@ -1786,6 +1869,59 @@
             document.getElementById('bar-desktop').style.width = `${Math.round((desktopCount/totalDevices)*100)}%`;
             document.getElementById('bar-mobile').style.width = `${Math.round((mobileCount/totalDevices)*100)}%`;
             document.getElementById('bar-vr').style.width = `${Math.round((vrCount/totalDevices)*100)}%`;
+
+            // Top Locations & Companies Breakdown
+            const locCounts = {};
+            const orgCounts = {};
+            events.forEach(e => {
+                const loc = [e.city, e.country].filter(Boolean).join(', ');
+                if (loc && !loc.includes('Unknown')) {
+                    locCounts[loc] = (locCounts[loc] || 0) + 1;
+                }
+                const org = e.org || e.isp;
+                if (org && org !== 'Unknown') {
+                    orgCounts[org] = (orgCounts[org] || 0) + 1;
+                }
+            });
+
+            const topLocs = Object.entries(locCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+            const topOrgs = Object.entries(orgCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+            const geoContainer = document.getElementById('geo-breakdown');
+            if (geoContainer) {
+                if (topLocs.length === 0 && topOrgs.length === 0) {
+                    geoContainer.innerHTML = `
+                        <div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.78rem;">
+                            No visitor location or company data recorded yet.
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    if (topLocs.length > 0) {
+                        html += `<div style="font-size: 0.72rem; text-transform: uppercase; color: var(--cyan); letter-spacing: 0.5px; font-weight: 700; margin-bottom: 8px;">Top Visitor Locations</div>`;
+                        topLocs.forEach(([loc, cnt]) => {
+                            html += `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                                    <span style="color: var(--text-main); font-size: 0.78rem;">📍 ${escapeHtml(loc)}</span>
+                                    <span style="background: rgba(0, 242, 254, 0.12); color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px;">${cnt}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                    if (topOrgs.length > 0) {
+                        html += `<div style="font-size: 0.72rem; text-transform: uppercase; color: #c084fc; letter-spacing: 0.5px; font-weight: 700; margin-top: 12px; margin-bottom: 8px;">Top Organizations / ISPs</div>`;
+                        topOrgs.forEach(([org, cnt]) => {
+                            html += `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                                    <span style="color: var(--text-main); font-size: 0.78rem; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(org)}">🏢 ${escapeHtml(org)}</span>
+                                    <span style="background: rgba(168, 85, 247, 0.12); color: #c084fc; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px;">${cnt}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                    geoContainer.innerHTML = html;
+                }
+            }
         }
 
         // 📈 PEAK POINTED CHART RENDERER
@@ -2090,6 +2226,8 @@
                 case 'linkedin_click': return '💼';
                 case 'email_click': return '📧';
                 case 'section_view': return '🧭';
+                case 'section_dwell': return '⏱️';
+                case 'session_end': return '🚪';
                 case 'xr_card_interaction': return '🎯';
                 default: return '⚡';
             }
@@ -2103,6 +2241,8 @@
                 case 'linkedin_click': return '💼 LinkedIn Profile Clicked';
                 case 'email_click': return '📧 Direct Email Clicked';
                 case 'section_view': return `Viewed ${e.sectionTitle || e.section || 'Section'}`;
+                case 'section_dwell': return `⏱️ Read ${e.sectionTitle || e.section || 'Section'} (${e.dwellSeconds || 0}s dwell)`;
+                case 'session_end': return `🚪 Visit Completed (${e.totalDwellSeconds || 0}s dwell)`;
                 case 'xr_card_interaction': return '3D Lanyard Card Interaction';
                 default: return e.type ? e.type.replace(/_/g, ' ') : 'Interaction';
             }

@@ -18,7 +18,9 @@
 
     function getDeviceType() {
         const ua = navigator.userAgent;
-        if (/(quest|oculus|pico|visionpro|vr)/i.test(ua)) return 'VR / XR Headset';
+        if (/quest|oculus/i.test(ua)) return 'Meta Quest Headset';
+        if (/visionpro|visionos/i.test(ua)) return 'Apple Vision Pro';
+        if (/pico|vive|vr|xr/i.test(ua)) return 'VR / XR Headset';
         if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return 'Tablet';
         if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/i.test(ua)) return 'Mobile';
         return 'Desktop';
@@ -34,9 +36,49 @@
         return "Browser";
     }
 
+    function getReferralInfo() {
+        let referrer = 'Direct / Bookmark';
+        try {
+            if (document.referrer) {
+                const url = new URL(document.referrer);
+                referrer = url.hostname.replace(/^www\./, '');
+            }
+        } catch (e) {
+            referrer = document.referrer || 'Direct / Bookmark';
+        }
+
+        let refTag = '';
+        let campaign = '';
+        try {
+            const params = new URLSearchParams(window.location.search);
+            refTag = params.get('ref') || params.get('source') || params.get('recruiter') || params.get('utm_source') || '';
+            campaign = params.get('utm_campaign') || params.get('campaign') || '';
+        } catch (e) {}
+
+        return { referrer, refTag, campaign };
+    }
+
     const SESSION_ID = 'sess_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
     const DEVICE_TYPE = getDeviceType();
     const BROWSER_NAME = getBrowserName();
+    const REFERRAL_INFO = getReferralInfo();
+
+    // Geolocation & Company / ISP info
+    let geoInfo = {
+        country: '',
+        countryCode: '',
+        city: '',
+        region: '',
+        org: '',
+        isp: '',
+        ip: ''
+    };
+
+    // Cache geo in sessionStorage to prevent redundant API calls per session
+    try {
+        const cached = sessionStorage.getItem('pf_geo_cache_v2');
+        if (cached) geoInfo = JSON.parse(cached);
+    } catch (e) {}
 
     let db = null;
     let isInitialized = false;
@@ -61,13 +103,48 @@
         }
     }
 
+    async function fetchGeoLocation() {
+        if (geoInfo.country && geoInfo.city) return geoInfo;
+
+        try {
+            const res = await fetch('https://ipwho.is/');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.success !== false) {
+                    geoInfo = {
+                        country: data.country || 'Unknown',
+                        countryCode: data.country_code || '',
+                        city: data.city || 'Unknown',
+                        region: data.region || '',
+                        org: (data.connection && (data.connection.org || data.connection.isp)) || '',
+                        isp: (data.connection && data.connection.isp) || '',
+                        ip: data.ip || ''
+                    };
+                    try {
+                        sessionStorage.setItem('pf_geo_cache_v2', JSON.stringify(geoInfo));
+                    } catch (e) {}
+
+                    // Update presence in active_sessions with enriched geo data
+                    if (db) {
+                        db.collection("active_sessions").doc(SESSION_ID).set({
+                            ...geoInfo
+                        }, { merge: true }).catch(() => {});
+                    }
+                }
+            }
+        } catch (err) {
+            // Offline or network blocked — graceful silent fallback
+        }
+        return geoInfo;
+    }
+
     const PortfolioAnalytics = {
         sessionId: SESSION_ID,
         device: DEVICE_TYPE,
         browser: BROWSER_NAME,
 
         /**
-         * Log a custom analytics event to Firestore
+         * Log a custom analytics event to Firestore with enriched hardware, geo, and dwell details
          */
         async logEvent(eventType, details = {}) {
             if (!db && !initFirebase()) {
@@ -83,16 +160,23 @@
                     device: DEVICE_TYPE,
                     browser: BROWSER_NAME,
                     path: window.location.pathname || "/",
-                    referrer: document.referrer || "Direct",
+                    referrer: REFERRAL_INFO.referrer,
+                    refTag: REFERRAL_INFO.refTag,
+                    campaign: REFERRAL_INFO.campaign,
                     screen: `${window.innerWidth}x${window.innerHeight}`,
+                    country: geoInfo.country || '',
+                    countryCode: geoInfo.countryCode || '',
+                    city: geoInfo.city || '',
+                    region: geoInfo.region || '',
+                    org: geoInfo.org || '',
+                    isp: geoInfo.isp || '',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     clientTime: new Date().toISOString()
                 };
 
                 await db.collection("analytics_events").add(eventData);
-                console.log(`[Analytics Event] Logged "${eventType}":`, details);
             } catch (e) {
-                console.warn("[Analytics Event] Write notice (ensure Firestore database is created & rules allow write):", e);
+                console.warn("[Analytics Event] Write notice (ensure Firestore rules allow write):", e);
             }
         },
 
@@ -105,7 +189,6 @@
                 return;
             }
 
-            // Firestore active_sessions
             if (db) {
                 try {
                     const sessionDocRef = db.collection("active_sessions").doc(SESSION_ID);
@@ -113,6 +196,11 @@
                         sessionId: SESSION_ID,
                         device: DEVICE_TYPE,
                         browser: BROWSER_NAME,
+                        referrer: REFERRAL_INFO.referrer,
+                        refTag: REFERRAL_INFO.refTag,
+                        country: geoInfo.country || '',
+                        city: geoInfo.city || '',
+                        org: geoInfo.org || '',
                         page: window.location.pathname || "/",
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
                         clientTime: new Date().toISOString()
@@ -134,7 +222,7 @@
         },
 
         /**
-         * Automatic interactions tracker (Pageview, Resumes, Clicks, Sections)
+         * Automatic interactions tracker (Pageview, Dwell time, Resumes, Clicks, Sections)
          */
         initAutoTracking() {
             // 1. Initial Page View
@@ -143,7 +231,7 @@
                 url: window.location.href
             });
 
-            // 2. Track Resume Downloads (matches any resume button, PDF link, or download trigger)
+            // 2. Track Resume Downloads
             document.addEventListener('click', (e) => {
                 const target = e.target.closest('a[href*="resume.pdf"], a[download*="Resume"], a[download*="resume"], .hero-resume-btn, .nav-btn-resume, [data-action="resume"]');
                 if (target) {
@@ -171,26 +259,34 @@
                 }
             }, true);
 
-            // 4. Section Scroll & Dwell Observer
+            // 4. Section Scroll & Accurate Dwell Time Observer
             const sections = document.querySelectorAll('section[id], header[id]');
             if (sections.length > 0 && 'IntersectionObserver' in window) {
-                const sectionDwellTimers = new Map();
+                const sectionEnterTimes = new Map();
 
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         const sectionId = entry.target.id;
+                        const title = entry.target.querySelector('h2, h1, h3')?.textContent?.trim() || sectionId;
+
                         if (entry.isIntersecting) {
-                            const timer = setTimeout(() => {
-                                PortfolioAnalytics.logEvent("section_view", {
-                                    section: sectionId,
-                                    sectionTitle: entry.target.querySelector('h2, h1, h3')?.textContent?.trim() || sectionId
-                                });
-                            }, 2000);
-                            sectionDwellTimers.set(sectionId, timer);
+                            sectionEnterTimes.set(sectionId, Date.now());
+                            PortfolioAnalytics.logEvent("section_view", {
+                                section: sectionId,
+                                sectionTitle: title
+                            });
                         } else {
-                            if (sectionDwellTimers.has(sectionId)) {
-                                clearTimeout(sectionDwellTimers.get(sectionId));
-                                sectionDwellTimers.delete(sectionId);
+                            const enterTime = sectionEnterTimes.get(sectionId);
+                            if (enterTime) {
+                                const dwellSeconds = Math.round((Date.now() - enterTime) / 1000);
+                                sectionEnterTimes.delete(sectionId);
+                                if (dwellSeconds >= 3) {
+                                    PortfolioAnalytics.logEvent("section_dwell", {
+                                        section: sectionId,
+                                        sectionTitle: title,
+                                        dwellSeconds: dwellSeconds
+                                    });
+                                }
                             }
                         }
                     });
@@ -199,7 +295,18 @@
                 sections.forEach((sec) => observer.observe(sec));
             }
 
-            // 5. Track 3D / XR Interactions
+            // 5. Total Session Dwell Time on Exit
+            const sessionStartTime = Date.now();
+            window.addEventListener('beforeunload', () => {
+                const totalDwellSeconds = Math.round((Date.now() - sessionStartTime) / 1000);
+                if (totalDwellSeconds >= 3) {
+                    PortfolioAnalytics.logEvent("session_end", {
+                        totalDwellSeconds: totalDwellSeconds
+                    });
+                }
+            });
+
+            // 6. Track 3D / XR Interactions
             window.addEventListener('lanyard_drag_start', () => {
                 PortfolioAnalytics.logEvent("xr_card_interaction", { element: "3D ID Card Drag" });
             });
@@ -208,8 +315,9 @@
 
     window.PortfolioAnalytics = PortfolioAnalytics;
 
-    function startTracker() {
+    async function startTracker() {
         initFirebase();
+        await fetchGeoLocation();
         PortfolioAnalytics.initPresence();
         PortfolioAnalytics.initAutoTracking();
     }
