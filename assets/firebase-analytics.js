@@ -170,6 +170,7 @@
                     region: geoInfo.region || '',
                     org: geoInfo.org || '',
                     isp: geoInfo.isp || '',
+                    ip: geoInfo.ip || '',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     clientTime: new Date().toISOString()
                 };
@@ -201,6 +202,7 @@
                         country: geoInfo.country || '',
                         city: geoInfo.city || '',
                         org: geoInfo.org || '',
+                        ip: geoInfo.ip || '',
                         page: window.location.pathname || "/",
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
                         clientTime: new Date().toISOString()

@@ -568,6 +568,69 @@
             gap: 4px;
         }
 
+        /* Resume Audit Table Styling */
+        .resume-table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 15, 30, 0.5);
+            margin-top: 14px;
+        }
+
+        .resume-audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            text-align: left;
+            min-width: 820px;
+        }
+
+        .resume-audit-table th {
+            padding: 13px 16px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--cyan);
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+        }
+
+        .resume-audit-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .resume-audit-table tr:hover td {
+            background: rgba(0, 242, 254, 0.035);
+        }
+
+        .ip-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            padding: 3px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ip-badge:hover {
+            background: rgba(56, 189, 248, 0.22);
+            border-color: #38bdf8;
+            transform: translateY(-1px);
+        }
+
         /* Progress Bar Breakdown */
         .breakdown-row {
             margin-bottom: 14px;
@@ -1334,11 +1397,11 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                 Real-Time Analytics
             </button>
-            <button class="nav-tab" onclick="switchTab('resume')">
+            <button class="nav-tab" data-tab="resume" onclick="switchTab('resume')">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Resume Manager
+                Resume Downloads &amp; Audit Log
             </button>
-            <button class="nav-tab" onclick="switchTab('projects')">
+            <button class="nav-tab" data-tab="projects" onclick="switchTab('projects')">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                 Add Projects
             </button>
@@ -1360,10 +1423,10 @@
                     <div class="kpi-subtext">Lifetime pageviews</div>
                 </div>
 
-                <div class="kpi-card purple">
+                <div class="kpi-card purple" onclick="switchTab('resume')" style="cursor: pointer;" title="Click to view IP address, location, browser and date audit log">
                     <div class="kpi-label">Resume Downloads <span>📄</span></div>
                     <div class="kpi-value" id="val-resume-downloads">0</div>
-                    <div class="kpi-subtext">CV clicks recorded</div>
+                    <div class="kpi-subtext">Click to view IP &amp; telemetry &rarr;</div>
                 </div>
 
                 <div class="kpi-card amber">
@@ -1513,21 +1576,102 @@
             </div>
         </div>
 
-        <!-- TAB 2: RESUME MANAGER -->
+        <!-- TAB 2: RESUME DOWNLOADS & AUDIT LOG -->
         <div id="tab-resume" style="display: none;">
+            <!-- Summary KPI strip for Resume Downloads -->
+            <div class="kpi-grid" style="margin-bottom: 24px;">
+                <div class="kpi-card purple">
+                    <div class="kpi-label">Total CV Downloads <span>📄</span></div>
+                    <div class="kpi-value" id="resume-stat-total">0</div>
+                    <div class="kpi-subtext">All-time recorded clicks</div>
+                </div>
+                <div class="kpi-card emerald">
+                    <div class="kpi-label">Unique Visitor IPs <span>🌐</span></div>
+                    <div class="kpi-value" id="resume-stat-unique-ips">0</div>
+                    <div class="kpi-subtext">Distinct networks / devices</div>
+                </div>
+                <div class="kpi-card cyan">
+                    <div class="kpi-label">Top Location <span>📍</span></div>
+                    <div class="kpi-value" style="font-size: 1.15rem; word-break: break-word;" id="resume-stat-top-loc">—</div>
+                    <div class="kpi-subtext">Highest interest region</div>
+                </div>
+                <div class="kpi-card amber">
+                    <div class="kpi-label">Top Browser <span>💻</span></div>
+                    <div class="kpi-value" style="font-size: 1.15rem;" id="resume-stat-top-browser">—</div>
+                    <div class="kpi-subtext">Preferred client application</div>
+                </div>
+            </div>
+
+            <!-- Main Resume Audit Table Panel -->
+            <div class="panel" style="margin-bottom: 24px;">
+                <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div class="panel-title" style="font-size: 1.15rem;">
+                            <span>📄 Resume Downloads Detailed Audit Log</span>
+                            <span id="resume-table-badge" style="font-size: 0.75rem; color: #a855f7; background: rgba(168, 85, 247, 0.15); padding: 3px 10px; border-radius: 20px;">0 Records</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                            Detailed logs of every time your resume was downloaded, with IP address, location, browser, ISP, and date.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="resume-search-input" placeholder="🔍 Search IP, Location, Browser, ISP..." 
+                            style="width: 260px; padding: 8px 12px; font-size: 0.8rem; border-radius: 8px;" oninput="filterResumeLog()">
+                        <button class="btn-portal" style="font-size: 0.75rem; padding: 8px 14px;" onclick="exportResumeLogCSV()">
+                            📥 Export CSV
+                        </button>
+                        <button class="btn-portal" style="font-size: 0.75rem; padding: 8px 14px;" onclick="renderResumeLog()">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Container (Horizontal Scroll on Mobile) -->
+                <div class="resume-table-container">
+                    <table class="resume-audit-table" id="resume-audit-table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>IP Address</th>
+                                <th>Location (Where)</th>
+                                <th>Browser &amp; Device</th>
+                                <th>Company / ISP</th>
+                                <th>Source / Referral</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resume-log-tbody">
+                            <!-- Injected by renderResumeLog() -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="resume-empty-state" style="display: none; text-align: center; padding: 50px 20px; color: var(--text-muted);">
+                    <div style="font-size: 2.4rem; margin-bottom: 12px;">📄</div>
+                    <h3 style="color: #fff; font-size: 1.05rem; margin-bottom: 6px;">No Resume Downloads Logged Yet</h3>
+                    <p style="font-size: 0.82rem; max-width: 440px; margin: 0 auto 16px;">
+                        When visitors click "Download Resume" in the hero or navbar, their IP, exact date, city, country, browser, and company will automatically appear here in real-time.
+                    </p>
+                    <a href="/" target="_blank" class="btn-portal" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 0.82rem;">
+                        <span>🔗 Open Portfolio &amp; Test Download</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CV File Deployment Panel -->
             <div class="panel" style="max-width: 600px; margin: 0 auto;">
                 <div class="panel-header">
-                    <div class="panel-title">📄 Resume Management</div>
+                    <div class="panel-title">⚙️ Update Resume File on Server</div>
                 </div>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">
-                    Update your portfolio's public CV file (<code>assets/resume.pdf</code>).
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+                    Currently serving: <code>assets/resume.pdf</code> (Updated from SP_O26.pdf).
                 </p>
                 <div class="form-group">
-                    <label for="resume">Select Updated PDF File</label>
+                    <label for="resume">Select Replacement PDF File</label>
                     <input type="file" id="resume" accept=".pdf">
                 </div>
                 <button class="btn-action" onclick="handleResumeUpload()">
-                    Update Resume File
+                    Deploy Replacement PDF
                 </button>
                 <div id="resume-status" style="display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 0.85rem;"></div>
             </div>
@@ -1922,6 +2066,9 @@
                     geoContainer.innerHTML = html;
                 }
             }
+
+            // Real-time update to Resume Audit Log
+            renderResumeLog();
         }
 
         // 📈 PEAK POINTED CHART RENDERER
@@ -2278,13 +2425,194 @@
                 .replace(/>/g, '&gt;');
         }
 
+        let resumeLogSearchQuery = '';
+
+        function filterResumeLog() {
+            const input = document.getElementById('resume-search-input');
+            resumeLogSearchQuery = (input ? input.value : '').toLowerCase().trim();
+            renderResumeLog();
+        }
+
+        function renderResumeLog() {
+            const tbody = document.getElementById('resume-log-tbody');
+            const emptyState = document.getElementById('resume-empty-state');
+            const tableContainer = document.querySelector('.resume-table-container');
+            const badge = document.getElementById('resume-table-badge');
+            if (!tbody) return;
+
+            const downloads = (cachedAnalyticsEvents || []).filter(e => e.type === 'resume_download');
+
+            // Compute statistics
+            const total = downloads.length;
+            const uniqueIps = new Set(downloads.map(e => e.ip).filter(Boolean)).size;
+
+            const locCounts = {};
+            downloads.forEach(e => {
+                const loc = [e.city, e.country].filter(Boolean).join(', ');
+                if (loc && !loc.includes('Unknown')) locCounts[loc] = (locCounts[loc] || 0) + 1;
+            });
+            const topLocEntry = Object.entries(locCounts).sort((a,b) => b[1] - a[1])[0];
+            const topLoc = topLocEntry ? topLocEntry[0] : (total > 0 ? 'Recorded' : '—');
+
+            const browserCounts = {};
+            downloads.forEach(e => {
+                const b = e.browser || 'Web';
+                browserCounts[b] = (browserCounts[b] || 0) + 1;
+            });
+            const topBrowserEntry = Object.entries(browserCounts).sort((a,b) => b[1] - a[1])[0];
+            const topBrowser = topBrowserEntry ? `${topBrowserEntry[0]} (${topBrowserEntry[1]})` : '—';
+
+            if (document.getElementById('resume-stat-total')) document.getElementById('resume-stat-total').textContent = total;
+            if (document.getElementById('resume-stat-unique-ips')) document.getElementById('resume-stat-unique-ips').textContent = uniqueIps || (total > 0 ? 1 : 0);
+            if (document.getElementById('resume-stat-top-loc')) document.getElementById('resume-stat-top-loc').textContent = topLoc;
+            if (document.getElementById('resume-stat-top-browser')) document.getElementById('resume-stat-top-browser').textContent = topBrowser;
+
+            // Apply search query filter
+            let filtered = downloads;
+            if (resumeLogSearchQuery) {
+                filtered = downloads.filter(e => {
+                    const haystack = [
+                        e.ip,
+                        e.city,
+                        e.region,
+                        e.country,
+                        e.browser,
+                        e.device,
+                        e.org,
+                        e.isp,
+                        e.referrer,
+                        e.refTag
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    return haystack.includes(resumeLogSearchQuery);
+                });
+            }
+
+            if (badge) badge.textContent = `${filtered.length} Record${filtered.length === 1 ? '' : 's'}`;
+
+            if (downloads.length === 0) {
+                if (tableContainer) tableContainer.style.display = 'none';
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+
+            if (tableContainer) tableContainer.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'none';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 32px; color: var(--text-muted);">
+                            No download records matching "<strong>${escapeHtml(resumeLogSearchQuery)}</strong>"
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(e => {
+                const ts = formatEventTimestamp(e.timestamp || e.clientTime);
+                const locParts = [e.city, e.region, e.country].filter(Boolean);
+                const locStr = locParts.length > 0 ? locParts.join(', ') : 'Location Recorded';
+                const ipDisplay = e.ip || (e.city ? 'Logged via Geo' : 'Direct Access');
+                const orgDisplay = e.org || e.isp || 'Standard Network';
+                const refDisplay = e.refTag ? ('Ref: ' + e.refTag) : (e.referrer && e.referrer !== 'Direct / Bookmark' ? e.referrer : 'Direct Visit');
+                const deviceDisplay = e.device || 'Desktop';
+                const browserDisplay = e.browser || 'Web Browser';
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #fff;">📅 ${ts.dateStr || 'Today'}, ${ts.timeStr || ''}</div>
+                            <div style="font-size: 0.72rem; color: var(--cyan); margin-top: 2px; font-family: 'JetBrains Mono', monospace;">• ${ts.relStr}</div>
+                        </td>
+                        <td>
+                            <span class="ip-badge" title="Click to copy IP Address" onclick="navigator.clipboard.writeText('${escapeHtml(ipDisplay)}'); alert('Copied IP: ${escapeHtml(ipDisplay)}');">
+                                🌐 ${escapeHtml(ipDisplay)}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 1rem;">📍</span>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-main); font-size: 0.82rem;">${escapeHtml(locStr)}</div>
+                                    ${e.countryCode ? `<div style="font-size: 0.7rem; color: var(--cyan); font-family: 'JetBrains Mono', monospace;">Country Code: ${escapeHtml(e.countryCode)}</div>` : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <span class="device-pill" style="background: rgba(0, 242, 254, 0.1); color: var(--cyan);">🌐 ${escapeHtml(browserDisplay)}</span>
+                                <span class="device-pill">💻 ${escapeHtml(deviceDisplay)}</span>
+                            </div>
+                            ${e.screen ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace;">Screen: ${escapeHtml(e.screen)}</div>` : ''}
+                        </td>
+                        <td>
+                            <span class="org-pill" style="max-width: 200px;" title="${escapeHtml(orgDisplay)}">
+                                🏢 ${escapeHtml(orgDisplay)}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="ref-pill" title="${escapeHtml(refDisplay)}">
+                                🔗 ${escapeHtml(refDisplay)}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportResumeLogCSV() {
+            const downloads = (cachedAnalyticsEvents || []).filter(e => e.type === 'resume_download');
+            if (downloads.length === 0) {
+                alert('No resume download records to export.');
+                return;
+            }
+
+            const headers = ['Date', 'Time', 'IP_Address', 'City', 'Region', 'Country', 'Country_Code', 'Browser', 'Device', 'Screen', 'Organization_ISP', 'Referrer', 'Ref_Tag'];
+            const rows = downloads.map(e => {
+                const ts = formatEventTimestamp(e.timestamp || e.clientTime);
+                return [
+                    `"${ts.dateStr || ''}"`,
+                    `"${ts.timeStr || ''}"`,
+                    `"${e.ip || ''}"`,
+                    `"${e.city || ''}"`,
+                    `"${e.region || ''}"`,
+                    `"${e.country || ''}"`,
+                    `"${e.countryCode || ''}"`,
+                    `"${e.browser || ''}"`,
+                    `"${e.device || ''}"`,
+                    `"${e.screen || ''}"`,
+                    `"${(e.org || e.isp || '').replace(/"/g, '""')}"`,
+                    `"${(e.referrer || '').replace(/"/g, '""')}"`,
+                    `"${(e.refTag || '').replace(/"/g, '""')}"`
+                ].join(',');
+            });
+
+            const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `resume_downloads_audit_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            const tabBtn = document.querySelector(`.nav-tab[data-tab="${tabId}"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+            else if (window.event && window.event.currentTarget && window.event.currentTarget.classList.contains('nav-tab')) {
+                window.event.currentTarget.classList.add('active');
+            }
 
             document.getElementById('tab-analytics').style.display = tabId === 'analytics' ? 'block' : 'none';
             document.getElementById('tab-resume').style.display = tabId === 'resume' ? 'block' : 'none';
             document.getElementById('tab-projects').style.display = tabId === 'projects' ? 'block' : 'none';
+
+            if (tabId === 'resume') {
+                renderResumeLog();
+            }
         }
 
         function handleResumeUpload() {
