@@ -385,21 +385,39 @@
             flex-wrap: wrap;
         }
 
-        /* Live Activity Stream */
+        /* Live Activity Stream (Full Height View) */
+        .panel.activity-panel {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+            height: 100%;
+        }
+
         .activity-feed {
-            max-height: 520px;
+            flex: 1 1 0px;
+            min-height: 520px;
+            max-height: none;
             overflow-y: auto;
-            padding-right: 4px;
+            padding-right: 6px;
             -webkit-overflow-scrolling: touch;
         }
 
         .activity-feed::-webkit-scrollbar {
-            width: 4px;
+            width: 5px;
+        }
+
+        .activity-feed::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
         }
 
         .activity-feed::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(0, 242, 254, 0.25);
             border-radius: 4px;
+        }
+
+        .activity-feed::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.55);
         }
 
         .event-item {
@@ -1104,6 +1122,17 @@
                 grid-template-columns: 1fr;
                 gap: 18px;
             }
+
+            .panel.activity-panel {
+                height: auto;
+                margin-bottom: 18px;
+            }
+
+            .activity-feed {
+                flex: none;
+                max-height: 520px;
+                min-height: auto;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1602,7 +1631,7 @@
             <!-- Two-Column Layout -->
             <div class="analytics-layout">
                 <!-- Left Column: Live Event Stream -->
-                <div class="panel">
+                <div class="panel activity-panel">
                     <div class="panel-header">
                         <div class="panel-title">
                             <span>⚡ Live Activity Stream</span>
