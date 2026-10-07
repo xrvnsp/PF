@@ -489,14 +489,49 @@
         }
 
         @media(max-width:768px) {
+            .badge {
+                display: none;
+            }
+
+            .back {
+                top: 18px;
+                left: 18px;
+                font-size: 9px;
+            }
+
+            .resume-btn {
+                top: 18px;
+                right: 18px;
+                padding: 6px 12px;
+                font-size: 9px;
+            }
+
             #info {
-                bottom: 110px;
-                left: 24px;
-                right: 24px;
+                bottom: 85px;
+                left: 18px;
+                right: 18px;
+                padding: 18px;
+            }
+
+            .dspec {
+                font-size: 11px;
+                line-height: 1.55;
             }
 
             .dots {
-                right: 18px;
+                right: 14px;
+            }
+        }
+
+        /* Disable custom reticle cursor on touch / mobile devices */
+        @media (pointer: coarse), (hover: none) {
+            body {
+                cursor: auto;
+            }
+
+            .custom-cursor,
+            .cursor-follower {
+                display: none !important;
             }
         }
     </style>
