@@ -425,6 +425,112 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Differentiation for Today's Activity Entries */
+        .event-item.is-today {
+            background: linear-gradient(90deg, rgba(0, 242, 254, 0.08) 0%, rgba(13, 20, 38, 0.75) 100%);
+            border: 1px solid rgba(0, 242, 254, 0.32);
+            border-left: 4px solid #00f2fe;
+            box-shadow: 0 4px 18px rgba(0, 242, 254, 0.08), inset 0 0 14px rgba(0, 242, 254, 0.03);
+            position: relative;
+        }
+
+        .event-item.is-today:hover {
+            background: linear-gradient(90deg, rgba(0, 242, 254, 0.14) 0%, rgba(13, 20, 38, 0.88) 100%);
+            border-color: rgba(0, 242, 254, 0.6);
+            box-shadow: 0 6px 24px rgba(0, 242, 254, 0.16), inset 0 0 20px rgba(0, 242, 254, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .event-item.is-past {
+            opacity: 0.82;
+            border-left: 3px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .event-item.is-past:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .today-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            background: rgba(0, 242, 254, 0.16);
+            border: 1px solid rgba(0, 242, 254, 0.55);
+            border-radius: 6px;
+            color: #00f2fe;
+            font-size: 0.66rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.6px;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+            animation: pulseTodayGlow 2.5s infinite ease-in-out;
+            user-select: none;
+        }
+
+        .today-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 6px #00f2fe;
+            animation: blinkTodayDot 1.4s infinite ease-in-out;
+            display: inline-block;
+        }
+
+        @keyframes blinkTodayDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.7); }
+        }
+
+        @keyframes pulseTodayGlow {
+            0%, 100% {
+                border-color: rgba(0, 242, 254, 0.45);
+                box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+            }
+            50% {
+                border-color: rgba(0, 242, 254, 0.9);
+                box-shadow: 0 0 16px rgba(0, 242, 254, 0.5);
+            }
+        }
+
+        .feed-section-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 16px 0 12px;
+            position: relative;
+        }
+
+        .feed-section-divider::before,
+        .feed-section-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+        }
+
+        .feed-section-divider span {
+            padding: 3px 12px;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(13, 20, 38, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+        }
+
+        tr.row-today {
+            background: rgba(0, 242, 254, 0.05) !important;
+            border-left: 3.5px solid #00f2fe;
+        }
+
+        tr.row-today:hover {
+            background: rgba(0, 242, 254, 0.1) !important;
+        }
+
         .event-icon-badge {
             width: 36px;
             height: 36px;
@@ -1930,7 +2036,13 @@
             document.getElementById('val-resume-downloads').textContent = resumes;
             document.getElementById('val-social-clicks').textContent = social;
             document.getElementById('val-xr-interactions').textContent = xrCards;
-            document.getElementById('event-count-badge').textContent = `${events.length} Events`;
+            const todayCount = events.filter(e => {
+                const t = formatEventTimestamp(e.timestamp || e.clientTime);
+                return t.isToday;
+            }).length;
+            document.getElementById('event-count-badge').textContent = todayCount > 0 
+                ? `${events.length} Events • ${todayCount} Today` 
+                : `${events.length} Events`;
 
             // 📈 Render the Peak Pointed Graph
             renderPeakChart(events);
@@ -1945,7 +2057,8 @@
                 return;
             }
 
-            feed.innerHTML = events.map(e => {
+            let renderedEarlierDivider = false;
+            feed.innerHTML = events.map((e, index) => {
                 const icon = getEventIcon(e.type);
                 const title = formatEventTitle(e);
                 const ts = formatEventTimestamp(e.timestamp || e.clientTime);
@@ -1963,12 +2076,23 @@
                 const refStr = (refFormatted && refFormatted !== 'Direct Visit') ? refFormatted : '';
                 const dwellVal = e.dwellSeconds ? (e.dwellSeconds + 's dwell') : (e.totalDwellSeconds ? (e.totalDwellSeconds + 's total') : '');
 
-                return `
-                    <div class="event-item">
+                let dividerHtml = '';
+                if (!ts.isToday && !renderedEarlierDivider && index > 0) {
+                    renderedEarlierDivider = true;
+                    dividerHtml = `
+                        <div class="feed-section-divider">
+                            <span>Earlier History</span>
+                        </div>
+                    `;
+                }
+
+                return dividerHtml + `
+                    <div class="event-item ${ts.isToday ? 'is-today' : 'is-past'}">
                         <div class="event-icon-badge type-${e.type || 'page_view'}">${icon}</div>
                         <div class="event-info">
                             <div class="event-top">
                                 <span class="event-title">${title}</span>
+                                ${ts.isToday ? `<span class="today-badge"><span class="today-dot"></span>TODAY</span>` : ''}
                                 <span class="event-time" title="${ts.dateStr} ${ts.timeStr} (${ts.relStr})">
                                     ${dateTimeDisplay}
                                     ${relDisplay}
@@ -2397,26 +2521,33 @@
         }
 
         function formatEventTimestamp(timestamp) {
-            if (!timestamp) return { dateStr: '', timeStr: '', relStr: 'Just now' };
+            if (!timestamp) return { dateStr: '', timeStr: '', relStr: 'Just now', isToday: false };
             let date;
             if (timestamp.toDate && typeof timestamp.toDate === 'function') date = timestamp.toDate();
             else if (timestamp.seconds) date = new Date(timestamp.seconds * 1000);
             else if (typeof timestamp === 'string' || typeof timestamp === 'number') date = new Date(timestamp);
             else date = new Date(timestamp);
 
-            if (isNaN(date.getTime())) return { dateStr: '', timeStr: '', relStr: 'Just now' };
+            if (isNaN(date.getTime())) return { dateStr: '', timeStr: '', relStr: 'Just now', isToday: false };
 
-            const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            const now = new Date();
+            const isToday = (
+                date.getDate() === now.getDate() &&
+                date.getMonth() === now.getMonth() &&
+                date.getFullYear() === now.getFullYear()
+            );
+
+            const dateStr = isToday ? 'Today' : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
             const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            const seconds = Math.floor((new Date() - date) / 1000);
+            const seconds = Math.floor((now - date) / 1000);
             let relStr = 'Just now';
             if (seconds >= 10 && seconds < 60) relStr = `${seconds}s ago`;
             else if (seconds >= 60 && seconds < 3600) relStr = `${Math.floor(seconds / 60)}m ago`;
             else if (seconds >= 3600 && seconds < 86400) relStr = `${Math.floor(seconds / 3600)}h ago`;
             else if (seconds >= 86400) relStr = `${Math.floor(seconds / 86400)}d ago`;
 
-            return { dateStr, timeStr, relStr };
+            return { dateStr, timeStr, relStr, isToday, rawDate: date };
         }
 
         function escapeHtml(str) {
@@ -2552,9 +2683,12 @@
                 const browserDisplay = e.browser || 'Web Browser';
 
                 return `
-                    <tr>
+                    <tr class="${ts.isToday ? 'row-today' : ''}">
                         <td>
-                            <div style="font-weight: 600; color: #fff;">📅 ${ts.dateStr || 'Today'}, ${ts.timeStr || ''}</div>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <div style="font-weight: 600; color: #fff;">📅 ${ts.dateStr || 'Today'}, ${ts.timeStr || ''}</div>
+                                ${ts.isToday ? '<span class="today-badge" style="font-size: 0.6rem; padding: 1px 6px;"><span class="today-dot"></span>TODAY</span>' : ''}
+                            </div>
                             <div style="font-size: 0.72rem; color: var(--cyan); margin-top: 2px; font-family: 'JetBrains Mono', monospace;">• ${ts.relStr}</div>
                         </td>
                         <td>
