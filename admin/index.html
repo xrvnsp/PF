@@ -1959,7 +1959,8 @@
                 const locParts = [e.city, e.country].filter(Boolean);
                 const locStr = locParts.length > 0 ? locParts.join(', ') : '';
                 const orgStr = e.org || e.isp || '';
-                const refStr = e.refTag ? ('Ref: ' + e.refTag) : (e.referrer && e.referrer !== 'Direct / Bookmark' ? e.referrer : '');
+                const refFormatted = formatReferrerSource(e.referrer, e.refTag);
+                const refStr = (refFormatted && refFormatted !== 'Direct Visit') ? refFormatted : '';
                 const dwellVal = e.dwellSeconds ? (e.dwellSeconds + 's dwell') : (e.totalDwellSeconds ? (e.totalDwellSeconds + 's total') : '');
 
                 return `
@@ -2425,6 +2426,37 @@
                 .replace(/>/g, '&gt;');
         }
 
+        function formatReferrerSource(referrer, refTag) {
+            if (refTag) return 'Ref: ' + refTag;
+            if (!referrer || referrer === 'Direct / Bookmark') return 'Direct Visit';
+            const lower = String(referrer).toLowerCase().trim();
+            if (lower === 't.co' || lower.includes('twitter') || lower.includes('x.com')) {
+                return 'Twitter';
+            }
+            if (lower.includes('linkedin') || lower.includes('lnkd.in')) {
+                return 'LinkedIn';
+            }
+            if (lower.includes('github')) {
+                return 'GitHub';
+            }
+            if (lower.includes('google')) {
+                return 'Google Search';
+            }
+            if (lower.includes('instagram')) {
+                return 'Instagram';
+            }
+            if (lower.includes('facebook')) {
+                return 'Facebook';
+            }
+            if (lower.includes('youtube') || lower.includes('youtu.be')) {
+                return 'YouTube';
+            }
+            if (lower.includes('reddit')) {
+                return 'Reddit';
+            }
+            return referrer;
+        }
+
         let resumeLogSearchQuery = '';
 
         function filterResumeLog() {
@@ -2515,7 +2547,7 @@
                 const locStr = locParts.length > 0 ? locParts.join(', ') : 'Location Recorded';
                 const ipDisplay = e.ip || (e.city ? 'Logged via Geo' : 'Direct Access');
                 const orgDisplay = e.org || e.isp || 'Standard Network';
-                const refDisplay = e.refTag ? ('Ref: ' + e.refTag) : (e.referrer && e.referrer !== 'Direct / Bookmark' ? e.referrer : 'Direct Visit');
+                const refDisplay = formatReferrerSource(e.referrer, e.refTag);
                 const deviceDisplay = e.device || 'Desktop';
                 const browserDisplay = e.browser || 'Web Browser';
 
@@ -2583,7 +2615,7 @@
                     `"${e.device || ''}"`,
                     `"${e.screen || ''}"`,
                     `"${(e.org || e.isp || '').replace(/"/g, '""')}"`,
-                    `"${(e.referrer || '').replace(/"/g, '""')}"`,
+                    `"${(formatReferrerSource(e.referrer, '') || '').replace(/"/g, '""')}"`,
                     `"${(e.refTag || '').replace(/"/g, '""')}"`
                 ].join(',');
             });

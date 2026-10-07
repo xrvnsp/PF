@@ -41,10 +41,34 @@
         try {
             if (document.referrer) {
                 const url = new URL(document.referrer);
-                referrer = url.hostname.replace(/^www\./, '');
+                const host = url.hostname.replace(/^www\./, '').toLowerCase();
+                if (host === 't.co' || host.includes('twitter.com') || host.includes('x.com')) {
+                    referrer = 'Twitter';
+                } else if (host.includes('linkedin.com') || host.includes('lnkd.in')) {
+                    referrer = 'LinkedIn';
+                } else if (host.includes('github.com')) {
+                    referrer = 'GitHub';
+                } else if (host.includes('google.')) {
+                    referrer = 'Google Search';
+                } else if (host.includes('instagram.com') || host.includes('l.instagram.com')) {
+                    referrer = 'Instagram';
+                } else if (host.includes('facebook.com') || host.includes('l.facebook.com')) {
+                    referrer = 'Facebook';
+                } else if (host.includes('youtube.com') || host.includes('youtu.be')) {
+                    referrer = 'YouTube';
+                } else if (host.includes('reddit.com')) {
+                    referrer = 'Reddit';
+                } else {
+                    referrer = host;
+                }
             }
         } catch (e) {
-            referrer = document.referrer || 'Direct / Bookmark';
+            const raw = (document.referrer || '').toLowerCase();
+            if (raw.includes('t.co') || raw.includes('twitter') || raw.includes('x.com')) {
+                referrer = 'Twitter';
+            } else {
+                referrer = document.referrer || 'Direct / Bookmark';
+            }
         }
 
         let refTag = '';
