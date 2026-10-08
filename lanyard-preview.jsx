@@ -5,6 +5,7 @@ import Lanyard from './react_src/Lanyard';
 const LanyardDemo = () => {
   const [finish, setFinish] = useState('holographic');
   const [interactive, setInteractive] = useState(true);
+  const [slotClearance, setSlotClearance] = useState(true);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
@@ -26,6 +27,20 @@ const LanyardDemo = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button
+            onClick={() => setSlotClearance(!slotClearance)}
+            style={{
+              background: slotClearance ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255,255,255,0.05)',
+              color: slotClearance ? '#4ade80' : '#94a3b8',
+              border: slotClearance ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              fontSize: '0.82rem',
+              cursor: 'pointer'
+            }}
+          >
+            {slotClearance ? '🛡️ Hook Safe Fit: ON' : 'Hook Safe Fit: OFF'}
+          </button>
           <label style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Finish:</label>
           <select
             value={finish}
@@ -69,6 +84,7 @@ const LanyardDemo = () => {
           strapImage="/assets/hepl_lanyard.png"
           finish={finish}
           orientation="portrait"
+          slotClearance={slotClearance}
           interactive={interactive}
           breeze={0.35}
           size={0.65}

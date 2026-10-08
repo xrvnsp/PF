@@ -416,19 +416,82 @@ const buildWeaveTexture = () => {
   return texture;
 };
 
-const drawFitted = (ctx, image, width, height, fit) => {
-  const scale = (fit === 'contain' ? Math.min : Math.max)(width / image.width, height / image.height);
-  const w = image.width * scale;
-  const h = image.height * scale;
-  ctx.drawImage(image, (width - w) / 2, (height - h) / 2, w, h);
+const sampleEdgeColor = (image, xPercent, yPercent) => {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(
+      image,
+      Math.max(0, Math.min(image.width - 1, Math.round(image.width * xPercent))),
+      Math.max(0, Math.min(image.height - 1, Math.round(image.height * yPercent))),
+      1,
+      1,
+      0,
+      0,
+      1,
+      1
+    );
+    const d = ctx.getImageData(0, 0, 1, 1).data;
+    if (d[3] === 0) return null;
+    return `rgba(${d[0]}, ${d[1]}, ${d[2]}, ${d[3] / 255})`;
+  } catch {
+    return null;
+  }
 };
 
-const paintFace = (canvas, image, color, fit) => {
+const getSlotClearancePx = (layout, canvasHeight, customVal) => {
+  if (typeof customVal === 'number') {
+    return customVal > 1 ? customVal : Math.round(customVal * canvasHeight);
+  }
+  if (!layout || !layout.slot) return 0;
+  const slotBottom = layout.height / 2 - (layout.slot.y - layout.slot.height / 2);
+  const ringBottom = layout.height / 2 - (layout.ringY - RING_RADIUS);
+  const totalReach = Math.max(slotBottom, ringBottom) + 0.05;
+  return Math.round((totalReach / layout.height) * canvasHeight);
+};
+
+const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
+  if (slotClearancePx > 0) {
+    const availH = height - slotClearancePx;
+    const availW = width;
+    const scale = Math.min(availW / image.width, availH / image.height);
+    const w = image.width * scale;
+    const h = image.height * scale;
+    const x = (width - w) / 2;
+    const y = height - h;
+    ctx.drawImage(image, x, y, w, h);
+  } else {
+    const scale = (fit === 'contain' ? Math.min : Math.max)(width / image.width, height / image.height);
+    const w = image.width * scale;
+    const h = image.height * scale;
+    ctx.drawImage(image, (width - w) / 2, (height - h) / 2, w, h);
+  }
+};
+
+const paintFace = (canvas, image, color, fit, layout, slotClearance = true, slotClearanceValue = null) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  ctx.fillStyle = toCss(color);
+  const slotClearancePx = slotClearance ? getSlotClearancePx(layout, canvas.height, slotClearanceValue) : 0;
+  const topColor = image ? sampleEdgeColor(image, 0.05, 0.02) : null;
+  ctx.fillStyle = topColor || toCss(color);
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  if (image) drawFitted(ctx, image, canvas.width, canvas.height, fit);
+
+  if (image) {
+    if (slotClearancePx > 0) {
+      const botColor = sampleEdgeColor(image, 0.05, 0.98);
+      if (botColor && botColor !== topColor) {
+        const scale = Math.min(canvas.width / image.width, (canvas.height - slotClearancePx) / image.height);
+        const h = image.height * scale;
+        const y = canvas.height - h;
+        ctx.fillStyle = botColor;
+        ctx.fillRect(0, y + h - 6, canvas.width, canvas.height - (y + h - 6));
+      }
+    }
+    drawFitted(ctx, image, canvas.width, canvas.height, fit, slotClearancePx);
+  }
 };
 
 const paintStrap = (canvas, image, color) => {
@@ -705,6 +768,7 @@ const Lanyard = ({
   frontImage,
   backImage,
   imageFit = 'cover',
+  slotClearance = true,
   cardColor = '#ffffff',
   orientation = 'portrait',
   finish = 'glossy',
@@ -733,6 +797,8 @@ const Lanyard = ({
     frontImage,
     backImage,
     imageFit: imageFit === 'contain' ? 'contain' : 'cover',
+    slotClearance: slotClearance !== false,
+    slotClearanceValue: typeof slotClearance === 'number' ? slotClearance : null,
     cardColor,
     orientation: orientation === 'landscape' ? 'landscape' : 'portrait',
     finish,
@@ -895,8 +961,8 @@ const Lanyard = ({
         frontTexture.dispose();
         backTexture.dispose();
       }
-      paintFace(frontCanvas, images.front, color, s.imageFit);
-      paintFace(backCanvas, images.back || images.front, color, s.imageFit);
+      paintFace(frontCanvas, images.front, color, s.imageFit, layout, s.slotClearance, s.slotClearanceValue);
+      paintFace(backCanvas, images.back || images.front, color, s.imageFit, layout, s.slotClearance, s.slotClearanceValue);
       frontTexture.needsUpdate = true;
       backTexture.needsUpdate = true;
       start();
@@ -981,7 +1047,7 @@ const Lanyard = ({
           repaintStrap();
         });
       }
-      const faceKey = `${layoutKey}|${s.cardColor}|${s.imageFit}`;
+      const faceKey = `${layoutKey}|${s.cardColor}|${s.imageFit}|${s.slotClearance}|${s.slotClearanceValue}`;
       if (faceKey !== applied.faceKey) paintFaces();
       if (s.strapColor !== applied.strapColor) repaintStrap();
 
