@@ -633,6 +633,81 @@
             white-space: nowrap;
         }
 
+        /* Dynamic Browser Gradient Badges */
+        .device-pill.browser-pill {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            border: 1px solid transparent;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .device-pill.browser-pill:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Chrome: Center Blue surrounded by Green, Yellow, Red */
+        .device-pill.browser-chrome {
+            background: 
+                radial-gradient(circle at center, #1a73e8 0%, #4285f4 32%, #ffffff 33%, #ffffff 38%, transparent 39%),
+                conic-gradient(from -45deg at center, #ea4335 0deg 120deg, #fbbc05 120deg 240deg, #34a853 240deg 360deg);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.4);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 5px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 8px rgba(66, 133, 244, 0.35);
+        }
+
+        /* Safari: Apple Compass Blue */
+        .device-pill.browser-safari {
+            background: linear-gradient(135deg, #0055d4 0%, #007aff 50%, #00d4ff 100%);
+            color: #ffffff;
+            border-color: rgba(0, 212, 255, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(0, 122, 255, 0.4);
+        }
+
+        /* Firefox: Fiery Red-Orange to Violet */
+        .device-pill.browser-firefox {
+            background: linear-gradient(135deg, #ff9400 0%, #ff3600 45%, #e60067 100%);
+            color: #ffffff;
+            border-color: rgba(255, 148, 0, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(255, 54, 0, 0.4);
+        }
+
+        /* Edge: Microsoft Wave Azure into Cyan */
+        .device-pill.browser-edge {
+            background: linear-gradient(135deg, #0078d7 0%, #00bcf2 50%, #00ffa3 100%);
+            color: #ffffff;
+            border-color: rgba(0, 255, 163, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(0, 188, 242, 0.4);
+        }
+
+        /* Opera: Vibrant Opera Red */
+        .device-pill.browser-opera {
+            background: linear-gradient(135deg, #ff1b2d 0%, #cc091e 100%);
+            color: #ffffff;
+            border-color: rgba(255, 27, 45, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(255, 27, 45, 0.4);
+        }
+
+        /* Brave: Lion Red-Orange */
+        .device-pill.browser-brave {
+            background: linear-gradient(135deg, #fb542b 0%, #ff7a00 100%);
+            color: #ffffff;
+            border-color: rgba(251, 84, 43, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(251, 84, 43, 0.4);
+        }
+
+        /* Generic / Web */
+        .device-pill.browser-generic {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--cyan);
+            border-color: rgba(0, 242, 254, 0.25);
+        }
+
         .geo-pill {
             background: rgba(0, 242, 254, 0.1);
             color: var(--cyan);
@@ -2129,7 +2204,7 @@
                             </div>
                             <div class="event-detail">
                                 <span class="device-pill">${e.device || 'Desktop'}</span>
-                                <span class="device-pill">${e.browser || 'Web'}</span>
+                                ${renderBrowserPill(e.browser)}
                                 ${locStr ? `<span class="geo-pill" title="Location: ${escapeHtml(locStr)}">📍 ${escapeHtml(locStr)}</span>` : ''}
                                 ${orgStr ? `<span class="org-pill" title="Organization / ISP: ${escapeHtml(orgStr)}">🏢 ${escapeHtml(orgStr)}</span>` : ''}
                                 ${refStr ? `<span class="ref-pill" title="Referral: ${escapeHtml(refStr)}">🔗 ${escapeHtml(refStr)}</span>` : ''}
@@ -2586,6 +2661,36 @@
                 .replace(/>/g, '&gt;');
         }
 
+        function renderBrowserPill(browserName) {
+            const raw = (browserName || 'Web').trim();
+            const lower = raw.toLowerCase();
+
+            let cls = 'browser-generic';
+            let label = escapeHtml(raw);
+
+            if (lower.includes('chrome') || lower.includes('chromium')) {
+                cls = 'browser-chrome';
+                label = 'Chrome';
+            } else if (lower.includes('safari')) {
+                cls = 'browser-safari';
+                label = 'Safari';
+            } else if (lower.includes('firefox')) {
+                cls = 'browser-firefox';
+                label = 'Firefox';
+            } else if (lower.includes('edg')) {
+                cls = 'browser-edge';
+                label = 'Edge';
+            } else if (lower.includes('opera') || lower.includes('opr')) {
+                cls = 'browser-opera';
+                label = 'Opera';
+            } else if (lower.includes('brave')) {
+                cls = 'browser-brave';
+                label = 'Brave';
+            }
+
+            return `<span class="device-pill browser-pill ${cls}" title="Browser: ${escapeHtml(raw)}">${label}</span>`;
+        }
+
         function formatReferrerSource(referrer, refTag) {
             if (refTag) return 'Ref: ' + refTag;
             if (!referrer || referrer === 'Direct / Bookmark') return 'Direct Visit';
@@ -2735,8 +2840,8 @@
                             </div>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                <span class="device-pill" style="background: rgba(0, 242, 254, 0.1); color: var(--cyan);">🌐 ${escapeHtml(browserDisplay)}</span>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                                ${renderBrowserPill(e.browser || browserDisplay)}
                                 <span class="device-pill">💻 ${escapeHtml(deviceDisplay)}</span>
                             </div>
                             ${e.screen ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace;">Screen: ${escapeHtml(e.screen)}</div>` : ''}
