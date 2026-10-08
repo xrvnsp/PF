@@ -4,6 +4,7 @@ import { GlassCard, LiquidButton } from './components/UIComponents';
 import ProfileCard from './components/ProfileCard';
 import PixelCard from './components/PixelCard';
 import GlassSurface from './components/GlassSurface';
+import Lanyard from './components/Lanyard';
 import './App.css';
 
 const PortfolioApp = () => {
@@ -108,6 +109,21 @@ const PortfolioApp = () => {
                         </ul>
                     </GlassCard>
                 ))}
+            </section>
+
+            {/* Interactive 3D Lanyard Badge from React Bits */}
+            <section id="lanyard-badge" className="lanyard-section" style={{ padding: '40px 0', textAlign: 'center' }}>
+                <h2 className="section-title">Interactive XR Developer Badge</h2>
+                <div style={{ width: '100%', height: '550px', position: 'relative' }}>
+                    <Lanyard
+                        frontImage="assets/id_card_front.png"
+                        backImage="assets/id_card_back.png"
+                        strapImage="assets/hepl_lanyard.png"
+                        finish="holographic"
+                        orientation="portrait"
+                        interactive={true}
+                    />
+                </div>
             </section>
 
             {/* Disclaimer Section */}
