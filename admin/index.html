@@ -701,6 +701,60 @@
             box-shadow: 0 0 10px rgba(251, 84, 43, 0.4);
         }
 
+        /* Samsung Internet: Rich Violet Gradient */
+        .device-pill.browser-samsung {
+            background: linear-gradient(135deg, #7b2cbf 0%, #4361ee 100%);
+            color: #ffffff;
+            border-color: rgba(123, 44, 191, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(123, 44, 191, 0.4);
+        }
+
+        /* Twitter / X In-App: Electric Twitter Sky Blue */
+        .device-pill.browser-twitter {
+            background: linear-gradient(135deg, #1d9bf0 0%, #0284c7 100%);
+            color: #ffffff;
+            border-color: rgba(29, 155, 240, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(29, 155, 240, 0.4);
+        }
+
+        /* Instagram In-App: Magenta to Orange Sunset */
+        .device-pill.browser-instagram {
+            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+            color: #ffffff;
+            border-color: rgba(253, 29, 29, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(253, 29, 29, 0.4);
+        }
+
+        /* LinkedIn In-App: Professional Blue */
+        .device-pill.browser-linkedin {
+            background: linear-gradient(135deg, #0a66c2 0%, #004182 100%);
+            color: #ffffff;
+            border-color: rgba(10, 102, 194, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(10, 102, 194, 0.4);
+        }
+
+        /* Mobile In-App WebView Generic */
+        .device-pill.browser-inapp {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(168, 85, 247, 0.35) 100%);
+            color: #e0e7ff;
+            border-color: rgba(129, 140, 248, 0.5);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Quest / VR Browser */
+        .device-pill.browser-quest {
+            background: linear-gradient(135deg, #0668e1 0%, #8b5cf6 100%);
+            color: #ffffff;
+            border-color: rgba(139, 92, 246, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(6, 104, 225, 0.4);
+        }
+
         /* Generic / Web */
         .device-pill.browser-generic {
             background: rgba(0, 242, 254, 0.1);
@@ -2204,7 +2258,7 @@
                             </div>
                             <div class="event-detail">
                                 <span class="device-pill">${e.device || 'Desktop'}</span>
-                                ${renderBrowserPill(e.browser)}
+                                ${renderBrowserPill(e.browser, e.device, e.referrer || e.refTag)}
                                 ${locStr ? `<span class="geo-pill" title="Location: ${escapeHtml(locStr)}">📍 ${escapeHtml(locStr)}</span>` : ''}
                                 ${orgStr ? `<span class="org-pill" title="Organization / ISP: ${escapeHtml(orgStr)}">🏢 ${escapeHtml(orgStr)}</span>` : ''}
                                 ${refStr ? `<span class="ref-pill" title="Referral: ${escapeHtml(refStr)}">🔗 ${escapeHtml(refStr)}</span>` : ''}
@@ -2661,20 +2715,20 @@
                 .replace(/>/g, '&gt;');
         }
 
-        function renderBrowserPill(browserName) {
+        function renderBrowserPill(browserName, device, referrer) {
             const raw = (browserName || 'Web').trim();
             const lower = raw.toLowerCase();
 
             let cls = 'browser-generic';
             let label = escapeHtml(raw);
 
-            if (lower.includes('chrome') || lower.includes('chromium')) {
+            if (lower.includes('chrome') || lower.includes('chromium') || lower.includes('crios')) {
                 cls = 'browser-chrome';
                 label = 'Chrome';
             } else if (lower.includes('safari')) {
                 cls = 'browser-safari';
-                label = 'Safari';
-            } else if (lower.includes('firefox')) {
+                label = lower.includes('in-app') ? 'Safari (In-App)' : 'Safari';
+            } else if (lower.includes('firefox') || lower.includes('fxios')) {
                 cls = 'browser-firefox';
                 label = 'Firefox';
             } else if (lower.includes('edg')) {
@@ -2686,6 +2740,38 @@
             } else if (lower.includes('brave')) {
                 cls = 'browser-brave';
                 label = 'Brave';
+            } else if (lower.includes('samsung')) {
+                cls = 'browser-samsung';
+                label = 'Samsung';
+            } else if (lower.includes('instagram')) {
+                cls = 'browser-instagram';
+                label = 'Instagram';
+            } else if (lower.includes('twitter') || lower.includes('x-mobile')) {
+                cls = 'browser-twitter';
+                label = 'Twitter';
+            } else if (lower.includes('linkedin')) {
+                cls = 'browser-linkedin';
+                label = 'LinkedIn';
+            } else if (lower.includes('quest') || lower.includes('oculus')) {
+                cls = 'browser-quest';
+                label = 'Quest';
+            } else if (lower === 'browser' || lower === 'web' || lower === 'web browser') {
+                if (referrer && (referrer.toLowerCase().includes('twitter') || referrer.toLowerCase().includes('t.co'))) {
+                    cls = 'browser-twitter';
+                    label = 'Twitter Web';
+                } else if (referrer && referrer.toLowerCase().includes('instagram')) {
+                    cls = 'browser-instagram';
+                    label = 'Instagram Web';
+                } else if (referrer && referrer.toLowerCase().includes('linkedin')) {
+                    cls = 'browser-linkedin';
+                    label = 'LinkedIn Web';
+                } else if (device === 'Mobile' || device === 'Tablet') {
+                    cls = 'browser-inapp';
+                    label = 'In-App Web';
+                } else {
+                    cls = 'browser-generic';
+                    label = 'Web';
+                }
             }
 
             return `<span class="device-pill browser-pill ${cls}" title="Browser: ${escapeHtml(raw)}">${label}</span>`;
@@ -2841,7 +2927,7 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-                                ${renderBrowserPill(e.browser || browserDisplay)}
+                                ${renderBrowserPill(e.browser || browserDisplay, e.device, e.referrer || e.refTag)}
                                 <span class="device-pill">💻 ${escapeHtml(deviceDisplay)}</span>
                             </div>
                             ${e.screen ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace;">Screen: ${escapeHtml(e.screen)}</div>` : ''}

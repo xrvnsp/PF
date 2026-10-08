@@ -28,12 +28,46 @@
 
     function getBrowserName() {
         const ua = navigator.userAgent;
-        if (ua.includes("Firefox/")) return "Firefox";
-        if (ua.includes("Edg/")) return "Edge";
-        if (ua.includes("Chrome/")) return "Chrome";
-        if (ua.includes("Safari/")) return "Safari";
-        if (ua.includes("OPR/") || ua.includes("Opera/")) return "Opera";
-        return "Browser";
+        
+        // 1. In-App Social & App WebViews
+        if (/instagram/i.test(ua)) return "Instagram In-App";
+        if (/twitter|x-mobile/i.test(ua)) return "Twitter In-App";
+        if (/linkedinapp/i.test(ua)) return "LinkedIn In-App";
+        if (/fban|fbav/i.test(ua)) return "Facebook In-App";
+        if (/whatsapp/i.test(ua)) return "WhatsApp In-App";
+        if (/tiktok|musical_ly/i.test(ua)) return "TikTok In-App";
+
+        // 2. Headsets & XR Devices
+        if (/quest|oculus/i.test(ua)) return "Quest Browser";
+        if (/visionpro|visionos/i.test(ua)) return "VisionOS Safari";
+
+        // 3. Mobile-Specific Browsers
+        if (/samsungbrowser/i.test(ua)) return "Samsung Internet";
+        if (/ucbrowser/i.test(ua)) return "UC Browser";
+        if (/brave/i.test(ua) || (navigator.brave && typeof navigator.brave.isBrave === 'function')) return "Brave";
+
+        // 4. iOS Browser Variations (Apple forces CriOS, FxiOS, EdgiOS, OPiOS)
+        if (/crios/i.test(ua)) return "Chrome";
+        if (/fxios/i.test(ua)) return "Firefox";
+        if (/edgios/i.test(ua)) return "Edge";
+        if (/opt|opios/i.test(ua)) return "Opera";
+
+        // 5. Standard Desktop & Android Browsers
+        if (/edg\//i.test(ua)) return "Edge";
+        if (/opr\/|opera/i.test(ua)) return "Opera";
+        if (/firefox\//i.test(ua)) return "Firefox";
+        if (/chrome\//i.test(ua)) return "Chrome";
+        if (/safari\//i.test(ua)) return "Safari";
+
+        // 6. Generic iOS WebKit / Mobile In-App WebView (when Safari token is stripped)
+        if (/iphone|ipad|ipod/i.test(ua) && /applewebkit/i.test(ua)) {
+            return "Safari (In-App)";
+        }
+        if (/mobile/i.test(ua) && /applewebkit/i.test(ua)) {
+            return "Mobile WebKit";
+        }
+
+        return "Web Browser";
     }
 
     function getReferralInfo() {
