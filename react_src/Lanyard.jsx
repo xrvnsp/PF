@@ -461,10 +461,27 @@ const extendTopEdgeAccent = (ctx, image, canvasWidth, drawY, scale) => {
     const trSample = sampleEdgeColor(image, 0.98, 0.02);
     const tlSample = sampleEdgeColor(image, 0.05, 0.02);
     const tmSample = sampleEdgeColor(image, 0.50, 0.02);
-    if (!trSample || !tlSample || trSample === tlSample) return;
+    if (!trSample || !tlSample) return;
+
+    const parseRgb = c => {
+      const m = c.match(/[\d.]+/g);
+      return m ? [Number(m[0]), Number(m[1]), Number(m[2])] : [255, 255, 255];
+    };
+    const rgbL = parseRgb(tlSample);
+    const rgbR = parseRgb(trSample);
+    const rgbM = tmSample ? parseRgb(tmSample) : rgbL;
+
+    const diffLR = Math.hypot(rgbR[0] - rgbL[0], rgbR[1] - rgbL[1], rgbR[2] - rgbL[2]);
+    if (diffLR < 40) return; // Top edge is uniform color (e.g. all white)
+
+    const diffLM = Math.hypot(rgbM[0] - rgbL[0], rgbM[1] - rgbL[1], rgbM[2] - rgbL[2]);
+    const diffMR = Math.hypot(rgbR[0] - rgbM[0], rgbR[1] - rgbM[1], rgbR[2] - rgbM[2]);
+
+    // Check if left edge is colored (NOT white/grey) to allow full-width gradient banner
+    const isLeftWhite = rgbL[0] > 235 && rgbL[1] > 235 && rgbL[2] > 235;
 
     // 1. Horizontal gradient header across top (e.g. MMW card back)
-    if (tmSample && tmSample !== tlSample && tmSample !== trSample) {
+    if (!isLeftWhite && diffLM > 40 && diffMR > 40) {
       const grad = ctx.createLinearGradient(0, 0, canvasWidth, 0);
       grad.addColorStop(0, tlSample);
       grad.addColorStop(1, trSample);
@@ -473,7 +490,8 @@ const extendTopEdgeAccent = (ctx, image, canvasWidth, drawY, scale) => {
       return;
     }
 
-    // 2. Angled wedge on top-right (e.g. HEPL card front)
+    // 2. Angled wedge on top-right ONLY (e.g. HEPL card front)
+    // Left side & middle remain clean card background (white) without filling across the top
     let wedgeStartRatio = 1254 / 1495; // ~0.8388
     let slope = 0.42;
 
