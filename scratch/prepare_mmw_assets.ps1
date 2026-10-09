@@ -94,6 +94,10 @@ $bg.DrawString('May 2022 - Nov 2024', $fontVal, $brushDark, 175, [int]($cropH * 
 $bg.DrawString('Blood Group:', $fontDetails, $brushMuted, 38, [int]($cropH * 0.55))
 $bg.DrawString('A+', $fontVal, $brushDark, 175, [int]($cropH * 0.55))
 
+$fontEmailVal = New-Object System.Drawing.Font('Arial', 13, [System.Drawing.FontStyle]::Bold)
+$bg.DrawString('Email:', $fontDetails, $brushMuted, 38, [int]($cropH * 0.60))
+$bg.DrawString('saravana@madrasmindworks.com', $fontEmailVal, $brushDark, 175, [int]($cropH * 0.60))
+
 # Footer disclaimer
 $fontFooter = New-Object System.Drawing.Font('Arial', 10, [System.Drawing.FontStyle]::Regular)
 $bg.DrawString('If found please return to:', $fontFooter, $brushMuted, 38, [int]($cropH * 0.72))
