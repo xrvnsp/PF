@@ -1,0 +1,800 @@
+/* ========================================================
+   PICO XR Developer Assistant & Unity OpenXR Panel
+   Inspired by developer.picoxr.com and Unity Project Settings
+   ======================================================== */
+
+/* Root Container */
+.pico-bot-float-container {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  user-select: none;
+}
+
+/* Tooltip / Speech bubble */
+.pico-bot-tooltip {
+  position: absolute;
+  bottom: 74px;
+  right: 4px;
+  background: rgba(18, 24, 38, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e2e8f0;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pico-bot-tooltip.visible,
+.pico-bot-float-btn:hover .pico-bot-tooltip {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.pico-bot-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 24px;
+  width: 12px;
+  height: 12px;
+  background: rgba(18, 24, 38, 0.95);
+  border-right: 1px solid rgba(56, 189, 248, 0.25);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  transform: rotate(45deg);
+}
+
+.pico-bot-badge {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #050b14;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Floating Trigger Button */
+.pico-bot-float-btn {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #1a2233 0%, #0b0f19 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 
+              0 0 22px rgba(0, 242, 254, 0.3),
+              inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  overflow: visible;
+}
+
+.pico-bot-float-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.85);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 
+              0 0 32px rgba(0, 242, 254, 0.5),
+              inset 0 1px 3px rgba(255, 255, 255, 0.4);
+}
+
+.pico-bot-float-btn:active {
+  transform: scale(0.96);
+}
+
+/* Pulsing rings */
+.pico-bot-pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  animation: pico-bot-pulse 3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+  pointer-events: none;
+}
+
+@keyframes pico-bot-pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+
+/* Notification dot */
+.pico-bot-notify-dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #0b0f19;
+  box-shadow: 0 0 8px #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: white;
+  z-index: 2;
+  animation: pico-dot-bounce 2.2s infinite ease-in-out;
+}
+
+@keyframes pico-dot-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+/* Visor Screen & Animated Eyes */
+.pico-visor-wrapper {
+  width: 54px;
+  height: 54px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Visor Background Image Layer */
+.pico-visor-base-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+/* Eye Glow Overlay Layer */
+.pico-visor-eyes-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pico-visor-eyes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: pico-eyes-move 5.5s infinite ease-in-out;
+  transform-origin: center center;
+  margin-top: 1px;
+}
+
+/* Individual glowing blue eye */
+.pico-eye {
+  width: 8px;
+  height: 11px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 7px 2px #00f2fe, 
+              0 0 15px 4px rgba(0, 114, 255, 0.85),
+              inset 0 0 2px #38bdf8;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+/* Eye movement and blink keyframes matching developer.picoxr.com behavior */
+@keyframes pico-eyes-move {
+  0%, 15% {
+    transform: translate(0, 0) scale(1, 1);
+  }
+  17% {
+    /* Blink */
+    transform: translate(0, 0) scale(1.1, 0.08);
+  }
+  19%, 25% {
+    transform: translate(0, 0) scale(1, 1);
+  }
+  30%, 42% {
+    /* Look right */
+    transform: translate(4px, 0) scale(1, 1);
+  }
+  44% {
+    /* Quick blink looking right */
+    transform: translate(4px, 0) scale(1.1, 0.08);
+  }
+  46%, 50% {
+    transform: translate(4px, 0) scale(1, 1);
+  }
+  55%, 70% {
+    /* Look left */
+    transform: translate(-4px, 0) scale(1, 1);
+  }
+  72% {
+    /* Blink */
+    transform: translate(-4px, 0) scale(1.1, 0.08);
+  }
+  74%, 82% {
+    /* Look slightly up */
+    transform: translate(0, -2.5px) scale(1, 1);
+  }
+  84% {
+    /* Double blink */
+    transform: translate(0, 0) scale(1.1, 0.08);
+  }
+  86% {
+    transform: translate(0, 0) scale(1, 1);
+  }
+  88% {
+    transform: translate(0, 0) scale(1.1, 0.08);
+  }
+  90%, 100% {
+    transform: translate(0, 0) scale(1, 1);
+  }
+}
+
+/* ========================================================
+   Unity OpenXR Settings Window Popover / Modal
+   ======================================================== */
+.pico-unity-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pico-unity-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Unity Editor Window Container */
+.unity-editor-window {
+  width: 620px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 48px);
+  background: #2a2a2a;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 
+              0 0 0 1px rgba(255, 255, 255, 0.08),
+              0 0 30px rgba(0, 242, 254, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #c4c4c4;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  transform: translateY(20px) scale(0.97);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pico-unity-modal-backdrop.open .unity-editor-window {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Unity Titlebar */
+.unity-titlebar {
+  background: #1e1e1e;
+  border-bottom: 1px solid #141414;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.unity-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #dfdfdf;
+  font-size: 12px;
+  letter-spacing: 0.2px;
+}
+
+.unity-icon {
+  width: 16px;
+  height: 16px;
+  color: #00f2fe;
+}
+
+.unity-badge-xr {
+  background: #2c5d88;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.unity-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unity-btn-icon {
+  background: transparent;
+  border: none;
+  color: #8c8c8c;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.unity-btn-icon:hover {
+  background: #383838;
+  color: #ffffff;
+}
+
+.unity-btn-close:hover {
+  background: #e81123 !important;
+  color: #ffffff !important;
+}
+
+/* Tabs Bar */
+.unity-tabs-bar {
+  background: #232323;
+  border-bottom: 1px solid #1c1c1c;
+  display: flex;
+  padding: 0 8px;
+  gap: 2px;
+}
+
+.unity-tab-btn {
+  background: transparent;
+  border: none;
+  color: #8e8e8e;
+  padding: 7px 14px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unity-tab-btn:hover {
+  color: #dedede;
+}
+
+.unity-tab-btn.active {
+  color: #ffffff;
+  background: #2a2a2a;
+  border-bottom: 2px solid #38bdf8;
+  font-weight: 600;
+}
+
+/* Window Content Scrollable */
+.unity-window-content {
+  padding: 14px 16px;
+  overflow-y: auto;
+  max-height: calc(85vh - 120px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 1. Unity Warning Callout Box (Exact match from screenshot) */
+.unity-warning-box {
+  background: #383838;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.unity-warning-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #f1f5f9;
+}
+
+.unity-warning-text {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #d1d5db;
+}
+
+/* 2. Enabled Interaction Profiles Header */
+.unity-section-header {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #b5b5b5;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.unity-section-sub {
+  font-size: 10.5px;
+  color: #38bdf8;
+  font-weight: 400;
+}
+
+/* 3. Interaction Profiles List Container */
+.unity-profiles-container {
+  background: #202020;
+  border: 1px solid #181818;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.unity-profiles-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.unity-profile-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #282828;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.unity-profile-row:last-child {
+  border-bottom: none;
+}
+
+.unity-profile-row:hover {
+  background: #2b2b2b;
+}
+
+.unity-profile-row.selected {
+  background: #2c5d88;
+  color: #ffffff;
+}
+
+.unity-profile-row.selected .unity-profile-name {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.unity-profile-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #4a4a4a;
+  border-radius: 2px;
+  background: #1a1a1a;
+  margin-right: 10px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.unity-profile-checkbox:checked {
+  background: #2c5d88;
+  border-color: #38bdf8;
+}
+
+.unity-profile-checkbox:checked::after {
+  content: '';
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.unity-profile-name {
+  font-size: 11.5px;
+  color: #b0b0b0;
+  flex-grow: 1;
+  letter-spacing: 0.1px;
+}
+
+.unity-profile-tag {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #88c0d0;
+  margin-left: 8px;
+}
+
+/* Plus/Minus Unity Reorderable List Toolbar */
+.unity-profiles-toolbar {
+  background: #272727;
+  border-top: 1px solid #1c1c1c;
+  display: flex;
+  justify-content: flex-end;
+  padding: 3px 6px;
+  gap: 3px;
+}
+
+.unity-toolbar-btn {
+  background: #333333;
+  border: 1px solid #222222;
+  border-radius: 2px;
+  color: #cccccc;
+  font-size: 12px;
+  font-weight: bold;
+  width: 22px;
+  height: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.unity-toolbar-btn:hover {
+  background: #444444;
+  color: #ffffff;
+}
+
+.unity-toolbar-btn:active {
+  background: #222222;
+}
+
+/* 4. OpenXR Feature Groups Section */
+.unity-foldout-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #c4c4c4;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.unity-foldout-header:hover {
+  color: #ffffff;
+}
+
+.unity-foldout-arrow {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.15s ease;
+}
+
+.unity-foldout-arrow.collapsed {
+  transform: rotate(-90deg);
+}
+
+.unity-features-box {
+  background: #222222;
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unity-feature-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.unity-feature-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unity-feature-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #1e3a5f;
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+/* Hand Tracking Live Gesture Demo Card */
+.pico-hand-tracking-card {
+  background: linear-gradient(145deg, #182234 0%, #111827 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pico-hand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pico-hand-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.pico-gestures-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.pico-gesture-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 10.5px;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pico-gesture-chip:hover,
+.pico-gesture-chip.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.pico-gesture-icon {
+  font-size: 16px;
+}
+
+/* Selected Profile Inspector Drawer */
+.pico-profile-inspector {
+  background: #1c202a;
+  border: 1px solid #2d3748;
+  border-radius: 5px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.pico-profile-inspector-title {
+  color: #38bdf8;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pico-profile-bindings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  color: #94a3b8;
+}
+
+.pico-binding-key {
+  color: #cbd5e1;
+}
+
+.pico-binding-val {
+  color: #38bdf8;
+  font-family: monospace;
+}
+
+/* Footer & Official Documentation Link */
+.unity-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid #222222;
+}
+
+.pico-doc-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.pico-doc-link-btn:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.45);
+}
+
+.unity-apply-btn {
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  color: #ffffff;
+  font-size: 11.5px;
+  padding: 7px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.unity-apply-btn:hover {
+  background: #484848;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .pico-bot-float-container {
+    right: 16px;
+    bottom: 16px;
+  }
+  .pico-unity-modal-backdrop {
+    padding: 10px;
+    align-items: flex-end;
+  }
+  .unity-editor-window {
+    width: 100%;
+    max-height: 88vh;
+  }
+  .pico-gestures-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
