@@ -1,9 +1,9 @@
 /* ========================================================
-   PICO XR Developer Assistant & Unity OpenXR Panel
-   Inspired by developer.picoxr.com and Unity Project Settings
+   PICO XR Developer Assistant & Floating Unity OpenXR Window
+   Compact Bottom-Right Utility - Non-blocking & Non-redirecting
    ======================================================== */
 
-/* Root Container */
+/* Root Container for Bot */
 .pico-bot-float-container {
   position: fixed;
   right: 24px;
@@ -74,8 +74,8 @@
 
 /* Floating Trigger Button */
 .pico-bot-float-btn {
-  width: 66px;
-  height: 66px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #1a2233 0%, #0b0f19 100%);
   border: 1.5px solid rgba(56, 189, 248, 0.4);
@@ -147,24 +147,22 @@
 
 /* Visor Screen & Animated Eyes */
 .pico-visor-wrapper {
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Visor Background Image Layer */
 .pico-visor-base-img {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
 }
 
-/* Eye Glow Overlay Layer */
 .pico-visor-eyes-layer {
   position: absolute;
   top: 0;
@@ -187,7 +185,6 @@
   margin-top: 1px;
 }
 
-/* Individual glowing blue eye */
 .pico-eye {
   width: 8px;
   height: 11px;
@@ -200,156 +197,99 @@
   transition: transform 0.15s ease;
 }
 
-/* Eye movement and blink keyframes matching developer.picoxr.com behavior */
+/* Eye movement keyframes matching developer.picoxr.com behavior */
 @keyframes pico-eyes-move {
-  0%, 15% {
-    transform: translate(0, 0) scale(1, 1);
-  }
-  17% {
-    /* Blink */
-    transform: translate(0, 0) scale(1.1, 0.08);
-  }
-  19%, 25% {
-    transform: translate(0, 0) scale(1, 1);
-  }
-  30%, 42% {
-    /* Look right */
-    transform: translate(4px, 0) scale(1, 1);
-  }
-  44% {
-    /* Quick blink looking right */
-    transform: translate(4px, 0) scale(1.1, 0.08);
-  }
-  46%, 50% {
-    transform: translate(4px, 0) scale(1, 1);
-  }
-  55%, 70% {
-    /* Look left */
-    transform: translate(-4px, 0) scale(1, 1);
-  }
-  72% {
-    /* Blink */
-    transform: translate(-4px, 0) scale(1.1, 0.08);
-  }
-  74%, 82% {
-    /* Look slightly up */
-    transform: translate(0, -2.5px) scale(1, 1);
-  }
-  84% {
-    /* Double blink */
-    transform: translate(0, 0) scale(1.1, 0.08);
-  }
-  86% {
-    transform: translate(0, 0) scale(1, 1);
-  }
-  88% {
-    transform: translate(0, 0) scale(1.1, 0.08);
-  }
-  90%, 100% {
-    transform: translate(0, 0) scale(1, 1);
-  }
+  0%, 15% { transform: translate(0, 0) scale(1, 1); }
+  17% { transform: translate(0, 0) scale(1.1, 0.08); }
+  19%, 25% { transform: translate(0, 0) scale(1, 1); }
+  30%, 42% { transform: translate(4px, 0) scale(1, 1); }
+  44% { transform: translate(4px, 0) scale(1.1, 0.08); }
+  46%, 50% { transform: translate(4px, 0) scale(1, 1); }
+  55%, 70% { transform: translate(-4px, 0) scale(1, 1); }
+  72% { transform: translate(-4px, 0) scale(1.1, 0.08); }
+  74%, 82% { transform: translate(0, -2.5px) scale(1, 1); }
+  84% { transform: translate(0, 0) scale(1.1, 0.08); }
+  86% { transform: translate(0, 0) scale(1, 1); }
+  88% { transform: translate(0, 0) scale(1.1, 0.08); }
+  90%, 100% { transform: translate(0, 0) scale(1, 1); }
 }
 
 /* ========================================================
-   Unity OpenXR Settings Window Popover / Modal
+   Floating Utility Window (Non-blocking & Compact)
    ======================================================== */
-.pico-unity-modal-backdrop {
+.pico-floating-panel {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 10000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: 24px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.pico-unity-modal-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Unity Editor Window Container */
-.unity-editor-window {
-  width: 620px;
+  right: 24px;
+  bottom: 96px;
+  width: 460px;
   max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 48px);
-  background: #2a2a2a;
-  border: 1px solid #1a1a1a;
-  border-radius: 8px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 
+  max-height: min(600px, calc(100vh - 120px));
+  background: #252830;
+  border: 1px solid #384252;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 
               0 0 0 1px rgba(255, 255, 255, 0.08),
-              0 0 30px rgba(0, 242, 254, 0.15);
+              0 0 35px rgba(0, 242, 254, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   color: #c4c4c4;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 12px;
-  transform: translateY(20px) scale(0.97);
+  z-index: 9998;
   opacity: 0;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  transform: translateY(16px) scale(0.96);
+  transform-origin: bottom right;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.pico-unity-modal-backdrop.open .unity-editor-window {
-  transform: translateY(0) scale(1);
+.pico-floating-panel.open {
   opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
-/* Unity Titlebar */
-.unity-titlebar {
-  background: #1e1e1e;
-  border-bottom: 1px solid #141414;
-  padding: 8px 12px;
+/* Titlebar */
+.pico-panel-titlebar {
+  background: #1c1f26;
+  border-bottom: 1px solid #2e3440;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   user-select: none;
 }
 
-.unity-title-left {
+.pico-title-left {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 600;
-  color: #dfdfdf;
+  color: #f1f5f9;
   font-size: 12px;
-  letter-spacing: 0.2px;
 }
 
-.unity-icon {
-  width: 16px;
-  height: 16px;
-  color: #00f2fe;
+.pico-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
 }
 
-.unity-badge-xr {
-  background: #2c5d88;
-  color: #ffffff;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-}
-
-.unity-title-actions {
+.pico-title-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-.unity-btn-icon {
+.pico-btn-icon {
   background: transparent;
   border: none;
-  color: #8c8c8c;
+  color: #94a3b8;
   cursor: pointer;
-  padding: 4px;
+  padding: 4px 6px;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -357,31 +297,31 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.unity-btn-icon:hover {
-  background: #383838;
+.pico-btn-icon:hover {
+  background: #333a48;
   color: #ffffff;
 }
 
-.unity-btn-close:hover {
-  background: #e81123 !important;
+.pico-btn-close:hover {
+  background: #e11d48 !important;
   color: #ffffff !important;
 }
 
-/* Tabs Bar */
-.unity-tabs-bar {
-  background: #232323;
-  border-bottom: 1px solid #1c1c1c;
+/* Dual Navigation Tabs */
+.pico-tabs-bar {
+  background: #1f232c;
+  border-bottom: 1px solid #2e3440;
   display: flex;
   padding: 0 8px;
-  gap: 2px;
+  gap: 4px;
 }
 
-.unity-tab-btn {
+.pico-tab-btn {
   background: transparent;
   border: none;
-  color: #8e8e8e;
-  padding: 7px 14px;
-  font-size: 11.5px;
+  color: #94a3b8;
+  padding: 9px 14px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -391,42 +331,228 @@
   gap: 6px;
 }
 
-.unity-tab-btn:hover {
-  color: #dedede;
+.pico-tab-btn:hover {
+  color: #f1f5f9;
 }
 
-.unity-tab-btn.active {
-  color: #ffffff;
-  background: #2a2a2a;
+.pico-tab-btn.active {
+  color: #38bdf8;
+  background: #252830;
   border-bottom: 2px solid #38bdf8;
   font-weight: 600;
 }
 
-/* Window Content Scrollable */
-.unity-window-content {
-  padding: 14px 16px;
+/* Tab Views Container */
+.pico-tab-content-area {
+  flex-grow: 1;
   overflow-y: auto;
-  max-height: calc(85vh - 120px);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-height: calc(min(600px, calc(100vh - 120px)) - 88px);
 }
 
-/* 1. Unity Warning Callout Box (Exact match from screenshot) */
+.pico-tab-view {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pico-tab-view.active {
+  display: flex;
+}
+
+/* ========================================================
+   TAB 1: PICO AI Assistant & Hire Me Drawer
+   ======================================================== */
+.pico-assistant-hero {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.pico-hero-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pico-hero-avatar img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.pico-hero-text h4 {
+  margin: 0 0 2px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.pico-hero-text p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+/* Quick Prompt Suggestion Chips */
+.pico-chips-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.pico-quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pico-prompt-chip {
+  background: #1c202a;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.pico-prompt-chip:hover {
+  background: #283347;
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* In-Page Message Form */
+.pico-msg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pico-form-input,
+.pico-form-textarea {
+  background: #181c24;
+  border: 1px solid #2e3748;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 11.5px;
+  transition: border-color 0.15s;
+}
+
+.pico-form-input:focus,
+.pico-form-textarea:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+}
+
+.pico-form-textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.pico-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.pico-send-btn {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.pico-send-btn:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  transform: translateY(-1px);
+}
+
+.pico-send-btn:active {
+  transform: scale(0.98);
+}
+
+.pico-direct-channels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.pico-direct-btn {
+  background: transparent;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+
+.pico-direct-btn:hover {
+  border-color: #10b981;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* ========================================================
+   TAB 2: Unity OpenXR Settings (Exact Screenshot Match)
+   ======================================================== */
 .unity-warning-box {
   background: #383838;
   border: 1px solid #4a4a4a;
   border-radius: 4px;
-  padding: 10px 12px;
+  padding: 9px 12px;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .unity-warning-icon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   margin-top: 1px;
   color: #f1f5f9;
@@ -434,11 +560,10 @@
 
 .unity-warning-text {
   font-size: 11.5px;
-  line-height: 1.45;
+  line-height: 1.4;
   color: #d1d5db;
 }
 
-/* 2. Enabled Interaction Profiles Header */
 .unity-section-header {
   font-size: 11.5px;
   font-weight: 600;
@@ -455,7 +580,6 @@
   font-weight: 400;
 }
 
-/* 3. Interaction Profiles List Container */
 .unity-profiles-container {
   background: #202020;
   border: 1px solid #181818;
@@ -545,14 +669,13 @@
   margin-left: 8px;
 }
 
-/* Plus/Minus Unity Reorderable List Toolbar */
 .unity-profiles-toolbar {
   background: #272727;
   border-top: 1px solid #1c1c1c;
   display: flex;
   justify-content: flex-end;
-  padding: 3px 6px;
-  gap: 3px;
+  padding: 2px 4px;
+  gap: 2px;
 }
 
 .unity-toolbar-btn {
@@ -562,8 +685,8 @@
   color: #cccccc;
   font-size: 12px;
   font-weight: bold;
-  width: 22px;
-  height: 19px;
+  width: 20px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -576,11 +699,6 @@
   color: #ffffff;
 }
 
-.unity-toolbar-btn:active {
-  background: #222222;
-}
-
-/* 4. OpenXR Feature Groups Section */
 .unity-foldout-header {
   display: flex;
   align-items: center;
@@ -608,10 +726,10 @@
 }
 
 .unity-features-box {
-  background: #222222;
-  border: 1px solid #1a1a1a;
+  background: #202020;
+  border: 1px solid #181818;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -641,13 +759,13 @@
 
 /* Hand Tracking Live Gesture Demo Card */
 .pico-hand-tracking-card {
-  background: linear-gradient(145deg, #182234 0%, #111827 100%);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: #1e222b;
+  border: 1px solid #334155;
   border-radius: 6px;
-  padding: 12px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .pico-hand-header {
@@ -660,7 +778,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #38bdf8;
 }
@@ -675,16 +793,16 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
-  padding: 8px 6px;
+  padding: 6px 4px;
   text-align: center;
-  font-size: 10.5px;
+  font-size: 10px;
   color: #cbd5e1;
   cursor: pointer;
   transition: all 0.15s;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .pico-gesture-chip:hover,
@@ -696,103 +814,43 @@
 }
 
 .pico-gesture-icon {
-  font-size: 16px;
+  font-size: 14px;
 }
 
-/* Selected Profile Inspector Drawer */
-.pico-profile-inspector {
-  background: #1c202a;
-  border: 1px solid #2d3748;
-  border-radius: 5px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
-}
-
-.pico-profile-inspector-title {
-  color: #38bdf8;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.pico-profile-bindings-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 12px;
-  color: #94a3b8;
-}
-
-.pico-binding-key {
-  color: #cbd5e1;
-}
-
-.pico-binding-val {
-  color: #38bdf8;
-  font-family: monospace;
-}
-
-/* Footer & Official Documentation Link */
 .unity-footer-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-top: 6px;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
   border-top: 1px solid #222222;
 }
 
-.pico-doc-link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 7px 14px;
-  border-radius: 4px;
-  transition: all 0.15s;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-.pico-doc-link-btn:hover {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.45);
-}
-
 .unity-apply-btn {
-  background: #3a3a3a;
-  border: 1px solid #4a4a4a;
+  background: #333333;
+  border: 1px solid #444444;
   color: #ffffff;
   font-size: 11.5px;
-  padding: 7px 16px;
+  padding: 5px 14px;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .unity-apply-btn:hover {
-  background: #484848;
+  background: #444444;
 }
 
-/* Mobile responsive adjustments */
+/* Mobile responsive */
 @media (max-width: 640px) {
   .pico-bot-float-container {
     right: 16px;
     bottom: 16px;
   }
-  .pico-unity-modal-backdrop {
-    padding: 10px;
-    align-items: flex-end;
-  }
-  .unity-editor-window {
-    width: 100%;
-    max-height: 88vh;
+  .pico-floating-panel {
+    right: 12px;
+    bottom: 84px;
+    width: calc(100vw - 24px);
   }
   .pico-gestures-grid {
     grid-template-columns: repeat(2, 1fr);
