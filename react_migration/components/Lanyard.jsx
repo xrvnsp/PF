@@ -455,13 +455,25 @@ const getSlotClearancePx = (layout, canvasHeight, customVal) => {
   return Math.round((totalReach / layout.height) * canvasHeight);
 };
 
-const extendTopRightAccent = (ctx, image, canvasWidth, drawY, scale) => {
+const extendTopEdgeAccent = (ctx, image, canvasWidth, drawY, scale) => {
   if (drawY <= 0) return;
   try {
     const trSample = sampleEdgeColor(image, 0.98, 0.02);
     const tlSample = sampleEdgeColor(image, 0.05, 0.02);
-    if (!trSample || trSample === tlSample) return;
+    const tmSample = sampleEdgeColor(image, 0.50, 0.02);
+    if (!trSample || !tlSample || trSample === tlSample) return;
 
+    // 1. Horizontal gradient header across top (e.g. MMW card back)
+    if (tmSample && tmSample !== tlSample && tmSample !== trSample) {
+      const grad = ctx.createLinearGradient(0, 0, canvasWidth, 0);
+      grad.addColorStop(0, tlSample);
+      grad.addColorStop(1, trSample);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvasWidth, drawY + 2);
+      return;
+    }
+
+    // 2. Angled wedge on top-right (e.g. HEPL card front)
     let wedgeStartRatio = 1254 / 1495; // ~0.8388
     let slope = 0.42;
 
@@ -531,7 +543,7 @@ const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
       // Fit to 100% of card width edge-to-edge
       const x = 0;
       const y = height - hByW;
-      extendTopRightAccent(ctx, image, width, y, scaleW);
+      extendTopEdgeAccent(ctx, image, width, y, scaleW);
       ctx.drawImage(image, x, y, width, hByW);
     } else {
       const scale = Math.min(width / image.width, availH / image.height);
@@ -539,7 +551,7 @@ const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
       const h = image.height * scale;
       const x = (width - w) / 2;
       const y = height - h;
-      extendTopRightAccent(ctx, image, width, y, scale);
+      extendTopEdgeAccent(ctx, image, width, y, scale);
       ctx.drawImage(image, x, y, w, h);
     }
   } else {

@@ -111,18 +111,40 @@ const PortfolioApp = () => {
                 ))}
             </section>
 
-            {/* Interactive 3D Lanyard Badge from React Bits */}
+            {/* Interactive 3D Lanyard Badges from React Bits */}
             <section id="lanyard-badge" className="lanyard-section" style={{ padding: '40px 0', textAlign: 'center' }}>
-                <h2 className="section-title">Interactive XR Developer Badge</h2>
-                <div style={{ width: '100%', height: '550px', position: 'relative' }}>
-                    <Lanyard
-                        frontImage="assets/id_card_front.png"
-                        backImage="assets/id_card_back.png"
-                        strapImage="assets/hepl_lanyard.png"
-                        finish="holographic"
-                        orientation="portrait"
-                        interactive={true}
-                    />
+                <h2 className="section-title">Interactive XR Developer Badges</h2>
+                <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px' }}>
+                    Physics-driven 3D ID Cards • HEPL Enterprise &amp; Madras MindWorks Labs
+                </p>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                    gap: '24px',
+                    width: '100%',
+                    height: '560px',
+                    position: 'relative'
+                }}>
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <Lanyard
+                            frontImage="assets/id_card_front.png"
+                            backImage="assets/id_card_back.png"
+                            strapImage="assets/hepl_lanyard.png"
+                            finish="holographic"
+                            orientation="portrait"
+                            interactive={true}
+                        />
+                    </div>
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <Lanyard
+                            frontImage="assets/mmw_id_front.png"
+                            backImage="assets/mmw_id_back.png"
+                            strapImage="assets/mmw_lanyard.png"
+                            finish="holographic"
+                            orientation="portrait"
+                            interactive={true}
+                        />
+                    </div>
                 </div>
             </section>
 
