@@ -6,8 +6,8 @@ import * as THREE from 'three';
 import './Lanyard.css';
 
 const CARD_SIZES = {
-  portrait: [1.6, 2.25],
-  landscape: [2.25, 1.6]
+  portrait: [1.32, 2.25],
+  landscape: [2.25, 1.32]
 };
 const ANCHORS = { left: 0.27, center: 0.5, right: 0.73 };
 const THICKNESS = 0.018;
@@ -214,10 +214,12 @@ const loadImage = (cache, url) => {
   return promise;
 };
 
-const cardLayout = (orientation, cornerRadius) => {
-  const [width, height] = CARD_SIZES[orientation] || CARD_SIZES.portrait;
+const cardLayout = (orientation, cornerRadius, customCardSize) => {
+  const [width, height] = Array.isArray(customCardSize) && customCardSize.length === 2
+    ? customCardSize
+    : (CARD_SIZES[orientation] || CARD_SIZES.portrait);
   const radius = mix(0.03, Math.min(width, height) * 0.2, clamp(cornerRadius, 0, 1));
-  const slot = { width: 0.34, height: 0.07, y: height / 2 - 0.13 };
+  const slot = { width: 0.30, height: 0.07, y: height / 2 - 0.13 };
   const ringY = height / 2 - 0.055;
   return { width, height, radius, slot, ringY, hangY: ringY + RING_RADIUS };
 };
@@ -456,13 +458,22 @@ const getSlotClearancePx = (layout, canvasHeight, customVal) => {
 const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
   if (slotClearancePx > 0) {
     const availH = height - slotClearancePx;
-    const availW = width;
-    const scale = Math.min(availW / image.width, availH / image.height);
-    const w = image.width * scale;
-    const h = image.height * scale;
-    const x = (width - w) / 2;
-    const y = height - h;
-    ctx.drawImage(image, x, y, w, h);
+    const scaleW = width / image.width;
+    const hByW = image.height * scaleW;
+
+    if (hByW <= height) {
+      // Fit to 100% of card width edge-to-edge
+      const x = 0;
+      const y = height - hByW;
+      ctx.drawImage(image, x, y, width, hByW);
+    } else {
+      const scale = Math.min(width / image.width, availH / image.height);
+      const w = image.width * scale;
+      const h = image.height * scale;
+      const x = (width - w) / 2;
+      const y = height - h;
+      ctx.drawImage(image, x, y, w, h);
+    }
   } else {
     const scale = (fit === 'contain' ? Math.min : Math.max)(width / image.width, height / image.height);
     const w = image.width * scale;
@@ -483,11 +494,8 @@ const paintFace = (canvas, image, color, fit, layout, slotClearance = true, slot
     if (slotClearancePx > 0) {
       const botColor = sampleEdgeColor(image, 0.05, 0.98);
       if (botColor && botColor !== topColor) {
-        const scale = Math.min(canvas.width / image.width, (canvas.height - slotClearancePx) / image.height);
-        const h = image.height * scale;
-        const y = canvas.height - h;
         ctx.fillStyle = botColor;
-        ctx.fillRect(0, y + h - 6, canvas.width, canvas.height - (y + h - 6));
+        ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
       }
     }
     drawFitted(ctx, image, canvas.width, canvas.height, fit, slotClearancePx);
@@ -771,6 +779,7 @@ const Lanyard = ({
   slotClearance = true,
   cardColor = '#ffffff',
   orientation = 'portrait',
+  cardSize,
   finish = 'glossy',
   cornerRadius = 0.3,
   size = 0.6,
@@ -801,6 +810,7 @@ const Lanyard = ({
     slotClearanceValue: typeof slotClearance === 'number' ? slotClearance : null,
     cardColor,
     orientation: orientation === 'landscape' ? 'landscape' : 'portrait',
+    cardSize,
     finish,
     cornerRadius,
     size,
@@ -1004,9 +1014,9 @@ const Lanyard = ({
 
     const apply = () => {
       const s = settingsRef.current;
-      const layoutKey = `${s.orientation}|${s.cornerRadius}`;
+      const layoutKey = `${s.orientation}|${s.cornerRadius}|${JSON.stringify(s.cardSize)}`;
       if (layoutKey !== applied.layoutKey) {
-        layout = cardLayout(s.orientation, s.cornerRadius);
+        layout = cardLayout(s.orientation, s.cornerRadius, s.cardSize);
         const geometry = buildCardGeometry(layout);
         bodyMesh.geometry.dispose();
         frontMesh.geometry.dispose();

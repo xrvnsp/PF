@@ -6,6 +6,7 @@ const LanyardDemo = () => {
   const [finish, setFinish] = useState('holographic');
   const [interactive, setInteractive] = useState(true);
   const [slotClearance, setSlotClearance] = useState(true);
+  const [cardWidth, setCardWidth] = useState(1.32);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
@@ -27,6 +28,24 @@ const LanyardDemo = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <label style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Width:</label>
+          <select
+            value={cardWidth}
+            onChange={(e) => setCardWidth(parseFloat(e.target.value))}
+            style={{
+              background: '#0f172a',
+              color: '#38bdf8',
+              border: '1px solid rgba(56,189,248,0.3)',
+              borderRadius: '6px',
+              padding: '6px 10px',
+              fontSize: '0.82rem',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="1.32">Realistic (1.32 — Fitted)</option>
+            <option value="1.42">CR80 (1.42)</option>
+            <option value="1.60">Wide (1.60)</option>
+          </select>
           <button
             onClick={() => setSlotClearance(!slotClearance)}
             style={{
@@ -39,7 +58,7 @@ const LanyardDemo = () => {
               cursor: 'pointer'
             }}
           >
-            {slotClearance ? '🛡️ Hook Safe Fit: ON' : 'Hook Safe Fit: OFF'}
+            {slotClearance ? '🛡️ Hook Safe: ON' : 'Hook Safe: OFF'}
           </button>
           <label style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Finish:</label>
           <select
@@ -84,6 +103,7 @@ const LanyardDemo = () => {
           strapImage="/assets/hepl_lanyard.png"
           finish={finish}
           orientation="portrait"
+          cardSize={[cardWidth, 2.25]}
           slotClearance={slotClearance}
           interactive={interactive}
           breeze={0.35}
