@@ -130,7 +130,7 @@ const PortfolioApp = () => {
                             frontImage="assets/id_card_front.png"
                             backImage="assets/id_card_back.png"
                             strapImage="assets/hepl_lanyard.png"
-                            finish="holographic"
+                            finish="glossy"
                             orientation="portrait"
                             interactive={true}
                         />
@@ -140,7 +140,7 @@ const PortfolioApp = () => {
                             frontImage="assets/mmw_id_front.png"
                             backImage="assets/mmw_id_back.png"
                             strapImage="assets/mmw_lanyard.png"
-                            finish="holographic"
+                            finish="glossy"
                             orientation="portrait"
                             interactive={true}
                         />

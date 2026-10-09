@@ -4,7 +4,7 @@ import Lanyard from './react_src/Lanyard';
 
 const LanyardDemo = () => {
   const [viewMode, setViewMode] = useState('both'); // 'both', 'hepl', 'mmw'
-  const [finish, setFinish] = useState('holographic');
+  const [finish, setFinish] = useState('glossy');
   const [interactive, setInteractive] = useState(true);
   const [slotClearance, setSlotClearance] = useState(true);
   const [cardWidth, setCardWidth] = useState(1.32);
@@ -97,10 +97,10 @@ const LanyardDemo = () => {
               cursor: 'pointer'
             }}
           >
-            <option value="holographic">Holographic Foil</option>
-            <option value="glossy">Glossy</option>
-            <option value="metallic">Metallic Sheen</option>
+            <option value="glossy">Glossy (Clean Laminate)</option>
             <option value="matte">Matte</option>
+            <option value="metallic">Metallic Sheen</option>
+            <option value="holographic">Holographic Foil</option>
           </select>
 
           <button
