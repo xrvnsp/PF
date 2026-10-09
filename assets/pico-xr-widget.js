@@ -175,7 +175,7 @@
                 <div class="unity-scene-row ${d.id === selectedDevice.id ? 'selected' : ''}" data-device="${d.id}">
                   <input type="checkbox" class="unity-scene-checkbox" ${d.checked ? 'checked' : ''} id="chk-${d.id}" />
                   <span class="unity-scene-icon">🕶️</span>
-                  <span class="unity-scene-name">${d.name} <span style="color:#666;font-size:10px;">(${d.scenePath})</span></span>
+                  <span class="unity-scene-name">${d.name} <span class="unity-scene-path-text" style="color:#666;font-size:10px;">(${d.scenePath})</span></span>
                   <span class="unity-scene-badge">${d.badge}</span>
                   <span class="unity-scene-idx">${d.index}</span>
                 </div>
