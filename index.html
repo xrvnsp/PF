@@ -116,7 +116,7 @@
       ]
     }
     </script>
-    <link rel="stylesheet" href="style.css?v=31">
+    <link rel="stylesheet" href="style.css?v=35">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -464,42 +464,82 @@
             <div class="container">
                 <h2 class="section-title">Work Experience</h2>
                 <div class="timeline">
-                    <div class="timeline-item">
+                    <div class="timeline-item timeline-item-split">
                         <div class="timeline-marker"></div>
-                        <div class="timeline-content glass">
-                            <div class="exp-card-header">
-                                <span class="timeline-date">JAN 2025 &ndash; AUG 2026</span>
-                                <div class="exp-logo-wrapper">
-                                    <img src="assets/digifox_studio_logo.webp" alt="Digifox Studio Logo"
-                                        class="exp-logo-img">
+                        <div class="timeline-split-container">
+                            <!-- Left: Work Experience Box -->
+                            <div class="timeline-content glass timeline-exp-left-card">
+                                <div class="exp-card-header">
+                                    <span class="timeline-date">JAN 2025 &ndash; AUG 2026</span>
+                                    <div class="exp-logo-wrapper">
+                                        <img src="assets/digifox_studio_logo.webp" alt="Digifox Studio Logo"
+                                            class="exp-logo-img">
+                                    </div>
+                                </div>
+                                <h3>Engineer - Immersive Tech</h3>
+                                <h4>Digifox Studio</h4>
+                                <ul>
+                                    <li>Developed safety training module and vehicle simulator for industrial
+                                        applications</li>
+                                    <li>Built AR car configurator using ARCore technology</li>
+                                </ul>
+                            </div>
+                            <!-- Right: Separated 3D ID Badge Card -->
+                            <div class="timeline-lanyard-card glass">
+                                <div id="lanyard-container" class="lanyard-container lanyard-container-inline">
+                                    <div class="lanyard-loading">
+                                        <div class="lanyard-spinner"></div>
+                                        <span>Loading Digifox ID...</span>
+                                    </div>
+                                </div>
+                                <div class="lanyard-hint">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>🎯 Drag Digifox ID • Click to Flip</span>
                                 </div>
                             </div>
-                            <h3>Engineer - Immersive Tech</h3>
-                            <h4>Digifox Studio</h4>
-                            <ul>
-                                <li>Developed safety training module and vehicle simulator for industrial
-                                    applications</li>
-                                <li>Built AR car configurator using ARCore technology</li>
-                            </ul>
                         </div>
                     </div>
-                    <div class="timeline-item">
+                    <div class="timeline-item timeline-item-split">
                         <div class="timeline-marker"></div>
-                        <div class="timeline-content glass">
-                            <div class="exp-card-header">
-                                <span class="timeline-date">MAY 2022 &ndash; NOV 2024</span>
-                                <div class="exp-logo-wrapper">
-                                    <img src="assets/Madras%20Mindworks.webp" alt="Madras Mindworks Logo"
-                                        class="exp-logo-img">
+                        <div class="timeline-split-container">
+                            <!-- Left: Work Experience Box -->
+                            <div class="timeline-content glass timeline-exp-left-card">
+                                <div class="exp-card-header">
+                                    <span class="timeline-date">MAY 2022 &ndash; NOV 2024</span>
+                                    <div class="exp-logo-wrapper">
+                                        <img src="assets/Madras%20Mindworks.webp" alt="Madras Mindworks Logo"
+                                            class="exp-logo-img">
+                                    </div>
+                                </div>
+                                <h3>AR/VR Developer</h3>
+                                <h4>Madras Mindworks</h4>
+                                <ul>
+                                    <li>Built multi-sensory AR/VR applications using Unity and Unreal Engine</li>
+                                    <li>Worked with Oculus Quest, HTC Vive, and Vision Pro devices</li>
+                                    <li>Completed 250+ hours of specialized AR/VR development training</li>
+                                </ul>
+                            </div>
+                            <!-- Right: Separated 3D ID Badge Card -->
+                            <div class="timeline-lanyard-card glass">
+                                <div id="lanyard-container-mmw" class="lanyard-container lanyard-container-inline">
+                                    <div class="lanyard-loading">
+                                        <div class="lanyard-spinner"></div>
+                                        <span>Loading MMW Badge...</span>
+                                    </div>
+                                </div>
+                                <div class="lanyard-hint">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>🎯 Drag MMW ID • Click to Flip</span>
                                 </div>
                             </div>
-                            <h3>AR/VR Developer</h3>
-                            <h4>Madras Mindworks</h4>
-                            <ul>
-                                <li>Built multi-sensory AR/VR applications using Unity and Unreal Engine</li>
-                                <li>Worked with Oculus Quest, HTC Vive, and Vision Pro devices</li>
-                                <li>Completed 250+ hours of specialized AR/VR development training</li>
-                            </ul>
                         </div>
                     </div>
                     <div class="timeline-item">
@@ -520,11 +560,6 @@
                             </ul>
                         </div>
                     </div>
-                </div>
-
-                <!-- Dual Interactive 3D Badges (HEPL & Madras MindWorks - From lanyard-preview.html) -->
-                <div class="dual-lanyard-showcase-wrapper glass" style="margin-top: 48px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(0, 245, 255, 0.25); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 242, 254, 0.12);">
-                    <iframe src="lanyard-preview.html?embed=1" style="width: 100%; height: 620px; border: none; display: block; background: #060810;" title="Dual Interactive 3D Badges (HEPL &amp; Madras MindWorks)" loading="lazy"></iframe>
                 </div>
             </div>
         </section>
@@ -1040,6 +1075,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="assets/profile-card.js?v=31"></script>
+    <script src="assets/lanyard-3d.js?v=60"></script>
     <script src="assets/pixel-card.js?v=31"></script>
     <script src="assets/split-flap-text.js?v=7"></script>
     <script src="assets/pico-xr-widget.js?v=52"></script>

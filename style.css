@@ -1081,8 +1081,8 @@ img {
 
 .timeline-split-container {
     display: grid;
-    grid-template-columns: 1fr 0px;
-    gap: 0px;
+    grid-template-columns: 1fr 340px;
+    gap: var(--spacing-xl);
     align-items: stretch;
     width: 100%;
     max-width: 100%;
@@ -1120,10 +1120,10 @@ img {
     padding: 0;
     width: 340px;
     min-width: 0;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateX(45px) scale(0.94);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
     transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
         transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
         visibility 0.75s ease,

@@ -1,573 +1,554 @@
 /**
- * Interactive 3D Lanyard Component with Realistic Proportions & Authentic Physics
- * Supports multiple instances: Digifox Studio & Madras MindWorks
+ * Interactive 3D Lanyard Component with Realistic 1.32 Fitted Proportions & Authentic Physics
+ * Supports dual instances next to office entries:
+ * 1. Digifox Studio (HEPL ID with custom lanyard)
+ * 2. Madras MindWorks (MMW ID with new email & phone, custom lanyard)
+ * Features click-to-flip, hook safe clearance, glossy laminate finish, and Three.js physics.
  */
 
-(function() {
-    'use strict';
-
-    function createLanyardInstance(config) {
-        const container = document.getElementById(config.containerId);
-        if (!container) return;
-
-        // Remove any existing canvas
-        const existingCanvas = container.querySelector('canvas');
-        if (existingCanvas) existingCanvas.remove();
-
-        let width = container.clientWidth || 340;
-        let height = container.clientHeight || 480;
-        if (width < 50) width = 340;
-        if (height < 50) height = 480;
-
-        // Scene setup
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
-        // Camera framing to show full lanyard strap starting exactly flush with top box ceiling
-        camera.position.set(0, 0.35, 14.8);
-
-        const renderer = new THREE.WebGLRenderer({
-            alpha: true,
-            antialias: true,
-            powerPreference: 'high-performance'
-        });
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.outputEncoding = THREE.sRGBEncoding;
-
-        container.appendChild(renderer.domElement);
-
-        // Soft, authentic diffuse lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-        scene.add(ambientLight);
-
-        const frontLight = new THREE.DirectionalLight(0xffffff, 0.42);
-        frontLight.position.set(2, 4, 8);
-        scene.add(frontLight);
-
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.38);
-        backLight.position.set(-2, 3, -8);
-        scene.add(backLight);
-
-        const softCyanRim = new THREE.DirectionalLight(0x00f5ff, 0.3);
-        softCyanRim.position.set(-6, -2, 5);
-        scene.add(softCyanRim);
-
-        // Metal Hook loop parameter
-        let hookLocalY = 1.48;
-
-        // Calculate dynamic ceiling anchor point sitting EXACTLY flush with the top border of the box
-        function getCeilingAnchorY() {
-            const halfFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
-            const visibleHalfHeight = camera.position.z * Math.tan(halfFovRad);
-            return camera.position.y + visibleHalfHeight; // Perfectly at the top border
-        }
-
-        // Physics parameters (Verlet rope + rigid body)
-        const gravity = -38.0;
-        const damping = 0.95;
-        const angularDamping = 0.93;
-        const segmentLength = 0.52;
-        const numSegments = 4;
-
-        // Fixed anchor sitting perfectly flush at the top ceiling border of the 3D box
-        const fixedPos = new THREE.Vector3(0, getCeilingAnchorY(), 0);
-        const joints = [];
-        for (let i = 0; i < numSegments; i++) {
-            joints.push({
-                pos: new THREE.Vector3(0, fixedPos.y - i * segmentLength, 0),
-                oldPos: new THREE.Vector3(0, fixedPos.y - i * segmentLength, 0),
-                vel: new THREE.Vector3(0, 0, 0)
-            });
-        }
-
-        // Card state
-        const restHookY = fixedPos.y - numSegments * segmentLength;
-        const initialCardY = restHookY - hookLocalY;
-        const cardState = {
-            pos: new THREE.Vector3(0, initialCardY, 0),
-            oldPos: new THREE.Vector3(0, initialCardY, 0),
-            rot: new THREE.Euler(0, 0, 0, 'YXZ'),
-            rotVel: new THREE.Vector3(0, 0, 0),
-            dragged: false,
-            hovered: false
-        };
-
-        // Texture Loader with cache-busting
-        const textureLoader = new THREE.TextureLoader();
-        const vQuery = '?v=10';
-        
-        // Load card composite texture
-        const cardAtlasTex = textureLoader.load(config.cardTexture + vQuery);
-        cardAtlasTex.encoding = THREE.sRGBEncoding;
-        cardAtlasTex.flipY = false;
-        cardAtlasTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-        // Load lanyard strap texture
-        const lanyardTex = textureLoader.load(config.lanyardTexture + vQuery);
-        lanyardTex.wrapS = THREE.ClampToEdgeWrapping;
-        lanyardTex.wrapT = THREE.ClampToEdgeWrapping;
-        lanyardTex.encoding = THREE.sRGBEncoding;
-        lanyardTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-        // Create Ribbon Mesh (Wide lanyard strap)
-        const ribbonWidth = 0.62;
-        const ribbonSegments = 36;
-        const ribbonGeom = new THREE.BufferGeometry();
-        
-        const vertexCount = (ribbonSegments + 1) * 2;
-        const positions = new Float32Array(vertexCount * 3);
-        const uvs = new Float32Array(vertexCount * 2);
-        const indices = [];
-
-        for (let i = 0; i < ribbonSegments; i++) {
-            const a = i * 2;
-            const b = i * 2 + 1;
-            const c = (i + 1) * 2;
-            const d = (i + 1) * 2 + 1;
-            indices.push(a, b, c);
-            indices.push(b, d, c);
-        }
-
-        ribbonGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        ribbonGeom.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-        ribbonGeom.setIndex(indices);
-
-        const ribbonMat = new THREE.MeshLambertMaterial({
-            map: lanyardTex,
-            side: THREE.DoubleSide
-        });
-        const ribbonMesh = new THREE.Mesh(ribbonGeom, ribbonMat);
-        scene.add(ribbonMesh);
-
-        // Load 3D Card Model
-        const cardGroup = new THREE.Group();
-        scene.add(cardGroup);
-
-        const gltfLoader = new THREE.GLTFLoader();
-        gltfLoader.load('assets/card.glb', (gltf) => {
-            const model = gltf.scene;
-            
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    if (child.name === 'card' || (child.material && child.material.name === 'base')) {
-                        child.material = new THREE.MeshLambertMaterial({
-                            map: cardAtlasTex,
-                            reflectivity: 0.2
-                        });
-                    } else if (child.name === 'clip' || child.name === 'clamp' || (child.material && child.material.name === 'metal')) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            color: 0xd5dfea,
-                            metalness: 0.95,
-                            roughness: 0.25
-                        });
-                    }
-                }
-            });
-
-            model.scale.set(2.35, 2.35, 2.35);
-            
-            // Center X & Z
-            const tempBox = new THREE.Box3().setFromObject(model);
-            const center = new THREE.Vector3();
-            tempBox.getCenter(center);
-            
-            model.position.set(-center.x, -1.2, -center.z);
-            cardGroup.add(model);
-
-            hookLocalY = 1.48;
-
-            const loadingOverlay = container.querySelector('.lanyard-loading');
-            if (loadingOverlay) loadingOverlay.style.opacity = '0';
-        }, undefined, (err) => {
-            console.error('Error loading card.glb for ' + config.containerId, err);
-        });
-
-        function getHookWorldPos() {
-            return new THREE.Vector3(0, hookLocalY, 0).applyEuler(cardGroup.rotation).add(cardState.pos);
-        }
-
-        // Pointer / Dragging interaction
-        const raycaster = new THREE.Raycaster();
-        const pointer = new THREE.Vector2();
-        const dragOffset = new THREE.Vector3();
-        let lastMousePos = new THREE.Vector2();
-        let mouseSpeed = new THREE.Vector2();
-
-        function getPointerPos(e) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-            const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-            return {
-                x: ((clientX - rect.left) / rect.width) * 2 - 1,
-                y: -((clientY - rect.top) / rect.height) * 2 + 1,
-                rawX: clientX,
-                rawY: clientY
-            };
-        }
-
-        function getWorldPointFromPointer(pointerPos) {
-            const v = new THREE.Vector3(pointerPos.x, pointerPos.y, 0.5);
-            v.unproject(camera);
-            const dir = v.sub(camera.position).normalize();
-            const distance = -camera.position.z / dir.z;
-            return camera.position.clone().add(dir.multiplyScalar(distance));
-        }
-
-        function onPointerDown(e) {
-            const pos = getPointerPos(e);
-            pointer.x = pos.x;
-            pointer.y = pos.y;
-            lastMousePos.set(pos.rawX, pos.rawY);
-
-            raycaster.setFromCamera(pointer, camera);
-            const intersects = raycaster.intersectObjects(cardGroup.children, true);
-            const worldPt = getWorldPointFromPointer(pos);
-
-            const distToCard = worldPt.distanceTo(cardState.pos);
-            if (intersects.length > 0 || distToCard < 3.8) {
-                cardState.dragged = true;
-                dragOffset.copy(cardState.pos).sub(worldPt);
-                container.style.cursor = 'grabbing';
-                if (e.cancelable && e.preventDefault) e.preventDefault();
-            }
-        }
-
-        function onPointerMove(e) {
-            const pos = getPointerPos(e);
-            pointer.x = pos.x;
-            pointer.y = pos.y;
-
-            mouseSpeed.x = pos.rawX - lastMousePos.x;
-            mouseSpeed.y = pos.rawY - lastMousePos.y;
-            lastMousePos.set(pos.rawX, pos.rawY);
-
-            if (cardState.dragged) {
-                const worldPt = getWorldPointFromPointer(pos);
-                cardState.pos.x = worldPt.x + dragOffset.x;
-                cardState.pos.y = worldPt.y + dragOffset.y;
-                if (e.cancelable && e.preventDefault) e.preventDefault();
-            } else {
-                raycaster.setFromCamera(pointer, camera);
-                const intersects = raycaster.intersectObjects(cardGroup.children, true);
-                if (intersects.length > 0) {
-                    if (!cardState.hovered) {
-                        cardState.hovered = true;
-                        container.style.cursor = 'grab';
-                    }
-                } else if (cardState.hovered) {
-                    cardState.hovered = false;
-                    container.style.cursor = 'default';
-                }
-            }
-        }
-
-        function onPointerUp() {
-            if (cardState.dragged) {
-                cardState.dragged = false;
-                container.style.cursor = cardState.hovered ? 'grab' : 'default';
-                
-                cardState.rotVel.y += THREE.MathUtils.clamp(mouseSpeed.x * 0.08, -15, 15);
-                cardState.rotVel.x -= THREE.MathUtils.clamp(mouseSpeed.y * 0.05, -10, 10);
-            }
-        }
-
-        renderer.domElement.addEventListener('pointerdown', onPointerDown);
-        window.addEventListener('pointermove', onPointerMove);
-        window.addEventListener('pointerup', onPointerUp);
-        window.addEventListener('pointercancel', onPointerUp);
-
-        function updateSize() {
-            if (!container) return;
-            const newW = container.clientWidth || 340;
-            const newH = container.clientHeight || 480;
-            if (newW > 50 && newH > 50) {
-                camera.aspect = newW / newH;
-                camera.updateProjectionMatrix();
-                renderer.setSize(newW, newH);
-                fixedPos.y = getCeilingAnchorY();
-                joints[0].pos.copy(fixedPos);
-            }
-        }
-
-        window.addEventListener('resize', updateSize);
-        if (window.ResizeObserver) {
-            const ro = new ResizeObserver(updateSize);
-            ro.observe(container);
-        }
-
-        const curvePoints = [
-            fixedPos,
-            joints[1].pos,
-            joints[2].pos,
-            joints[3].pos,
-            new THREE.Vector3()
-        ];
-        const spline = new THREE.CatmullRomCurve3(curvePoints, false, 'chordal');
-
-        let lastTime = performance.now();
-        let prevBoxLeft = null;
-        let prevBoxTop = null;
-        let isVisible = true;
-        let animRaf = null;
-
-        function startLoop() {
-            if (!isVisible) return;
-            if (animRaf) return;
-            lastTime = performance.now();
-            animRaf = requestAnimationFrame(animate);
-        }
-
-        function stopLoop() {
-            if (animRaf) {
-                cancelAnimationFrame(animRaf);
-                animRaf = null;
-            }
-        }
-
-        if ('IntersectionObserver' in window) {
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    isVisible = entry.isIntersecting;
-                    if (isVisible) {
-                        startLoop();
-                    } else {
-                        stopLoop();
-                    }
-                });
-            }, { rootMargin: '200px 0px 200px 0px' });
-            io.observe(container);
-        }
-
-        function animate() {
-            if (!isVisible) {
-                animRaf = null;
-                return;
-            }
-            animRaf = requestAnimationFrame(animate);
-
-            const now = performance.now();
-            const dt = Math.min((now - lastTime) / 1000, 0.033);
-            lastTime = now;
-
-            // 0. Box Motion Inertia Physics (Left / Right sliding during scroll docking & window movement)
-            const rect = container.getBoundingClientRect();
-            if (prevBoxLeft !== null) {
-                const dX = rect.left - prevBoxLeft;
-                const dY = rect.top - prevBoxTop;
-
-                if (!cardState.dragged && (Math.abs(dX) > 0.04 || Math.abs(dY) > 0.04)) {
-                    // Moving left (dX < 0) pushes card/rope right (+X); moving right (dX > 0) pushes left (-X)
-                    const inertiaStrengthX = THREE.MathUtils.clamp(-dX * 0.0075, -0.28, 0.28);
-                    const inertiaStrengthY = THREE.MathUtils.clamp(-dY * 0.0012, -0.035, 0.035);
-
-                    // Displace card position in direction of horizontal inertia
-                    cardState.pos.x += inertiaStrengthX * 0.75;
-                    cardState.pos.y += inertiaStrengthY * 0.1;
-
-                    // Rotational roll & yaw tilt velocity impulses
-                    cardState.rotVel.z += inertiaStrengthX * 45.0;
-                    cardState.rotVel.y += inertiaStrengthX * 20.0;
-                    cardState.rotVel.x += (-inertiaStrengthY * 8.0);
-
-                    // Displace rope joints with gradient weight so ribbon bends naturally
-                    for (let i = 1; i < numSegments; i++) {
-                        const jointWeight = (i / numSegments);
-                        joints[i].pos.x += inertiaStrengthX * 0.65 * jointWeight;
-                        joints[i].pos.y += inertiaStrengthY * 0.08 * jointWeight;
-                    }
-                }
-            }
-            prevBoxLeft = rect.left;
-            prevBoxTop = rect.top;
-
-            // 1. Update Card Position from Drag or Physics
-            if (cardState.dragged) {
-                cardState.oldPos.copy(cardState.pos);
-                const targetRotZ = -THREE.MathUtils.clamp(mouseSpeed.x * 0.02, -0.6, 0.6);
-                const targetRotX = THREE.MathUtils.clamp(mouseSpeed.y * 0.02, -0.6, 0.6);
-                cardState.rot.z += (targetRotZ - cardState.rot.z) * 0.15;
-                cardState.rot.x += (targetRotX - cardState.rot.x) * 0.15;
-            } else {
-                const vel = cardState.pos.clone().sub(cardState.oldPos).multiplyScalar(damping);
-                vel.y += gravity * dt * dt;
-                cardState.oldPos.copy(cardState.pos);
-                cardState.pos.add(vel);
-
-                cardState.rot.x += cardState.rotVel.x * dt;
-                cardState.rot.y += cardState.rotVel.y * dt;
-                cardState.rot.z += cardState.rotVel.z * dt;
-
-                cardState.rotVel.x += (-cardState.rot.x * 7.5) * dt;
-                cardState.rotVel.y += (-cardState.rot.y * 2.2) * dt;
-                cardState.rotVel.z += (-cardState.rot.z * 10.0) * dt;
-
-                cardState.rotVel.multiplyScalar(angularDamping);
-            }
-
-            // 2. Verlet Physics for Rope Joints
-            joints[0].pos.copy(fixedPos);
-
-            for (let i = 1; i < numSegments; i++) {
-                const j = joints[i];
-                const jVel = j.pos.clone().sub(j.oldPos).multiplyScalar(damping);
-                jVel.y += gravity * dt * dt;
-                j.oldPos.copy(j.pos);
-                j.pos.add(jVel);
-            }
-
-            // 3. Distance Constraints Relaxation
-            const iterations = 8;
-            for (let iter = 0; iter < iterations; iter++) {
-                const d1 = joints[1].pos.clone().sub(joints[0].pos);
-                const dist1 = d1.length();
-                if (dist1 > 0.001) {
-                    const diff1 = (dist1 - segmentLength) / dist1;
-                    joints[1].pos.sub(d1.multiplyScalar(diff1));
-                }
-
-                for (let i = 1; i < numSegments - 1; i++) {
-                    const d = joints[i + 1].pos.clone().sub(joints[i].pos);
-                    const dist = d.length();
-                    if (dist > 0.001) {
-                        const diff = (dist - segmentLength) / dist;
-                        joints[i].pos.add(d.clone().multiplyScalar(diff * 0.5));
-                        joints[i + 1].pos.sub(d.multiplyScalar(diff * 0.5));
-                    }
-                }
-
-                const hookPos = getHookWorldPos();
-                const dHook = hookPos.clone().sub(joints[numSegments - 1].pos);
-                const distHook = dHook.length();
-                if (distHook > 0.001) {
-                    const diffHook = (distHook - 0.02) / distHook;
-                    joints[numSegments - 1].pos.add(dHook.clone().multiplyScalar(diffHook * 0.7));
-                    if (!cardState.dragged) {
-                        cardState.pos.sub(dHook.multiplyScalar(diffHook * 0.3));
-                    }
-                }
-            }
-
-            // 4. Update 3D Card Transform with Pendulum + Inertial Tilt
-            cardGroup.position.copy(cardState.pos);
-
-            const swingDir = cardState.pos.clone().sub(joints[numSegments - 1].pos).normalize();
-            if (!cardState.dragged) {
-                const pendulumAngleZ = -Math.asin(THREE.MathUtils.clamp(swingDir.x, -0.9, 0.9)) * 0.6;
-                cardGroup.rotation.z = pendulumAngleZ + cardState.rot.z * 0.65;
-                cardGroup.rotation.y = cardState.rot.y;
-                cardGroup.rotation.x = cardState.rot.x;
-            } else {
-                cardGroup.rotation.copy(cardState.rot);
-            }
-
-            // EXACT World Position of the Top Metal Hook Ring (Guarantees zero gap / zero misalignment)
-            const actualHookPos = new THREE.Vector3(0, hookLocalY, 0)
-                .applyEuler(cardGroup.rotation)
-                .add(cardGroup.position);
-
-            // 5. Update Ribbon Mesh Geometry along Spline
-            curvePoints[0].copy(fixedPos);
-            for (let i = 1; i < numSegments; i++) {
-                curvePoints[i].copy(joints[i].pos);
-            }
-            curvePoints[numSegments].copy(actualHookPos);
-
-            const splinePoints = spline.getPoints(ribbonSegments);
-            const posAttr = ribbonGeom.attributes.position;
-            const uvAttr = ribbonGeom.attributes.uv;
-
-            const camPos = camera.position;
-            const baseHalfW = ribbonWidth * 0.5;
-
-            for (let i = 0; i <= ribbonSegments; i++) {
-                const pt = splinePoints[i];
-                const t = i / ribbonSegments;
-
-                let tangent;
-                if (i === 0) {
-                    tangent = splinePoints[1].clone().sub(pt).normalize();
-                } else if (i === ribbonSegments) {
-                    tangent = pt.clone().sub(splinePoints[i - 1]).normalize();
-                } else {
-                    tangent = splinePoints[i + 1].clone().sub(splinePoints[i - 1]).normalize();
-                }
-
-                const toCam = camPos.clone().sub(pt).normalize();
-                const normal = new THREE.Vector3().crossVectors(tangent, toCam).normalize();
-                if (normal.lengthSq() < 0.001) normal.set(1, 0, 0);
-
-                // Subtle taper as strap connects firmly into metal ring
-                const currentHalfW = baseHalfW * (1.0 - t * 0.18);
-
-                const vIndex = i * 2;
-                posAttr.setXYZ(vIndex, pt.x - normal.x * currentHalfW, pt.y - normal.y * currentHalfW, pt.z - normal.z * currentHalfW);
-                uvAttr.setXY(vIndex, (1.0 - t), 0);
-
-                posAttr.setXYZ(vIndex + 1, pt.x + normal.x * currentHalfW, pt.y + normal.y * currentHalfW, pt.z + normal.z * currentHalfW);
-                uvAttr.setXY(vIndex + 1, (1.0 - t), 1);
-            }
-
-            posAttr.needsUpdate = true;
-            uvAttr.needsUpdate = true;
-            ribbonGeom.computeVertexNormals();
-
-            renderer.render(scene, camera);
-        }
-
-        // Handle dynamic container resizing during scroll docking & window resizes
-        let lastW = width;
-        let lastH = height;
-        function handleContainerResize() {
-            const w = container.clientWidth || 340;
-            const h = container.clientHeight || 480;
-            if (w < 20 || h < 20) return;
-            // Prevent thrashing WebGL buffers on minor pixel variations during transitions
-            if (Math.abs(w - lastW) < 4 && Math.abs(h - lastH) < 4) return;
-            lastW = w;
-            lastH = h;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
-            fixedPos.set(0, getCeilingAnchorY(), 0);
-        }
-
-        window.addEventListener('resize', handleContainerResize);
-        if (window.ResizeObserver) {
-            const ro = new ResizeObserver(() => {
-                handleContainerResize();
-            });
-            ro.observe(container);
-        }
-
-        animate();
+(function () {
+  'use strict';
+
+  const CARD_WIDTH = 1.32;
+  const CARD_HEIGHT = 2.25;
+  const CORNER_RADIUS = 0.08;
+  const THICKNESS = 0.018;
+  const BEVEL = 0.007;
+  const SLOT_WIDTH = 0.30;
+  const SLOT_HEIGHT = 0.07;
+  const SLOT_Y = CARD_HEIGHT / 2 - 0.13;
+  const RING_RADIUS = 0.095;
+  const RING_TUBE = 0.0135;
+  const CLAMP_BODY = 0.15;
+  const STRAP_WIDTH = 0.36;
+
+  function traceRoundedRect(path, x, y, width, height, radius) {
+    const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+    const k = r * 0.4477;
+    path.moveTo(x + r, y);
+    path.lineTo(x + width - r, y);
+    path.bezierCurveTo(x + width - k, y, x + width, y + k, x + width, y + r);
+    path.lineTo(x + width, y + height - r);
+    path.bezierCurveTo(x + width, y + height - k, x + width - k, y + height, x + width - r, y + height);
+    path.lineTo(x + r, y + height);
+    path.bezierCurveTo(x + k, y + height, x, y + height - k, x, y + height - r);
+    path.lineTo(x, y + r);
+    path.bezierCurveTo(x, y + k, x + k, y, x + r, y);
+  }
+
+  function buildCardGeometry() {
+    const outline = new THREE.Shape();
+    traceRoundedRect(
+      outline,
+      -CARD_WIDTH / 2 + BEVEL,
+      -CARD_HEIGHT / 2 + BEVEL,
+      CARD_WIDTH - BEVEL * 2,
+      CARD_HEIGHT - BEVEL * 2,
+      Math.max(CORNER_RADIUS - BEVEL, 0.005)
+    );
+
+    const hole = new THREE.Path();
+    traceRoundedRect(
+      hole,
+      -SLOT_WIDTH / 2 - BEVEL,
+      SLOT_Y - SLOT_HEIGHT / 2 - BEVEL,
+      SLOT_WIDTH + BEVEL * 2,
+      SLOT_HEIGHT + BEVEL * 2,
+      SLOT_HEIGHT / 2 + BEVEL
+    );
+    outline.holes.push(hole);
+
+    const body = new THREE.ExtrudeGeometry(outline, {
+      depth: THICKNESS,
+      bevelEnabled: true,
+      bevelThickness: BEVEL,
+      bevelSize: BEVEL,
+      bevelSegments: 4,
+      curveSegments: 20
+    });
+    body.translate(0, 0, -THICKNESS / 2);
+
+    // Front Face UVs
+    const frontFace = new THREE.ShapeGeometry(outline, 20);
+    const fPos = frontFace.getAttribute('position');
+    const fUv = frontFace.getAttribute('uv');
+    for (let i = 0; i < fPos.count; i++) {
+      fUv.setXY(i, (fPos.getX(i) + CARD_WIDTH / 2) / CARD_WIDTH, (fPos.getY(i) + CARD_HEIGHT / 2) / CARD_HEIGHT);
+    }
+    fUv.needsUpdate = true;
+
+    // Back Face UVs (Flipped horizontally so back reads correctly)
+    const backFace = new THREE.ShapeGeometry(outline, 20);
+    const bPos = backFace.getAttribute('position');
+    const bUv = backFace.getAttribute('uv');
+    for (let i = 0; i < bPos.count; i++) {
+      bUv.setXY(i, 1.0 - (bPos.getX(i) + CARD_WIDTH / 2) / CARD_WIDTH, (bPos.getY(i) + CARD_HEIGHT / 2) / CARD_HEIGHT);
+    }
+    bUv.needsUpdate = true;
+
+    return { body, frontFace, backFace };
+  }
+
+  function buildClampGeometry() {
+    const shape = new THREE.Shape();
+    const w = CARD_WIDTH * 0.28;
+    traceRoundedRect(shape, -w / 2, -CLAMP_BODY / 2, w, CLAMP_BODY, 0.02);
+    const geom = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.024,
+      bevelEnabled: true,
+      bevelThickness: 0.008,
+      bevelSize: 0.008,
+      bevelSegments: 4,
+      curveSegments: 8
+    });
+    geom.translate(0, 0, -0.012);
+    return geom;
+  }
+
+  function createLanyardInstance(config) {
+    const container = document.getElementById(config.containerId);
+    if (!container) return;
+
+    // Clear existing canvas
+    const oldCanvas = container.querySelector('canvas');
+    if (oldCanvas) oldCanvas.remove();
+
+    let width = container.clientWidth || 340;
+    let height = container.clientHeight || 480;
+    if (width < 50) width = 340;
+    if (height < 50) height = 480;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
+    camera.position.set(0, 0.35, 14.8);
+
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    if (renderer.outputEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+    scene.add(ambientLight);
+
+    const frontLight = new THREE.DirectionalLight(0xffffff, 0.55);
+    frontLight.position.set(2, 5, 8);
+    scene.add(frontLight);
+
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.45);
+    backLight.position.set(-2, 3, -8);
+    scene.add(backLight);
+
+    const cyanRim = new THREE.DirectionalLight(0x00f2fe, 0.25);
+    cyanRim.position.set(-5, -2, 5);
+    scene.add(cyanRim);
+
+    function getCeilingAnchorY() {
+      const halfFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
+      const visibleHalfHeight = camera.position.z * Math.tan(halfFovRad);
+      return camera.position.y + visibleHalfHeight;
     }
 
-    function initAllLanyards() {
-        if (typeof THREE === 'undefined' || typeof THREE.GLTFLoader === 'undefined') {
-            setTimeout(initAllLanyards, 100);
-            return;
+    // Physics parameters
+    const gravity = -38.0;
+    const damping = 0.94;
+    const segmentLength = 0.52;
+    const numSegments = 4;
+
+    const fixedPos = new THREE.Vector3(0, getCeilingAnchorY(), 0);
+    const joints = [];
+    for (let i = 0; i < numSegments; i++) {
+      joints.push({
+        pos: new THREE.Vector3(0, fixedPos.y - i * segmentLength, 0),
+        oldPos: new THREE.Vector3(0, fixedPos.y - i * segmentLength, 0),
+        vel: new THREE.Vector3(0, 0, 0)
+      });
+    }
+
+    const hookLocalY = CARD_HEIGHT / 2 + 0.12; // Hook safe clearance
+    const restHookY = fixedPos.y - numSegments * segmentLength;
+    const initialCardY = restHookY - hookLocalY;
+
+    // Card & Flip state
+    let targetFlipAngle = 0;
+    let currentFlipAngle = 0;
+
+    const cardState = {
+      pos: new THREE.Vector3(0, initialCardY, 0),
+      oldPos: new THREE.Vector3(0, initialCardY, 0),
+      rot: new THREE.Euler(0, 0, 0, 'YXZ'),
+      rotVel: new THREE.Vector3(0, 0, 0),
+      dragged: false,
+      hovered: false
+    };
+
+    // Load Textures
+    const textureLoader = new THREE.TextureLoader();
+    const vQ = '?v=25';
+
+    const frontTex = textureLoader.load(config.frontImage + vQ);
+    frontTex.encoding = THREE.sRGBEncoding;
+    frontTex.anisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 4;
+
+    const backTex = textureLoader.load(config.backImage + vQ);
+    backTex.encoding = THREE.sRGBEncoding;
+    backTex.anisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 4;
+
+    const strapTex = textureLoader.load(config.strapImage + vQ);
+    strapTex.wrapS = THREE.ClampToEdgeWrapping;
+    strapTex.wrapT = THREE.ClampToEdgeWrapping;
+    strapTex.encoding = THREE.sRGBEncoding;
+    strapTex.anisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 4;
+
+    // Build Ribbon Strap Mesh
+    const ribbonSegments = 36;
+    const vertexCount = (ribbonSegments + 1) * 2;
+    const positions = new Float32Array(vertexCount * 3);
+    const uvs = new Float32Array(vertexCount * 2);
+    const indices = [];
+
+    for (let i = 0; i < ribbonSegments; i++) {
+      const a = i * 2;
+      const b = i * 2 + 1;
+      const c = (i + 1) * 2;
+      const d = (i + 1) * 2 + 1;
+      indices.push(a, b, c);
+      indices.push(b, d, c);
+    }
+
+    const ribbonGeom = new THREE.BufferGeometry();
+    ribbonGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    ribbonGeom.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+    ribbonGeom.setIndex(indices);
+
+    const ribbonMat = new THREE.MeshStandardMaterial({
+      map: strapTex,
+      side: THREE.DoubleSide,
+      roughness: 0.65,
+      metalness: 0.1
+    });
+    const ribbonMesh = new THREE.Mesh(ribbonGeom, ribbonMat);
+    scene.add(ribbonMesh);
+
+    // Build Procedural 3D Card
+    const cardGroup = new THREE.Group();
+    scene.add(cardGroup);
+
+    const { body, frontFace, backFace } = buildCardGeometry();
+
+    // Glossy laminate plastic body
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.35,
+      metalness: 0.05
+    });
+    const bodyMesh = new THREE.Mesh(body, bodyMat);
+    cardGroup.add(bodyMesh);
+
+    // Front Face (Glossy clean)
+    const frontMat = new THREE.MeshStandardMaterial({
+      map: frontTex,
+      roughness: 0.42,
+      metalness: 0.02
+    });
+    const frontMesh = new THREE.Mesh(frontFace, frontMat);
+    frontMesh.position.z = THICKNESS / 2 + 0.001;
+    cardGroup.add(frontMesh);
+
+    // Back Face (Glossy clean)
+    const backMat = new THREE.MeshStandardMaterial({
+      map: backTex,
+      roughness: 0.42,
+      metalness: 0.02,
+      side: THREE.BackSide
+    });
+    const backMesh = new THREE.Mesh(backFace, backMat);
+    backMesh.position.z = -THICKNESS / 2 - 0.001;
+    cardGroup.add(backMesh);
+
+    // Metal Clip & Clamp
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: 0xd8e2ed,
+      metalness: 0.95,
+      roughness: 0.22
+    });
+
+    const clampGeom = buildClampGeometry();
+    const clampMesh = new THREE.Mesh(clampGeom, metalMat);
+    clampMesh.position.set(0, CARD_HEIGHT / 2 - 0.01, 0);
+    cardGroup.add(clampMesh);
+
+    const ringGeom = new THREE.TorusGeometry(RING_RADIUS, RING_TUBE, 16, 32);
+    const ringMesh = new THREE.Mesh(ringGeom, metalMat);
+    ringMesh.position.set(0, CARD_HEIGHT / 2 + 0.055, 0);
+    cardGroup.add(ringMesh);
+
+    // Fade out loading spinner once textures resolve
+    setTimeout(() => {
+      const loader = container.querySelector('.lanyard-loading');
+      if (loader) loader.style.opacity = '0';
+    }, 400);
+
+    // Raycasting & Interaction
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let isMouseDown = false;
+    let mouseDownPos = { x: 0, y: 0 };
+    let mouseDownTime = 0;
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const intersectPoint = new THREE.Vector3();
+
+    function getPointerPos(e) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: ((clientX - rect.left) / rect.width) * 2 - 1,
+        y: -((clientY - rect.top) / rect.height) * 2 + 1,
+        rawX: clientX,
+        rawY: clientY
+      };
+    }
+
+    function onPointerDown(e) {
+      const p = getPointerPos(e);
+      mouse.x = p.x;
+      mouse.y = p.y;
+      mouseDownPos = { x: p.rawX, y: p.rawY };
+      mouseDownTime = performance.now();
+
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObject(cardGroup, true);
+      if (hits.length > 0) {
+        isMouseDown = true;
+        cardState.dragged = true;
+        document.body.style.cursor = 'grabbing';
+      }
+    }
+
+    function onPointerMove(e) {
+      const p = getPointerPos(e);
+      mouse.x = p.x;
+      mouse.y = p.y;
+
+      if (isMouseDown && cardState.dragged) {
+        raycaster.setFromCamera(mouse, camera);
+        raycaster.ray.intersectPlane(plane, intersectPoint);
+        if (intersectPoint) {
+          cardState.pos.x = THREE.MathUtils.clamp(intersectPoint.x, -3.5, 3.5);
+          cardState.pos.y = THREE.MathUtils.clamp(intersectPoint.y, -3.2, fixedPos.y - 0.5);
+          cardState.pos.z = THREE.MathUtils.clamp(intersectPoint.z, -2.5, 3.5);
+        }
+      }
+    }
+
+    function onPointerUp(e) {
+      if (isMouseDown) {
+        const rawX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const rawY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        const dist = Math.hypot(rawX - mouseDownPos.x, rawY - mouseDownPos.y);
+        const elapsed = performance.now() - mouseDownTime;
+
+        // Quick click triggers Flip
+        if (dist < 8 && elapsed < 350) {
+          targetFlipAngle += Math.PI;
         }
 
-        // 1. Digifox Studio Lanyard
-        createLanyardInstance({
-            containerId: 'lanyard-container',
-            cardTexture: 'assets/card_composite.png',
-            lanyardTexture: 'assets/hepl_lanyard.png'
-        });
-
-        // 2. Madras MindWorks Lanyard
-        createLanyardInstance({
-            containerId: 'lanyard-container-mmw',
-            cardTexture: 'assets/mmw_card_composite.png',
-            lanyardTexture: 'assets/mmw_lanyard.png'
-        });
+        isMouseDown = false;
+        cardState.dragged = false;
+        document.body.style.cursor = 'default';
+      }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAllLanyards);
-    } else {
-        initAllLanyards();
+    renderer.domElement.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    renderer.domElement.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp, { passive: true });
+
+    // Animation Loop
+    let lastTime = performance.now();
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const now = performance.now();
+      const dt = Math.min((now - lastTime) / 1000, 0.033);
+      lastTime = now;
+
+      // Smooth flip spin
+      currentFlipAngle = THREE.MathUtils.lerp(currentFlipAngle, targetFlipAngle, 0.12);
+
+      // Natural gentle breeze
+      const breezeX = Math.sin(now * 0.0018) * 0.12;
+      const breezeZ = Math.cos(now * 0.0015) * 0.08;
+
+      fixedPos.set(0, getCeilingAnchorY(), 0);
+
+      // Hook anchor point on card
+      const hookWorld = new THREE.Vector3(0, hookLocalY, 0);
+      hookWorld.applyEuler(cardState.rot);
+      hookWorld.add(cardState.pos);
+
+      // Verlet Cloth Simulation for Ribbon Joints
+      joints[0].pos.copy(fixedPos);
+
+      for (let i = 1; i < numSegments; i++) {
+        const j = joints[i];
+        if (!cardState.dragged) {
+          j.vel.x = (j.pos.x - j.oldPos.x) * damping + breezeX * 0.05;
+          j.vel.y = (j.pos.y - j.oldPos.y) * damping + gravity * dt * dt;
+          j.vel.z = (j.pos.z - j.oldPos.z) * damping + breezeZ * 0.05;
+
+          j.oldPos.copy(j.pos);
+          j.pos.add(j.vel);
+        }
+      }
+
+      // Relaxation constraints
+      const targetEnd = cardState.dragged ? hookWorld : null;
+      for (let iter = 0; iter < 5; iter++) {
+        joints[0].pos.copy(fixedPos);
+        for (let i = 0; i < numSegments - 1; i++) {
+          const p1 = joints[i].pos;
+          const p2 = joints[i + 1].pos;
+          const delta = new THREE.Vector3().subVectors(p2, p1);
+          const d = delta.length();
+          if (d > 0.0001) {
+            const diff = (d - segmentLength) / d;
+            if (i === 0) {
+              p2.sub(delta.multiplyScalar(diff));
+            } else {
+              p1.add(delta.clone().multiplyScalar(diff * 0.5));
+              p2.sub(delta.multiplyScalar(diff * 0.5));
+            }
+          }
+        }
+        if (targetEnd) {
+          joints[numSegments - 1].pos.lerp(targetEnd, 0.6);
+        }
+      }
+
+      // Card physics when not dragged
+      if (!cardState.dragged) {
+        const lastJoint = joints[numSegments - 1].pos;
+        const targetPos = new THREE.Vector3().subVectors(lastJoint, new THREE.Vector3(0, hookLocalY, 0));
+
+        const vel = new THREE.Vector3().subVectors(cardState.pos, cardState.oldPos).multiplyScalar(damping);
+        vel.y += gravity * dt * dt;
+        vel.x += breezeX * 0.08;
+
+        cardState.oldPos.copy(cardState.pos);
+        cardState.pos.add(vel);
+
+        // Spring towards suspension point
+        cardState.pos.lerp(targetPos, 0.45);
+
+        // Tilt based on swing velocity
+        const vx = cardState.pos.x - cardState.oldPos.x;
+        const vz = cardState.pos.z - cardState.oldPos.z;
+
+        const targetRotZ = THREE.MathUtils.clamp(-vx * 7.5, -0.6, 0.6);
+        const targetRotX = THREE.MathUtils.clamp(vz * 6.0, -0.5, 0.5);
+
+        cardState.rot.z = THREE.MathUtils.lerp(cardState.rot.z, targetRotZ, 0.12);
+        cardState.rot.x = THREE.MathUtils.lerp(cardState.rot.x, targetRotX, 0.12);
+      }
+
+      cardState.rot.y = currentFlipAngle;
+
+      cardGroup.position.copy(cardState.pos);
+      cardGroup.rotation.copy(cardState.rot);
+
+      // Update Ribbon Geometry along dynamic spline
+      const splinePoints = joints.map((j) => j.pos.clone());
+      splinePoints.push(hookWorld);
+
+      const curve = new THREE.CatmullRomCurve3(splinePoints);
+      const curvePoints = curve.getPoints(ribbonSegments);
+
+      const posAttr = ribbonGeom.attributes.position;
+      const uvAttr = ribbonGeom.attributes.uv;
+
+      for (let i = 0; i <= ribbonSegments; i++) {
+        const pt = curvePoints[i];
+        const t = i / ribbonSegments;
+        const tangent = curve.getTangent(t);
+        const normal = new THREE.Vector3(-tangent.y, tangent.x, 0).normalize();
+        if (normal.lengthSq() < 0.001) normal.set(1, 0, 0);
+
+        const halfW = (STRAP_WIDTH / 2) * (1.0 - t * 0.15);
+        const vIdx = i * 2;
+
+        posAttr.setXYZ(vIdx, pt.x - normal.x * halfW, pt.y - normal.y * halfW, pt.z - normal.z * halfW);
+        uvAttr.setXY(vIdx, 1.0 - t, 0);
+
+        posAttr.setXYZ(vIdx + 1, pt.x + normal.x * halfW, pt.y + normal.y * halfW, pt.z + normal.z * halfW);
+        uvAttr.setXY(vIdx + 1, 1.0 - t, 1);
+      }
+
+      posAttr.needsUpdate = true;
+      uvAttr.needsUpdate = true;
+      ribbonGeom.computeVertexNormals();
+
+      renderer.render(scene, camera);
     }
 
-    window.initAllLanyards = initAllLanyards;
+    // Dynamic resize handler
+    function handleResize() {
+      const w = container.clientWidth || 340;
+      const h = container.clientHeight || 480;
+      if (w < 20 || h < 20) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      fixedPos.set(0, getCeilingAnchorY(), 0);
+    }
+
+    window.addEventListener('resize', handleResize);
+    if (window.ResizeObserver) {
+      new ResizeObserver(handleResize).observe(container);
+    }
+
+    animate();
+  }
+
+  function initAllLanyards() {
+    if (typeof THREE === 'undefined') {
+      setTimeout(initAllLanyards, 100);
+      return;
+    }
+
+    // 1. Digifox Studio (HEPL ID)
+    createLanyardInstance({
+      containerId: 'lanyard-container',
+      frontImage: 'assets/id_card_front.png',
+      backImage: 'assets/id_card_back.png',
+      strapImage: 'assets/hepl_lanyard.png'
+    });
+
+    // 2. Madras MindWorks (MMW ID with updated email & phone)
+    createLanyardInstance({
+      containerId: 'lanyard-container-mmw',
+      frontImage: 'assets/mmw_id_front.png',
+      backImage: 'assets/mmw_id_back.png',
+      strapImage: 'assets/mmw_lanyard.png'
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllLanyards);
+  } else {
+    initAllLanyards();
+  }
+
+  window.initAllLanyards = initAllLanyards;
 })();
