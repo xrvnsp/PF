@@ -455,6 +455,72 @@ const getSlotClearancePx = (layout, canvasHeight, customVal) => {
   return Math.round((totalReach / layout.height) * canvasHeight);
 };
 
+const extendTopRightAccent = (ctx, image, canvasWidth, drawY, scale) => {
+  if (drawY <= 0) return;
+  try {
+    const trSample = sampleEdgeColor(image, 0.98, 0.02);
+    const tlSample = sampleEdgeColor(image, 0.05, 0.02);
+    if (!trSample || trSample === tlSample) return;
+
+    let wedgeStartRatio = 1254 / 1495; // ~0.8388
+    let slope = 0.42;
+
+    try {
+      const off = document.createElement('canvas');
+      off.width = 100;
+      off.height = 20;
+      const offCtx = off.getContext('2d', { willReadFrequently: true });
+      if (offCtx) {
+        offCtx.drawImage(image, 0, 0, image.width, Math.min(image.height * 0.1, 200), 0, 0, 100, 20);
+        const d0 = offCtx.getImageData(0, 0, 100, 1).data;
+        const d19 = offCtx.getImageData(0, 19, 100, 1).data;
+        const rR = d0[98 * 4], rG = d0[98 * 4 + 1], rB = d0[98 * 4 + 2];
+        let f0 = -1, f19 = -1;
+        for (let x = 98; x >= 0; x--) {
+          const i = x * 4;
+          if (Math.hypot(d0[i] - rR, d0[i + 1] - rG, d0[i + 2] - rB) > 40) {
+            f0 = x + 1;
+            break;
+          }
+        }
+        for (let x = 98; x >= 0; x--) {
+          const i = x * 4;
+          if (Math.hypot(d19[i] - rR, d19[i + 1] - rG, d19[i + 2] - rB) > 40) {
+            f19 = x + 1;
+            break;
+          }
+        }
+        if (f0 > 50 && f0 < 98) {
+          wedgeStartRatio = f0 / 100;
+          if (f19 > 0) {
+            const imgDy = Math.min(image.height * 0.1, 200) * (19 / 20);
+            const imgDx = ((f19 - f0) / 100) * image.width;
+            if (imgDy > 0) slope = Math.max(0, Math.min(1.5, imgDx / imgDy));
+          }
+        }
+      }
+    } catch {
+      // Fallback to calibrated values
+    }
+
+    const canvasX_drawY = canvasWidth * wedgeStartRatio;
+    const canvasX_top = canvasX_drawY - (drawY * slope);
+
+    ctx.save();
+    ctx.fillStyle = trSample;
+    ctx.beginPath();
+    ctx.moveTo(canvasX_top, 0);
+    ctx.lineTo(canvasWidth + 2, 0);
+    ctx.lineTo(canvasWidth + 2, drawY + 2);
+    ctx.lineTo(canvasX_drawY, drawY + 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  } catch {
+    // Ignore any error
+  }
+};
+
 const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
   if (slotClearancePx > 0) {
     const availH = height - slotClearancePx;
@@ -465,6 +531,7 @@ const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
       // Fit to 100% of card width edge-to-edge
       const x = 0;
       const y = height - hByW;
+      extendTopRightAccent(ctx, image, width, y, scaleW);
       ctx.drawImage(image, x, y, width, hByW);
     } else {
       const scale = Math.min(width / image.width, availH / image.height);
@@ -472,6 +539,7 @@ const drawFitted = (ctx, image, width, height, fit, slotClearancePx = 0) => {
       const h = image.height * scale;
       const x = (width - w) / 2;
       const y = height - h;
+      extendTopRightAccent(ctx, image, width, y, scale);
       ctx.drawImage(image, x, y, w, h);
     }
   } else {
