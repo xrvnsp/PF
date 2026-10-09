@@ -6,7 +6,8 @@
  */
 
 (function () {
-  // Prevent duplicate initialization
+  // Prevent duplicate initialization or rendering inside iframes
+  if (window.self !== window.top) return;
   if (window.__picoXrWidgetInitialized) return;
   window.__picoXrWidgetInitialized = true;
 

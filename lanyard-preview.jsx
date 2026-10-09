@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Lanyard from './react_src/Lanyard';
 
 const LanyardDemo = () => {
+  const isEmbedded = typeof window !== 'undefined' && (window.self !== window.top || new URLSearchParams(window.location.search).get('embed') === '1');
   const [viewMode, setViewMode] = useState('both'); // 'both', 'hepl', 'mmw'
   const [finish, setFinish] = useState('glossy');
   const [interactive, setInteractive] = useState(true);
@@ -10,21 +11,23 @@ const LanyardDemo = () => {
   const [cardWidth, setCardWidth] = useState(1.32);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', minHeight: isEmbedded ? '560px' : '100vh', overflow: 'hidden' }}>
       <header style={{
-        padding: '12px 24px',
+        padding: isEmbedded ? '8px 16px' : '12px 24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         background: 'rgba(15,23,42,0.95)',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
-        zIndex: 30
+        zIndex: 30,
+        flexWrap: 'wrap',
+        gap: '8px'
       }}>
         <div>
-          <h1 style={{ fontSize: '1.15rem', fontWeight: 700, letterSpacing: '0.4px', color: '#00f2fe' }}>
+          <h1 style={{ fontSize: isEmbedded ? '1rem' : '1.15rem', fontWeight: 700, letterSpacing: '0.4px', color: '#00f2fe' }}>
             React Bits — Dual &lt;Lanyard /&gt; Interactive Badges
           </h1>
-          <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+          <p style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: '2px' }}>
             Real-time Three.js cloth strap &amp; physics ID badges • HEPL &amp; Madras MindWorks
           </p>
         </div>
@@ -124,7 +127,8 @@ const LanyardDemo = () => {
         flex: 1,
         position: 'relative',
         width: '100%',
-        height: 'calc(100vh - 66px)',
+        height: isEmbedded ? 'calc(100% - 52px)' : 'calc(100vh - 66px)',
+        minHeight: isEmbedded ? '520px' : 'calc(100vh - 66px)',
         display: 'grid',
         gridTemplateColumns: viewMode === 'both' ? '1fr 1fr' : '1fr',
         background: 'radial-gradient(circle at 50% 20%, #0d1527 0%, #050811 100%)',

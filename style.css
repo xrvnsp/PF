@@ -2620,4 +2620,9 @@ img {
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
         transition: none !important;
     }
-}
+
+    .dual-lanyard-showcase-wrapper iframe {
+        height: 520px !important;
+    }
+}
+
