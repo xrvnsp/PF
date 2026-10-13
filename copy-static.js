@@ -43,7 +43,8 @@ const itemsToCopy = [
   'favicon-512.png',
   'robots.txt',
   'sitemap.xml',
-  'googlecdb25dfac705035b.html'
+  'googlecdb25dfac705035b.html',
+  'CNAME'
 ];
 
 itemsToCopy.forEach((item) => {

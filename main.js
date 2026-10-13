@@ -466,68 +466,7 @@ function initProjectReveal() {
 // ========================================
 
 function initCustomCursor() {
-    const cursor   = document.querySelector('.arc-cursor-core');
-    const follower = document.querySelector('.arc-cursor-reactor');
-
-    if (!cursor || !follower) return;
-
-    let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
-    let followerX = 0, followerY = 0;
-
-    // Only show on real pointer (desktop) — hidden on touch via CSS
-    if (window.matchMedia('(pointer: fine)').matches) {
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        // Animate loop: core snaps fast (0.20), reactor drifts slow (0.08)
-        function moveCursor() {
-            cursorX   += (mouseX - cursorX)   * 0.20;
-            cursorY   += (mouseY - cursorY)   * 0.20;
-            followerX += (mouseX - followerX) * 0.08; // slower → "hovering" feel
-            followerY += (mouseY - followerY) * 0.08;
-
-            cursor.style.left   = `${cursorX}px`;
-            cursor.style.top    = `${cursorY}px`;
-            follower.style.left = `${followerX}px`;
-            follower.style.top  = `${followerY}px`;
-
-            requestAnimationFrame(moveCursor);
-        }
-        moveCursor();
-
-        // Power-up on interactive elements
-        const interactive = document.querySelectorAll('a, button, .project-card, .dot, .tag, .skill-item, .nav-btn-resume');
-        interactive.forEach(el => {
-            el.addEventListener('mouseenter', () => document.body.classList.add('cursor-active'));
-            el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
-        });
-
-        // Click energy burst
-        document.addEventListener('mousedown', () => {
-            cursor.classList.add('arc-clicking');
-            setTimeout(() => cursor.classList.remove('arc-clicking'), 150);
-        });
-
-        // Fade when leaving / entering window
-        document.addEventListener('mouseleave', () => {
-            cursor.style.opacity   = '0';
-            follower.style.opacity = '0';
-        });
-        document.addEventListener('mouseenter', () => {
-            cursor.style.opacity   = '1';
-            follower.style.opacity = '1';
-        });
-
-    } else {
-        // Touch devices — hide both
-        cursor.style.display   = 'none';
-        follower.style.display = 'none';
-        document.body.style.cursor = 'auto';
-    }
+    // Managed by assets/target-arc-cursor.js
 }
 
 // ========================================
