@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import './TargetCursor.css';
 
 const CORNER_ANGLES = [0, 90, 180, 270];
-const QUARTER = Math.PI / 2;
 
 const spring = (state, goal, stiffness, damping, dt) => {
   const steps = 2;
@@ -22,11 +21,11 @@ const getSmartLabel = el => {
   if (!el) return '';
   if (el.hasAttribute('data-cursor-label')) return el.getAttribute('data-cursor-label');
   if (el.closest('.hero-resume-btn') || el.closest('[download]')) return 'DOWNLOAD CV';
-  if (el.closest('#terminal-skip-btn')) return 'SKIP BOOT';
   if (el.closest('.nav-btn-resume')) return 'RESUME';
+  if (el.closest('#terminal-skip-btn')) return 'SKIP BOOT';
   if (el.closest('.nav-link')) {
     const text = el.textContent.trim().toUpperCase();
-    return text ? `NAV: ${text}` : 'NAVIGATE';
+    return text ? text : 'NAVIGATE';
   }
   if (el.closest('.timeline-lanyard-card') || el.closest('#lanyard-container') || el.closest('#lanyard-container-mmw')) {
     return 'XR ID BADGE';
@@ -39,11 +38,22 @@ const getSmartLabel = el => {
   if (el.closest('input, textarea, select')) return 'INPUT';
   if (el.closest('button, .btn')) return 'ENGAGE';
   if (el.closest('a')) return 'EXPLORE';
-  return 'TARGET LOCKED';
+  return 'LOCKED';
 };
 
 const DEFAULT_TARGET_SELECTOR =
   'a, button, .btn, .nav-link, .nav-btn-resume, .project-card, .timeline-content, .timeline-lanyard-card, .exp-logo-wrapper, .star-border-container, .pc-card-wrapper, .filter-btn, .lanyard-container, input, textarea, select, .pico-hud-btn, #pico-xr-launcher, [data-cursor-target], .cursor-target';
+
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return true;
+  return (
+    window.innerWidth <= 992 ||
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia('(hover: none)').matches ||
+    window.matchMedia('(pointer: coarse)').matches
+  );
+};
 
 const TargetCursor = ({
   targetSelector = DEFAULT_TARGET_SELECTOR,
@@ -56,7 +66,7 @@ const TargetCursor = ({
   size = 52,
   cornerSize = 14,
   thickness = 2,
-  padding = 8,
+  padding = 6,
   matchRadius = true,
   dotSize = 4,
   blendMode = 'normal',
@@ -96,12 +106,35 @@ const TargetCursor = ({
   settingsRef.current = settings;
 
   useEffect(() => {
-    // Desktop and hybrid pointer check — skip on pure touch devices with no mouse
-    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const update = () => setHost(finePointer.matches ? document.body : null);
-    update();
-    finePointer.addEventListener('change', update);
-    return () => finePointer.removeEventListener('change', update);
+    // Strictly disable on mobile and touch devices
+    if (isTouchDevice()) {
+      setHost(null);
+      return;
+    }
+
+    const checkPointer = () => {
+      if (isTouchDevice()) {
+        setHost(null);
+      } else if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        setHost(document.body);
+      } else {
+        setHost(null);
+      }
+    };
+
+    checkPointer();
+
+    const handleTouch = () => {
+      setHost(null);
+    };
+
+    window.addEventListener('touchstart', handleTouch, { passive: true, once: true });
+    window.addEventListener('resize', checkPointer, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouch);
+      window.removeEventListener('resize', checkPointer);
+    };
   }, []);
 
   useEffect(() => {
@@ -125,7 +158,6 @@ const TargetCursor = ({
 
     let target = null;
     let targetRadius = 0;
-    let quarter = 0;
     let spinSpeed = 0;
     let raf = 0;
     let last = 0;
@@ -151,26 +183,38 @@ const TargetCursor = ({
       if (style.textContent !== rule) style.textContent = rule;
     };
 
+    const isValidTarget = el => {
+      if (!el || !el.isConnected) return false;
+      // Never target terminal loader or any hidden overlay
+      if (el.closest('#terminal-loader') || el.closest('#target-cursor') || el.closest('#target-cursor-mount')) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 4 || r.height <= 4) return false;
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden' || style.pointerEvents === 'none') return false;
+      return true;
+    };
+
     const findTarget = (x, y, element) => {
       const s = settingsRef.current;
       const direct = (element && element.closest) ? element.closest(s.targetSelector) : null;
-      if (direct) {
+      if (direct && isValidTarget(direct)) {
         const scope = scopeOf();
         if (!scope || scope.contains(direct)) return direct;
       }
       const node = document.elementFromPoint(x, y);
       const found = (node && node.closest) ? node.closest(s.targetSelector) : null;
-      const scope = scopeOf();
-      if (found && scope && !scope.contains(found)) return null;
-      return found;
+      if (found && isValidTarget(found)) {
+        const scope = scopeOf();
+        if (!scope || scope.contains(found)) return found;
+      }
+      return null;
     };
 
     const lockOn = next => {
-      if (next === target) return;
-      target = next;
+      const validNext = isValidTarget(next) ? next : null;
+      if (validNext === target) return;
+      target = validNext;
       if (target) {
-        const angle = turn.x;
-        quarter = Math.round(angle / QUARTER);
         const corner = parseFloat(getComputedStyle(target).borderTopLeftRadius) || 0;
         targetRadius = corner;
         spinSpeed = 0;
@@ -209,12 +253,11 @@ const TargetCursor = ({
         const lean = s.parallaxOn ? 0.08 : 0;
         goalX = cx + (pointer.x - cx) * lean;
         goalY = cy + (pointer.y - cy) * lean;
-        const odd = Math.abs(quarter) % 2 === 1;
-        const w = rect.width / 2 + s.padding;
-        const h = rect.height / 2 + s.padding;
-        goalW = odd ? h : w;
-        goalH = odd ? w : h;
-        goalR = s.matchRadius ? Math.min(targetRadius + Math.max(0, s.padding), s.cornerSize * 1.5) : 0;
+
+        // Exact element bounds + padding (never swap W and H!)
+        goalW = rect.width / 2 + s.padding;
+        goalH = rect.height / 2 + s.padding;
+        goalR = s.matchRadius ? Math.min(targetRadius + s.padding, s.cornerSize * 1.5) : 0;
       }
 
       if (!pointer.inside && presence.x < 0.01) pointer.seen = false;
@@ -235,8 +278,10 @@ const TargetCursor = ({
       spring(radius, goalR, snapK, 2 * snapW, dt);
 
       if (locked) {
-        spring(turn, quarter * QUARTER, snapK, snapC, dt);
+        // When locked on target, rotate smoothly to 0° (perfect rectangular alignment)
+        spring(turn, 0, snapK, snapC, dt);
       } else {
+        // Free roaming: gentle ambient rotation
         const speed = s.spinDuration > 0 && !reduce ? (Math.PI * 2) / s.spinDuration : 0;
         spinSpeed += (speed - spinSpeed) * (1 - Math.exp(-dt * 3));
         turn.v = spinSpeed;
@@ -247,25 +292,33 @@ const TargetCursor = ({
       const cos = Math.cos(turn.x);
       const sin = Math.sin(turn.x);
       const w = Math.max(0, halfW.x) * squeeze;
-      const h = Math.max(0, halfH.x) * squeeze;
+      const h = Math.max(0, halfH.y) * squeeze;
+
       const local = [
-        [-w, -h],
-        [w, -h],
-        [w, h],
-        [-w, h]
+        [-w, -h], // TL
+        [w, -h],  // TR
+        [w, h],   // BR
+        [-w, h]   // BL
       ];
-      const r = Math.max(0, radius.x);
+      const r = Math.max(0, Math.min(radius.x, s.cornerSize));
       const degrees = (turn.x * 180) / Math.PI;
-      let left = Infinity;
-      let top = Infinity;
+
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
 
       cornerRefs.current.forEach((corner, i) => {
         if (!corner) return;
         const [lx, ly] = local[i];
         const x = centerX.x + lx * cos - ly * sin;
         const y = centerY.y + lx * sin + ly * cos;
-        left = Math.min(left, x);
-        top = Math.min(top, y);
+
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+
         corner.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${(CORNER_ANGLES[i] + degrees).toFixed(2)}deg)`;
         corner.style.width = `${s.cornerSize}px`;
         corner.style.height = `${s.cornerSize}px`;
@@ -273,6 +326,7 @@ const TargetCursor = ({
         corner.style.borderTopLeftRadius = `${r.toFixed(2)}px`;
       });
 
+      // Core dot tracking
       const dot = dotRef.current;
       if (dot) {
         const dotScale = 1 - press.x * 0.35;
@@ -281,33 +335,50 @@ const TargetCursor = ({
         dot.style.height = `${s.dotSize}px`;
       }
 
-      // Smooth Arc Reactor Halo Follow & Docking
+      // Arc Reactor Halo Dynamics
       const halo = haloRef.current;
       if (halo) {
-        const targetHaloX = locked ? centerX.x : pointer.x;
-        const targetHaloY = locked ? centerY.y : pointer.y;
-        haloX += (targetHaloX - haloX) * (locked ? 0.25 : 0.16);
-        haloY += (targetHaloY - haloY) * (locked ? 0.25 : 0.16);
-        halo.style.transform = `translate3d(${haloX.toFixed(2)}px, ${haloY.toFixed(2)}px, 0) translate(-50%, -50%)`;
-
         if (locked) {
-          const haloScale = Math.min(2.0, Math.max(0.85, Math.min(halfW.x, halfH.y) / 22));
-          halo.style.width = `${(52 * haloScale).toFixed(1)}px`;
-          halo.style.height = `${(52 * haloScale).toFixed(1)}px`;
+          // When locked on target: compact tactical core (size 28px - 36px) docked neatly in center
+          const compactSize = Math.min(38, Math.max(24, Math.min(rect.width, rect.height) * 0.72));
+          halo.style.width = `${compactSize.toFixed(1)}px`;
+          halo.style.height = `${compactSize.toFixed(1)}px`;
+
+          // Halo docks smoothly inside target
+          const targetHaloX = centerX.x + (pointer.x - centerX.x) * 0.22;
+          const targetHaloY = centerY.y + (pointer.y - centerY.y) * 0.22;
+          haloX += (targetHaloX - haloX) * 0.25;
+          haloY += (targetHaloY - haloY) * 0.25;
         } else {
+          // Free roaming: 52px full halo following pointer
           halo.style.width = `${s.size}px`;
           halo.style.height = `${s.size}px`;
+          haloX += (pointer.x - haloX) * 0.20;
+          haloY += (pointer.y - haloY) * 0.20;
         }
+        halo.style.transform = `translate3d(${haloX.toFixed(2)}px, ${haloY.toFixed(2)}px, 0) translate(-50%, -50%)`;
       }
 
+      // Tactical HUD Reticle Label Positioning
       const label = labelRef.current;
       if (label) {
-        const text = s.showLabel && target ? getSmartLabel(target) : '';
-        if (text && text !== lastLabel) label.textContent = text;
-        if (text) lastLabel = text;
-        const shown = text ? Math.max(0, Math.min(1, lock.x)) : 0;
-        label.style.transform = `translate3d(${left.toFixed(2)}px, ${(top - 8).toFixed(2)}px, 0) translateY(-100%) translateY(${((1 - shown) * 4).toFixed(2)}px)`;
-        label.style.opacity = shown.toFixed(3);
+        if (locked && isFinite(minX) && isFinite(minY)) {
+          const text = s.showLabel && target ? getSmartLabel(target) : '';
+          if (text !== label.textContent) label.textContent = text;
+          const shown = text ? Math.max(0, Math.min(1, lock.x)) : 0;
+
+          // Position: if target is near top of viewport (< 42px), show below target to avoid clipping
+          const isNearTop = minY < 42;
+          if (isNearTop) {
+            label.style.transform = `translate3d(${minX.toFixed(2)}px, ${(maxY + 6).toFixed(2)}px, 0)`;
+          } else {
+            label.style.transform = `translate3d(${minX.toFixed(2)}px, ${(minY - 7).toFixed(2)}px, 0) translateY(-100%)`;
+          }
+          label.style.opacity = shown.toFixed(3);
+        } else {
+          label.style.opacity = '0';
+          label.textContent = '';
+        }
       }
 
       const mix = s.cursorColorOnTarget ? Math.round(Math.max(0, Math.min(1, lock.x)) * 100) : 0;
@@ -433,7 +504,7 @@ const TargetCursor = ({
       {/* Central Core Dot */}
       <span ref={dotRef} className="target-cursor__dot" />
 
-      {/* Optional Integrated Iron Man Arc Reactor Optics */}
+      {/* Integrated Iron Man Arc Reactor Optics */}
       {arcReactor && (
         <div ref={haloRef} className="target-cursor__reactor-halo">
           <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
@@ -453,9 +524,9 @@ const TargetCursor = ({
                 </feMerge>
               </filter>
               <radialGradient id="tc-core-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-                <stop offset="40%" stop-color="#c0ffff" stop-opacity="1" />
-                <stop offset="100%" stop-color="#00f5ff" stop-opacity="1" />
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+                <stop offset="40%" stopColor="#c0ffff" stopOpacity="1" />
+                <stop offset="100%" stopColor="#00f5ff" stopOpacity="1" />
               </radialGradient>
             </defs>
             <g className="target-cursor__spin-ring">

@@ -4,6 +4,17 @@ import Lanyard from './react_src/Lanyard';
 import TargetCursor from './react_src/TargetCursor';
 
 function initReactCursor() {
+  if (
+    typeof window !== 'undefined' &&
+    (window.innerWidth <= 992 ||
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(hover: none)').matches ||
+      window.matchMedia('(pointer: coarse)').matches)
+  ) {
+    return;
+  }
+
   let mountEl = document.getElementById('target-cursor-mount');
   if (!mountEl) {
     mountEl = document.createElement('div');

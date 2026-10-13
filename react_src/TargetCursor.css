@@ -17,10 +17,17 @@
   will-change: opacity;
 }
 
-/* Hide on touch devices */
-@media (pointer: coarse) or (hover: none) {
-  .target-cursor {
+/* ABSOLUTE MOBILE BLOCK: Never render cursor on screens <= 992px or touch */
+@media screen and (max-width: 992px), (pointer: coarse), (hover: none) {
+  .target-cursor,
+  .target-cursor__corner,
+  .target-cursor__dot,
+  .target-cursor__label,
+  .target-cursor__reactor-halo {
     display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 }
 
