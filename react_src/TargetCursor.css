@@ -1,0 +1,164 @@
+/* ========================================================
+   TARGET CURSOR with ARC REACTOR OPTICS (React Bits + Iron Man HUD)
+   ======================================================== */
+
+:root {
+  --target-cursor-cyan: #00f5ff;
+  --target-cursor-glow: rgba(0, 245, 255, 0.65);
+  --target-cursor-glow-intense: rgba(0, 245, 255, 0.95);
+}
+
+.target-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  overflow: hidden;
+  will-change: opacity;
+}
+
+/* Hide on touch devices */
+@media (pointer: coarse) or (hover: none) {
+  .target-cursor {
+    display: none !important;
+  }
+}
+
+/* 4 Corner Brackets (React Bits) */
+.target-cursor__corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--target-cursor-color, var(--target-cursor-cyan));
+  transform-origin: 0 0;
+  will-change: transform, border-radius;
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px var(--target-cursor-glow));
+  transition: border-color 0.2s ease, filter 0.2s ease;
+}
+
+.target-cursor.is-locked .target-cursor__corner {
+  border-color: var(--target-cursor-cyan);
+  filter: drop-shadow(0 0 8px var(--target-cursor-cyan)) drop-shadow(0 0 16px rgba(0, 245, 255, 0.7));
+}
+
+/* Center Dot */
+.target-cursor__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  box-shadow:
+    0 0 5px 2px var(--target-cursor-cyan),
+    0 0 14px 4px var(--target-cursor-glow);
+  z-index: 5;
+}
+
+.target-cursor.is-locked .target-cursor__dot {
+  box-shadow:
+    0 0 8px 3px var(--target-cursor-cyan),
+    0 0 22px 7px var(--target-cursor-glow-intense);
+}
+
+/* Tactical HUD Reticle Label */
+.target-cursor__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: 'Orbitron', 'Roboto Mono', 'Inter', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--target-cursor-cyan);
+  background: rgba(0, 10, 25, 0.85);
+  border: 1px solid rgba(0, 245, 255, 0.38);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 2px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.25);
+  z-index: 6;
+}
+
+/* Arc Reactor Halo Optics */
+.target-cursor__reactor-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 52px;
+  height: 52px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  will-change: transform, width, height, opacity;
+  transition:
+    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease,
+    filter 0.3s ease;
+  z-index: 2;
+  filter: drop-shadow(0 0 6px var(--target-cursor-glow));
+}
+
+.target-cursor.is-locked .target-cursor__reactor-halo {
+  opacity: 0.4;
+  filter: drop-shadow(0 0 16px var(--target-cursor-glow-intense));
+}
+
+.target-cursor__reactor-halo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Rotating outer ring */
+.target-cursor__spin-ring {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: tc-halo-spin 8s linear infinite;
+  will-change: transform;
+}
+
+.target-cursor.is-locked .target-cursor__spin-ring {
+  animation-duration: 1.8s;
+}
+
+@keyframes tc-halo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Pulsing energy core */
+.target-cursor__pulse-core {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: tc-pulse-anim 1.8s ease-in-out infinite;
+}
+
+@keyframes tc-pulse-anim {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1.0; }
+}
+
+/* Click Energy Burst */
+.target-cursor.is-pressed .target-cursor__dot {
+  transform: translate(-50%, -50%) scale(2.6);
+  box-shadow:
+    0 0 16px 8px var(--target-cursor-cyan),
+    0 0 36px 14px rgba(0, 245, 255, 0.9);
+}
+
+.target-cursor.is-pressed .target-cursor__corner {
+  border-color: #ffffff;
+  filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px var(--target-cursor-cyan));
+}
