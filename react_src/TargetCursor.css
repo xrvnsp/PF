@@ -17,8 +17,8 @@
   will-change: opacity;
 }
 
-/* ABSOLUTE MOBILE BLOCK: Never render cursor on screens <= 992px or touch */
-@media screen and (max-width: 992px), (pointer: coarse), (hover: none) {
+/* ABSOLUTE MOBILE BLOCK: Never render cursor on touch-only devices */
+@media (hover: none) and (pointer: coarse) {
   .target-cursor,
   .target-cursor__corner,
   .target-cursor__dot,

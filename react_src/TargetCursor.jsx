@@ -7,12 +7,19 @@ import './TargetCursor.css';
 const CORNER_ANGLES = [0, 90, 180, 270];
 
 const spring = (state, goal, stiffness, damping, dt) => {
-  const steps = 2;
-  const h = dt / steps;
-  for (let i = 0; i < steps; i++) {
+  if (!isFinite(state.x)) state.x = goal;
+  if (!isFinite(state.v)) state.v = 0;
+  if (!isFinite(goal)) return;
+  const maxH = 0.004;
+  let remain = Math.min(0.05, Math.max(0.001, dt));
+  while (remain > 0) {
+    const h = Math.min(remain, maxH);
     state.v += (stiffness * (goal - state.x) - damping * state.v) * h;
     state.x += state.v * h;
+    remain -= h;
   }
+  if (!isFinite(state.x)) state.x = goal;
+  if (!isFinite(state.v)) state.v = 0;
 };
 
 const resolveElement = value => (value && 'current' in value ? value.current : value) || null;
@@ -46,13 +53,8 @@ const DEFAULT_TARGET_SELECTOR =
 
 const isTouchDevice = () => {
   if (typeof window === 'undefined') return true;
-  return (
-    window.innerWidth <= 992 ||
-    'ontouchstart' in window ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia('(hover: none)').matches ||
-    window.matchMedia('(pointer: coarse)').matches
-  );
+  // Strictly touch-only devices with no mouse
+  return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 };
 
 const TargetCursor = ({
@@ -61,7 +63,7 @@ const TargetCursor = ({
   cursorColorOnTarget,
   spinDuration = 3,
   hoverDuration = 0.22,
-  parallaxOn = true,
+  parallaxOn = false, // Disabled parallax on target so brackets lock 100% dead-on to element
   hideDefaultCursor = true,
   size = 52,
   cornerSize = 14,
@@ -106,7 +108,7 @@ const TargetCursor = ({
   settingsRef.current = settings;
 
   useEffect(() => {
-    // Strictly disable on mobile and touch devices
+    // Strictly disable on touch-only mobile devices with no fine pointer
     if (isTouchDevice()) {
       setHost(null);
       return;
@@ -115,20 +117,18 @@ const TargetCursor = ({
     const checkPointer = () => {
       if (isTouchDevice()) {
         setHost(null);
-      } else if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        setHost(document.body);
       } else {
-        setHost(null);
+        setHost(document.body);
       }
     };
 
     checkPointer();
 
     const handleTouch = () => {
-      setHost(null);
+      if (isTouchDevice()) setHost(null);
     };
 
-    window.addEventListener('touchstart', handleTouch, { passive: true, once: true });
+    window.addEventListener('touchstart', handleTouch, { passive: true });
     window.addEventListener('resize', checkPointer, { passive: true });
 
     return () => {
@@ -185,12 +185,20 @@ const TargetCursor = ({
 
     const isValidTarget = el => {
       if (!el || !el.isConnected) return false;
-      // Never target terminal loader or any hidden overlay
-      if (el.closest('#terminal-loader') || el.closest('#target-cursor') || el.closest('#target-cursor-mount')) return false;
+      // Never target terminal loader or cursor root
+      if (el.closest('#terminal-loader') || el.closest('#target-cursor') || el.closest('#target-cursor-mount') || el.closest('.target-cursor')) {
+        return false;
+      }
       const r = el.getBoundingClientRect();
       if (r.width <= 4 || r.height <= 4) return false;
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden' || style.pointerEvents === 'none') return false;
+      // Filter out elements completely outside viewport
+      if (r.bottom < -10 || r.top > window.innerHeight + 10 || r.right < -10 || r.left > window.innerWidth + 10) {
+        return false;
+      }
+      const computed = window.getComputedStyle(el);
+      if (computed.display === 'none' || computed.visibility === 'hidden' || computed.pointerEvents === 'none') {
+        return false;
+      }
       return true;
     };
 
@@ -217,7 +225,6 @@ const TargetCursor = ({
       if (target) {
         const corner = parseFloat(getComputedStyle(target).borderTopLeftRadius) || 0;
         targetRadius = corner;
-        spinSpeed = 0;
         root.classList.add('is-locked');
       } else {
         root.classList.remove('is-locked');
@@ -227,12 +234,15 @@ const TargetCursor = ({
     const frame = now => {
       raf = 0;
       const s = settingsRef.current;
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
+      const dt = last ? Math.min(0.05, Math.max(0.001, (now - last) / 1000)) : 1 / 60;
       last = now;
 
-      if (target && !target.isConnected) lockOn(null);
+      if (target && (!target.isConnected || !isValidTarget(target))) {
+        lockOn(null);
+      }
+
       const rect = target ? target.getBoundingClientRect() : null;
-      const locked = !!rect && pointer.inside;
+      const locked = !!(rect && pointer.inside);
       const snapW = 4.6 / s.hoverDuration;
       const snapK = snapW * snapW;
       const snapC = 2 * 0.62 * snapW;
@@ -248,13 +258,13 @@ const TargetCursor = ({
       let goalR = 12;
 
       if (locked) {
+        // Dead-on center alignment with element
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
-        const lean = s.parallaxOn ? 0.08 : 0;
-        goalX = cx + (pointer.x - cx) * lean;
-        goalY = cy + (pointer.y - cy) * lean;
+        goalX = cx;
+        goalY = cy;
 
-        // Exact element bounds + padding (never swap W and H!)
+        // Exact element dimensions + padding
         goalW = rect.width / 2 + s.padding;
         goalH = rect.height / 2 + s.padding;
         goalR = s.matchRadius ? Math.min(targetRadius + s.padding, s.cornerSize * 1.5) : 0;
@@ -269,8 +279,8 @@ const TargetCursor = ({
         pointer.seen = pointer.inside;
       }
 
-      const follow = locked ? snapK : 2200;
-      const followC = locked ? snapC : 2 * Math.sqrt(2200);
+      const follow = locked ? snapK : 1400;
+      const followC = locked ? snapC : 2 * Math.sqrt(1400);
       spring(centerX, goalX, follow, followC, dt);
       spring(centerY, goalY, follow, followC, dt);
       spring(halfW, goalW, snapK, snapC, dt);
@@ -278,19 +288,22 @@ const TargetCursor = ({
       spring(radius, goalR, snapK, 2 * snapW, dt);
 
       if (locked) {
-        // When locked on target, rotate smoothly to 0° (perfect rectangular alignment)
-        spring(turn, 0, snapK, snapC, dt);
+        // Smoothly decay rotation to 0 when locked on element
+        turn.v = 0;
+        turn.x += (0 - turn.x) * Math.min(1, dt * 18);
       } else {
-        // Free roaming: gentle ambient rotation
+        // Free roaming: ambient rotation
         const speed = s.spinDuration > 0 && !reduce ? (Math.PI * 2) / s.spinDuration : 0;
         spinSpeed += (speed - spinSpeed) * (1 - Math.exp(-dt * 3));
         turn.v = spinSpeed;
-        turn.x += spinSpeed * dt;
+        turn.x = (turn.x + spinSpeed * dt) % (Math.PI * 2);
       }
 
       const squeeze = 1 - press.x * 0.14;
-      const cos = Math.cos(turn.x);
-      const sin = Math.sin(turn.x);
+      // When locked (lock.x approaching 1), angular rotation smoothly diminishes to zero for 100% axis alignment
+      const activeAngle = turn.x * Math.max(0, 1 - lock.x);
+      const cos = Math.cos(activeAngle);
+      const sin = Math.sin(activeAngle);
       const w = Math.max(0, halfW.x) * squeeze;
       const h = Math.max(0, halfH.y) * squeeze;
 
@@ -301,23 +314,13 @@ const TargetCursor = ({
         [-w, h]   // BL
       ];
       const r = Math.max(0, Math.min(radius.x, s.cornerSize));
-      const degrees = (turn.x * 180) / Math.PI;
-
-      let minX = Infinity;
-      let minY = Infinity;
-      let maxX = -Infinity;
-      let maxY = -Infinity;
+      const degrees = (activeAngle * 180) / Math.PI;
 
       cornerRefs.current.forEach((corner, i) => {
         if (!corner) return;
         const [lx, ly] = local[i];
         const x = centerX.x + lx * cos - ly * sin;
         const y = centerY.y + lx * sin + ly * cos;
-
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
 
         corner.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${(CORNER_ANGLES[i] + degrees).toFixed(2)}deg)`;
         corner.style.width = `${s.cornerSize}px`;
@@ -330,7 +333,10 @@ const TargetCursor = ({
       const dot = dotRef.current;
       if (dot) {
         const dotScale = 1 - press.x * 0.35;
-        dot.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0) translate(-50%, -50%) scale(${dotScale.toFixed(3)})`;
+        // In free roaming dot tracks cursor; inside locked element, dot stays centered
+        const targetDotX = locked ? centerX.x : pointer.x;
+        const targetDotY = locked ? centerY.y : pointer.y;
+        dot.style.transform = `translate3d(${targetDotX.toFixed(2)}px, ${targetDotY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${dotScale.toFixed(3)})`;
         dot.style.width = `${s.dotSize}px`;
         dot.style.height = `${s.dotSize}px`;
       }
@@ -339,18 +345,15 @@ const TargetCursor = ({
       const halo = haloRef.current;
       if (halo) {
         if (locked) {
-          // When locked on target: compact tactical core (size 28px - 36px) docked neatly in center
-          const compactSize = Math.min(38, Math.max(24, Math.min(rect.width, rect.height) * 0.72));
+          // Compact tactical core docked cleanly at target center
+          const compactSize = Math.min(36, Math.max(22, Math.min(rect.width, rect.height) * 0.65));
           halo.style.width = `${compactSize.toFixed(1)}px`;
           halo.style.height = `${compactSize.toFixed(1)}px`;
 
-          // Halo docks smoothly inside target
-          const targetHaloX = centerX.x + (pointer.x - centerX.x) * 0.22;
-          const targetHaloY = centerY.y + (pointer.y - centerY.y) * 0.22;
-          haloX += (targetHaloX - haloX) * 0.25;
-          haloY += (targetHaloY - haloY) * 0.25;
+          haloX += (centerX.x - haloX) * 0.3;
+          haloY += (centerY.y - haloY) * 0.3;
         } else {
-          // Free roaming: 52px full halo following pointer
+          // Free roaming: 52px halo follows pointer
           halo.style.width = `${s.size}px`;
           halo.style.height = `${s.size}px`;
           haloX += (pointer.x - haloX) * 0.20;
@@ -362,17 +365,21 @@ const TargetCursor = ({
       // Tactical HUD Reticle Label Positioning
       const label = labelRef.current;
       if (label) {
-        if (locked && isFinite(minX) && isFinite(minY)) {
+        if (locked && rect) {
           const text = s.showLabel && target ? getSmartLabel(target) : '';
           if (text !== label.textContent) label.textContent = text;
           const shown = text ? Math.max(0, Math.min(1, lock.x)) : 0;
 
-          // Position: if target is near top of viewport (< 42px), show below target to avoid clipping
-          const isNearTop = minY < 42;
+          // Align label directly with the left edge of the bounding box, clamped to screen bounds
+          const safeLeft = Math.max(12, Math.min(window.innerWidth - 180, centerX.x - w));
+          const isNearTop = (centerY.y - h) < 42;
+          const safeTop = isNearTop
+            ? (centerY.y + h + 6)
+            : Math.max(10, centerY.y - h - 6);
           if (isNearTop) {
-            label.style.transform = `translate3d(${minX.toFixed(2)}px, ${(maxY + 6).toFixed(2)}px, 0)`;
+            label.style.transform = `translate3d(${safeLeft.toFixed(2)}px, ${safeTop.toFixed(2)}px, 0)`;
           } else {
-            label.style.transform = `translate3d(${minX.toFixed(2)}px, ${(minY - 7).toFixed(2)}px, 0) translateY(-100%)`;
+            label.style.transform = `translate3d(${safeLeft.toFixed(2)}px, ${safeTop.toFixed(2)}px, 0) translateY(-100%)`;
           }
           label.style.opacity = shown.toFixed(3);
         } else {
@@ -421,7 +428,7 @@ const TargetCursor = ({
     };
 
     const onPointerMove = event => {
-      if (event.pointerType && event.pointerType !== 'mouse') return;
+      if (event.pointerType === 'touch') return;
       pointer.x = event.clientX;
       pointer.y = event.clientY;
       const inside = insideScope(pointer.x, pointer.y, event.target);
@@ -434,7 +441,7 @@ const TargetCursor = ({
     };
 
     const onPointerDown = event => {
-      if (event.pointerType && event.pointerType !== 'mouse') return;
+      if (event.pointerType === 'touch') return;
       pointer.pressed = true;
       root.classList.add('is-pressed');
       wake();
@@ -462,20 +469,28 @@ const TargetCursor = ({
     };
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('mousemove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('mousedown', onPointerDown, { passive: true });
     window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('mouseup', onPointerUp, { passive: true });
     window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     document.documentElement.addEventListener('pointerleave', onLeave);
+    document.documentElement.addEventListener('mouseleave', onLeave);
     window.addEventListener('blur', onLeave);
 
     return () => {
       cancelAnimationFrame(raf);
       wakeRef.current = null;
       window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('mousedown', onPointerDown);
       window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('mouseup', onPointerUp);
       window.removeEventListener('scroll', onScroll, { capture: true });
       document.documentElement.removeEventListener('pointerleave', onLeave);
+      document.documentElement.removeEventListener('mouseleave', onLeave);
       window.removeEventListener('blur', onLeave);
       lastScope?.removeAttribute('data-target-cursor-scope');
       style.remove();
