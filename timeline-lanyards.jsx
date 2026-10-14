@@ -1,47 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Lanyard from './react_src/Lanyard';
-import TargetCursor from './react_src/TargetCursor';
-
-function initReactCursor() {
-  if (
-    typeof window !== 'undefined' &&
-    window.matchMedia('(hover: none) and (pointer: coarse)').matches
-  ) {
-    return;
-  }
-
-  let mountEl = document.getElementById('target-cursor-mount');
-  if (!mountEl) {
-    mountEl = document.createElement('div');
-    mountEl.id = 'target-cursor-mount';
-    document.body.appendChild(mountEl);
-  }
-  if (!mountEl.dataset.cursorMounted) {
-    mountEl.dataset.cursorMounted = 'true';
-    const rootCursor = createRoot(mountEl);
-    rootCursor.render(
-      <TargetCursor
-        spinDuration={3}
-        hoverDuration={0.22}
-        cursorColor="#00f5ff"
-        size={52}
-        cornerSize={14}
-        thickness={2}
-        padding={8}
-        matchRadius={true}
-        dotSize={4}
-        showLabel={true}
-        clickEffect={true}
-        arcReactor={true}
-      />
-    );
-  }
-}
 
 function initTimelineLanyards() {
-  initReactCursor();
-
   const heplEl = document.getElementById('lanyard-container');
   if (heplEl && !heplEl.dataset.lanyardMounted) {
     heplEl.dataset.lanyardMounted = 'true';
