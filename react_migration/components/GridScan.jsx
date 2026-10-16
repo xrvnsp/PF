@@ -152,7 +152,7 @@ Light illuminate(vec3 h, int face, vec2 uv, vec2 foot, float blur) {
   l.grid = max(minor * 0.75, major) / blur;
   float z = h.z;
   l.fade = depthFade(z);
-  l.reveal = smoothstep(uReveal, uReveal - 0.2, z);
+  l.reveal = clamp((uReveal - z) / 0.2, 0.0, 1.0);
   float zFoot = face == 0 ? f.x : (face == 1 ? f.y : 0.0);
   float width = max(uScanWidth, zFoot * 1.1);
   float dz = z - uScanZ;
@@ -167,7 +167,7 @@ Light illuminate(vec3 h, int face, vec2 uv, vec2 foot, float blur) {
     if (alpha <= 0.0) continue;
     float dist = length(h - uPing[i].xyz) - uPing[i].w;
     l.ping += exp(-dist * dist / 0.0012) * alpha;
-    l.wake += exp(min(dist, 0.0) / 0.22) * smoothstep(0.03, -0.03, dist) * alpha;
+    l.wake += exp(min(dist, 0.0) / 0.22) * (1.0 - smoothstep(-0.03, 0.03, dist)) * alpha;
   }
   return l;
 }

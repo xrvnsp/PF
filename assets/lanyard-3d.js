@@ -255,10 +255,11 @@
     const frontMat = new THREE.MeshStandardMaterial({
       map: frontTex,
       roughness: 0.42,
-      metalness: 0.02
+      metalness: 0.02,
+      side: THREE.FrontSide
     });
     const frontMesh = new THREE.Mesh(frontFace, frontMat);
-    frontMesh.position.z = THICKNESS / 2 + 0.001;
+    frontMesh.position.z = THICKNESS / 2 + BEVEL + 0.002;
     cardGroup.add(frontMesh);
 
     // Back Face (Glossy clean)
@@ -269,7 +270,7 @@
       side: THREE.BackSide
     });
     const backMesh = new THREE.Mesh(backFace, backMat);
-    backMesh.position.z = -THICKNESS / 2 - 0.001;
+    backMesh.position.z = -THICKNESS / 2 - BEVEL - 0.002;
     cardGroup.add(backMesh);
 
     // Metal Clip & Clamp
@@ -292,7 +293,12 @@
     // Fade out loading spinner once textures resolve
     setTimeout(() => {
       const loader = container.querySelector('.lanyard-loading');
-      if (loader) loader.style.opacity = '0';
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+          if (loader) loader.style.display = 'none';
+        }, 500);
+      }
     }, 400);
 
     // Raycasting & Interaction

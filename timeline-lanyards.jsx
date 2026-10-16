@@ -12,9 +12,9 @@ function initReactComponents() {
     const rootHepl = createRoot(heplEl);
     rootHepl.render(
       <Lanyard
-        frontImage="/assets/id_card_front.png"
-        backImage="/assets/id_card_back.png"
-        strapImage="/assets/hepl_lanyard.png"
+        frontImage="assets/id_card_front.png"
+        backImage="assets/id_card_back.png"
+        strapImage="assets/hepl_lanyard.png"
         finish="glossy"
         orientation="portrait"
         cardSize={[1.32, 2.25]}
@@ -34,9 +34,9 @@ function initReactComponents() {
     const rootMmw = createRoot(mmwEl);
     rootMmw.render(
       <Lanyard
-        frontImage="/assets/mmw_id_front.png"
-        backImage="/assets/mmw_id_back.png"
-        strapImage="/assets/mmw_lanyard.png"
+        frontImage="assets/mmw_id_front.png"
+        backImage="assets/mmw_id_back.png"
+        strapImage="assets/mmw_lanyard.png"
         finish="glossy"
         orientation="portrait"
         cardSize={[1.32, 2.25]}
