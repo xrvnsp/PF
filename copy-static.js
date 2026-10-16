@@ -44,6 +44,7 @@ const itemsToCopy = [
   'robots.txt',
   'sitemap.xml',
   'googlecdb25dfac705035b.html',
+  'google5446581e2422c31f.html',
   'CNAME'
 ];
 
