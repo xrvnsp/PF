@@ -60,17 +60,18 @@ function initReactComponents() {
     const rootDisclaimer = createRoot(disclaimerEl);
     rootDisclaimer.render(
       <GridScan
-        linesColor="#1e2c40"
+        linesColor="#2a4563"
         scanColor="#00f5ff"
-        cells={8}
-        depth={3.5}
-        scanDuration={2.2}
-        scanDelay={1.4}
+        cells={10}
+        depth={3.0}
+        scanDuration={2.0}
+        scanDelay={1.0}
         clickEffect="ping"
         points={true}
-        glow={0.75}
-        trail={0.55}
+        glow={0.9}
+        trail={0.65}
         interactive={true}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       />
     );
   }
