@@ -1,8 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Lanyard from './react_src/Lanyard';
+import GridScan from './react_src/GridScan';
 
-function initTimelineLanyards() {
+function initReactComponents() {
+  // 1. Mount Digifox Studio Lanyard
   const heplEl = document.getElementById('lanyard-container');
   if (heplEl && !heplEl.dataset.lanyardMounted) {
     heplEl.dataset.lanyardMounted = 'true';
@@ -24,6 +26,7 @@ function initTimelineLanyards() {
     );
   }
 
+  // 2. Mount Madras Mindworks Lanyard
   const mmwEl = document.getElementById('lanyard-container-mmw');
   if (mmwEl && !mmwEl.dataset.lanyardMounted) {
     mmwEl.dataset.lanyardMounted = 'true';
@@ -44,10 +47,34 @@ function initTimelineLanyards() {
       />
     );
   }
+
+  // 3. Mount React Bits GridScan into Disclaimer & Professional Notice
+  const disclaimerEl = document.getElementById('disclaimer-gridscan-mount');
+  if (disclaimerEl && !disclaimerEl.dataset.gridScanMounted) {
+    disclaimerEl.dataset.gridScanMounted = 'true';
+    disclaimerEl.innerHTML = '';
+    const rootDisclaimer = createRoot(disclaimerEl);
+    rootDisclaimer.render(
+      <GridScan
+        linesColor="#1e2c40"
+        scanColor="#00f5ff"
+        cells={8}
+        depth={3.5}
+        scanDuration={2.2}
+        scanDelay={1.4}
+        clickEffect="ping"
+        points={true}
+        glow={0.75}
+        trail={0.55}
+        interactive={true}
+      />
+    );
+  }
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initTimelineLanyards);
+  document.addEventListener('DOMContentLoaded', initReactComponents);
 } else {
-  initTimelineLanyards();
+  initReactComponents();
 }
+

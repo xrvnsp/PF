@@ -1874,6 +1874,7 @@ img {
 }
 
 .disclaimer-card {
+    position: relative;
     padding: var(--spacing-lg) var(--spacing-xl);
     display: flex;
     flex-direction: column;
@@ -1881,6 +1882,46 @@ img {
     max-width: 1000px;
     margin: 0 auto;
     align-items: center;
+    border-radius: 24px;
+    overflow: hidden;
+    background: rgba(6, 11, 25, 0.75);
+    border: 1px solid rgba(0, 245, 255, 0.28);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(0, 245, 255, 0.04);
+    min-height: 220px;
+}
+
+.disclaimer-gridscan-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0.85;
+    pointer-events: auto;
+}
+
+.disclaimer-overlay-blur {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: radial-gradient(ellipse at center, rgba(6, 11, 25, 0.45) 0%, rgba(6, 11, 25, 0.82) 100%);
+    pointer-events: none;
+}
+
+.disclaimer-content {
+    position: relative;
+    z-index: 3;
+    pointer-events: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.disclaimer-content a,
+.disclaimer-content button {
+    pointer-events: auto;
 }
 
 .disclaimer-header {

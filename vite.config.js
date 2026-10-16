@@ -11,7 +11,8 @@ export default defineConfig({
         admin: resolve(__dirname, 'admin/index.html'),
         xrShowcase: resolve(__dirname, 'xr-showcase.html'),
         convert: resolve(__dirname, 'convert.html'),
-        lanyardPreview: resolve(__dirname, 'lanyard-preview.html')
+        lanyardPreview: resolve(__dirname, 'lanyard-preview.html'),
+        gridscanPreview: resolve(__dirname, 'gridscan-preview.html')
       }
     }
   }
