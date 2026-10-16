@@ -21,7 +21,9 @@ function initReactComponents() {
         slotClearance={true}
         interactive={true}
         breeze={0.3}
-        size={0.58}
+        size={1.0}
+        strapLength={0.3}
+        style={{ width: '100%', height: '100%' }}
       />
     );
   }
@@ -43,7 +45,9 @@ function initReactComponents() {
         slotClearance={true}
         interactive={true}
         breeze={0.3}
-        size={0.58}
+        size={1.0}
+        strapLength={0.3}
+        style={{ width: '100%', height: '100%' }}
       />
     );
   }
