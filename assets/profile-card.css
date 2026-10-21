@@ -169,9 +169,9 @@
 
 .profile-card__photo {
   position: absolute;
-  inset: calc(var(--pc-parallax) * -1);
-  width: calc(100% + var(--pc-parallax) * 2);
-  height: calc(100% + var(--pc-parallax) * 2);
+  inset: calc(var(--pc-parallax) * -2 - 12px);
+  width: calc(100% + var(--pc-parallax) * 4 + 24px);
+  height: calc(100% + var(--pc-parallax) * 4 + 24px);
   object-fit: cover;
   object-position: center bottom;
   transform: translate3d(var(--pc-shift-x), var(--pc-shift-y), 0);
