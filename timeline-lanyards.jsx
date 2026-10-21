@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Lanyard from './react_src/Lanyard';
 import GridScan from './react_src/GridScan';
 import QuickMessageStepper from './react_src/QuickMessageStepper';
+import ProfileCard from './react_src/ProfileCard';
 
 function initReactComponents() {
   console.log('🚀 initReactComponents running...');
@@ -107,6 +108,49 @@ function initReactComponents() {
     }
   } catch (err) {
     console.error('❌ Failed mounting QuickMessageStepper:', err);
+  }
+
+  // 5. Mount React Bits ProfileCard into About Me section
+  try {
+    const profileCardEl = document.getElementById('profile-card-mount');
+    if (profileCardEl && !profileCardEl.dataset.profileCardMounted) {
+      profileCardEl.dataset.profileCardMounted = 'true';
+      profileCardEl.innerHTML = '';
+      const rootProfile = createRoot(profileCardEl);
+      rootProfile.render(
+        <ProfileCard
+          name="Saravana Prakash R"
+          title="Engineer - Immersive Tech"
+          handle="srvnsp"
+          status="Online"
+          statusColor="#00f5ff"
+          contactText="Contact Me"
+          avatarUrl="assets/profile_authentic.webp"
+          miniAvatarUrl="assets/profile_authentic.webp"
+          iconUrl="assets/csharp-pattern.svg"
+          holo={0.8}
+          glare={0.5}
+          tiltStrength={12}
+          parallax={8}
+          radius={20}
+          enableTilt={true}
+          intro={true}
+          showUserInfo={true}
+          theme="dark"
+          onContactClick={() => {
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+              const offset = 80;
+              const targetPos = contactSection.offsetTop - offset;
+              window.scrollTo({ top: targetPos, behavior: 'smooth' });
+            }
+          }}
+        />
+      );
+      console.log('✅ ProfileCard mounted successfully');
+    }
+  } catch (err) {
+    console.error('❌ Failed mounting ProfileCard:', err);
   }
 }
 
