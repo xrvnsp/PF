@@ -1661,6 +1661,10 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                 Real-Time Analytics
             </button>
+            <button class="nav-tab" data-tab="leads" onclick="switchTab('leads')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Inbound Leads (<span id="leads-tab-count">0</span>)
+            </button>
             <button class="nav-tab" data-tab="resume" onclick="switchTab('resume')">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Resume Downloads &amp; Audit Log
@@ -1673,7 +1677,7 @@
 
         <!-- TAB 1: REAL-TIME ANALYTICS -->
         <div id="tab-analytics">
-            <!-- 5 KPI Summary Cards -->
+            <!-- 6 KPI Summary Cards -->
             <div class="kpi-grid">
                 <div class="kpi-card emerald">
                     <div class="kpi-label">Active Visitors <span class="pulse-dot"></span></div>
@@ -1685,6 +1689,12 @@
                     <div class="kpi-label">Total Visits <span>👁️</span></div>
                     <div class="kpi-value" id="val-total-visits">0</div>
                     <div class="kpi-subtext">Lifetime pageviews</div>
+                </div>
+
+                <div class="kpi-card cyan" onclick="switchTab('leads')" style="cursor: pointer;" title="Click to view all captured visitor emails and inquiries">
+                    <div class="kpi-label">Captured Leads <span>📬</span></div>
+                    <div class="kpi-value" id="val-total-leads">0</div>
+                    <div class="kpi-subtext">Direct &amp; Dossier requests &rarr;</div>
                 </div>
 
                 <div class="kpi-card purple" onclick="switchTab('resume')" style="cursor: pointer;" title="Click to view IP address, location, browser and date audit log">
@@ -1941,6 +1951,75 @@
             </div>
         </div>
 
+        <!-- TAB: INBOUND LEADS & INQUIRIES -->
+        <div id="tab-leads" style="display: none;">
+            <!-- Summary KPI strip for Leads -->
+            <div class="kpi-grid" style="margin-bottom: 24px;">
+                <div class="kpi-card cyan">
+                    <div class="kpi-label">Total Leads Captured <span>📬</span></div>
+                    <div class="kpi-value" id="leads-stat-total">0</div>
+                    <div class="kpi-subtext">Direct &amp; Dossier requests</div>
+                </div>
+                <div class="kpi-card emerald">
+                    <div class="kpi-label">Direct Contact Form <span>⚡</span></div>
+                    <div class="kpi-value" id="leads-stat-direct">0</div>
+                    <div class="kpi-subtext">Inquiries submitted on-site</div>
+                </div>
+                <div class="kpi-card purple">
+                    <div class="kpi-label">Resume &amp; XR Deck <span>📄</span></div>
+                    <div class="kpi-value" id="leads-stat-resume">0</div>
+                    <div class="kpi-subtext">Dossier sent to inbox</div>
+                </div>
+                <div class="kpi-card amber">
+                    <div class="kpi-label">Top Inbound Intent <span>🎯</span></div>
+                    <div class="kpi-value" style="font-size: 1.15rem;" id="leads-stat-top-intent">—</div>
+                    <div class="kpi-subtext">Most frequent interest</div>
+                </div>
+            </div>
+
+            <!-- Main Leads Table Panel -->
+            <div class="panel" style="margin-bottom: 24px;">
+                <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div class="panel-title" style="font-size: 1.15rem;">
+                            <span>📬 Inbound Leads &amp; Direct Transmissions</span>
+                            <span id="leads-table-badge" style="font-size: 0.75rem; color: #00f2fe; background: rgba(0, 242, 254, 0.15); padding: 3px 10px; border-radius: 20px;">0 Leads</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                            Live feed of studio recruiters, founders, and visitors who submitted their email or requested your XR capability deck.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="leads-filter-input" placeholder="Filter by email, intent, country..." oninput="renderLeadsTable()" style="background: rgba(4,9,20,0.6); border: 1px solid var(--border-glass); border-radius: 8px; padding: 6px 12px; font-size: 0.82rem; color: #fff; outline: none; min-width: 220px;">
+                        <button class="btn-action" style="font-size: 0.78rem; padding: 6px 14px;" onclick="exportLeadsCSV()">📥 Export Leads CSV</button>
+                    </div>
+                </div>
+
+                <div class="audit-table-wrap" style="overflow-x: auto; max-height: 600px;">
+                    <table class="audit-table" style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                        <thead>
+                            <tr style="background: rgba(0, 242, 254, 0.08); text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--cyan);">
+                                <th style="padding: 12px 14px;">Timestamp</th>
+                                <th style="padding: 12px 14px;">Contact Email</th>
+                                <th style="padding: 12px 14px;">Channel / Type</th>
+                                <th style="padding: 12px 14px;">Intent &amp; Message</th>
+                                <th style="padding: 12px 14px;">Visitor Location</th>
+                                <th style="padding: 12px 14px;">Device / Tech</th>
+                                <th style="padding: 12px 14px; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leads-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">
+                                    Connecting to live leads stream...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- TAB 3: PROJECT MANAGER -->
         <div id="tab-projects" style="display: none;">
             <div class="panel" style="max-width: 680px; margin: 0 auto;">
@@ -2021,6 +2100,7 @@
                 streamsInitialized = true;
                 initLivePresenceStream();
                 initAnalyticsStream();
+                initLeadsStream();
             }
         }
 
@@ -2984,6 +3064,203 @@
             document.body.removeChild(link);
         }
 
+        // ==========================================
+        // 📬 INBOUND LEADS & INQUIRIES STREAM & AUDIT
+        // ==========================================
+        let cachedLeads = [];
+
+        function initLeadsStream() {
+            try {
+                db.collection("leads").onSnapshot((snapshot) => {
+                    cachedLeads = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    // Sort newest first
+                    cachedLeads.sort((a, b) => {
+                        const getMillis = (item) => {
+                            if (item.timestamp && typeof item.timestamp.toDate === 'function') {
+                                return item.timestamp.toDate().getTime();
+                            }
+                            if (item.timestamp && item.timestamp.seconds) {
+                                return item.timestamp.seconds * 1000;
+                            }
+                            if (item.clientTime) {
+                                return new Date(item.clientTime).getTime();
+                            }
+                            return 0;
+                        };
+                        return getMillis(b) - getMillis(a);
+                    });
+
+                    updateLeadsKpis();
+                    renderLeadsTable();
+                }, (err) => {
+                    console.warn("[Leads Stream Error]", err);
+                });
+            } catch (err) {
+                console.warn("[Leads Init Error]", err);
+            }
+        }
+
+        function updateLeadsKpis() {
+            const total = cachedLeads.length;
+            const direct = cachedLeads.filter(l => l.type === 'direct_inquiry').length;
+            const resume = cachedLeads.filter(l => l.type === 'resume_deck_request').length;
+
+            // Find top intent
+            const intentCounts = {};
+            cachedLeads.forEach(l => {
+                const intent = l.intent || 'General';
+                intentCounts[intent] = (intentCounts[intent] || 0) + 1;
+            });
+            let topIntent = '—';
+            let topIntentCount = 0;
+            for (const [intent, count] of Object.entries(intentCounts)) {
+                if (count > topIntentCount) {
+                    topIntent = intent;
+                    topIntentCount = count;
+                }
+            }
+
+            const totalStr = String(total);
+            const valTotal = document.getElementById('val-total-leads');
+            const leadsBadge = document.getElementById('leads-tab-count');
+            const statTotal = document.getElementById('leads-stat-total');
+            const statDirect = document.getElementById('leads-stat-direct');
+            const statResume = document.getElementById('leads-stat-resume');
+            const statIntent = document.getElementById('leads-stat-top-intent');
+            const tableBadge = document.getElementById('leads-table-badge');
+
+            if (valTotal) valTotal.textContent = totalStr;
+            if (leadsBadge) leadsBadge.textContent = totalStr;
+            if (statTotal) statTotal.textContent = totalStr;
+            if (statDirect) statDirect.textContent = String(direct);
+            if (statResume) statResume.textContent = String(resume);
+            if (statIntent) statIntent.textContent = topIntent;
+            if (tableBadge) tableBadge.textContent = `${total} Leads`;
+        }
+
+        function renderLeadsTable() {
+            const tbody = document.getElementById('leads-table-body');
+            if (!tbody) return;
+
+            const filterInput = document.getElementById('leads-filter-input');
+            const query = (filterInput ? filterInput.value : '').toLowerCase().trim();
+
+            let filtered = cachedLeads;
+            if (query) {
+                filtered = cachedLeads.filter(l => {
+                    const email = (l.email || '').toLowerCase();
+                    const intent = (l.intent || '').toLowerCase();
+                    const msg = (l.message || '').toLowerCase();
+                    const country = (l.country || '').toLowerCase();
+                    const city = (l.city || '').toLowerCase();
+                    const org = (l.org || l.isp || '').toLowerCase();
+                    return email.includes(query) || intent.includes(query) || msg.includes(query) || country.includes(query) || city.includes(query) || org.includes(query);
+                });
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">
+                            ${query ? `No leads matching "<strong>${escapeHtml(query)}</strong>"` : 'No leads captured yet. Submissions from the contact form or resume modal will appear here in real time.'}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(lead => {
+                const ts = formatEventTimestamp(lead.timestamp || lead.clientTime);
+                const email = lead.email || 'Anonymous';
+                const isResume = lead.type === 'resume_deck_request';
+                const channelBadge = isResume
+                    ? `<span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">📄 Resume &amp; Deck</span>`
+                    : `<span style="background: rgba(0, 242, 254, 0.15); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">⚡ Direct Contact</span>`;
+
+                const locStr = [lead.city, lead.region, lead.country].filter(Boolean).join(', ') || 'Unknown Location';
+                const orgDisplay = lead.org || lead.isp || 'Standard Network';
+                const messageText = lead.message ? escapeHtml(lead.message) : '';
+
+                return `
+                    <tr class="${ts.isToday ? 'row-today' : ''}">
+                        <td>
+                            <div style="font-weight: 600; color: #fff; font-size: 0.82rem;">${ts.dateStr || 'Today'}, ${ts.timeStr || ''}</div>
+                            <div style="font-size: 0.72rem; color: var(--cyan); margin-top: 2px; font-family: 'JetBrains Mono', monospace;">• ${ts.relStr}</div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <a href="mailto:${escapeHtml(email)}" style="font-weight: 700; color: #ffffff; text-decoration: none; font-size: 0.88rem; font-family: 'JetBrains Mono', monospace;" title="Click to email ${escapeHtml(email)}">
+                                    ${escapeHtml(email)}
+                                </a>
+                                <button type="button" title="Copy Email" onclick="navigator.clipboard.writeText('${escapeHtml(email)}'); alert('Copied: ${escapeHtml(email)}');" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 2px 6px; color: var(--text-muted); cursor: pointer; font-size: 0.7rem;">📋</button>
+                            </div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px;">Ref: ${escapeHtml(lead.referrer || 'Direct')}</div>
+                        </td>
+                        <td>${channelBadge}</td>
+                        <td style="max-width: 260px;">
+                            <div style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 7px; border-radius: 5px; font-size: 0.72rem; font-weight: 600; margin-bottom: 4px;">
+                                ${escapeHtml(lead.intent || 'General')}
+                            </div>
+                            ${messageText ? `<div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.35; background: rgba(0,0,0,0.25); padding: 6px 8px; border-radius: 6px; border-left: 2px solid var(--cyan);">${messageText}</div>` : ''}
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-main); font-size: 0.82rem;">📍 ${escapeHtml(locStr)}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace;">🏢 ${escapeHtml(orgDisplay)}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.8rem; color: var(--text-main);">💻 ${escapeHtml(lead.device || 'Desktop')}</div>
+                            <div style="font-size: 0.72rem; color: var(--cyan);">${escapeHtml(lead.browser || 'Browser')}</div>
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="mailto:${escapeHtml(email)}?subject=Re:%20XR%20Portfolio%20Inquiry%20-%20Saravana%20Prakash" class="btn-action" style="font-size: 0.72rem; padding: 5px 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                ✉️ Reply
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportLeadsCSV() {
+            if (cachedLeads.length === 0) {
+                alert('No leads to export.');
+                return;
+            }
+
+            const headers = ['Date', 'Time', 'Email', 'Channel_Type', 'Intent', 'Message', 'Country', 'City', 'IP_Address', 'ISP_Org', 'Device', 'Browser', 'Referrer'];
+            const rows = cachedLeads.map(l => {
+                const ts = formatEventTimestamp(l.timestamp || l.clientTime);
+                return [
+                    `"${ts.dateStr || ''}"`,
+                    `"${ts.timeStr || ''}"`,
+                    `"${(l.email || '').replace(/"/g, '""')}"`,
+                    `"${(l.type || '').replace(/"/g, '""')}"`,
+                    `"${(l.intent || '').replace(/"/g, '""')}"`,
+                    `"${(l.message || '').replace(/"/g, '""')}"`,
+                    `"${(l.country || '').replace(/"/g, '""')}"`,
+                    `"${(l.city || '').replace(/"/g, '""')}"`,
+                    `"${(l.ip || '').replace(/"/g, '""')}"`,
+                    `"${(l.org || l.isp || '').replace(/"/g, '""')}"`,
+                    `"${(l.device || '').replace(/"/g, '""')}"`,
+                    `"${(l.browser || '').replace(/"/g, '""')}"`,
+                    `"${(l.referrer || '').replace(/"/g, '""')}"`
+                ];
+            });
+
+            const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `portfolio_leads_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             const tabBtn = document.querySelector(`.nav-tab[data-tab="${tabId}"]`);
@@ -2993,11 +3270,14 @@
             }
 
             document.getElementById('tab-analytics').style.display = tabId === 'analytics' ? 'block' : 'none';
+            document.getElementById('tab-leads').style.display = tabId === 'leads' ? 'block' : 'none';
             document.getElementById('tab-resume').style.display = tabId === 'resume' ? 'block' : 'none';
             document.getElementById('tab-projects').style.display = tabId === 'projects' ? 'block' : 'none';
 
             if (tabId === 'resume') {
                 renderResumeLog();
+            } else if (tabId === 'leads') {
+                renderLeadsTable();
             }
         }
 

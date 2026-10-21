@@ -370,6 +370,80 @@
             window.addEventListener('lanyard_drag_start', () => {
                 PortfolioAnalytics.logEvent("xr_card_interaction", { element: "3D ID Card Drag" });
             });
+        },
+
+        /**
+         * Submit a visitor lead (Direct contact inquiry or Resume/Capability Deck request)
+         * Stores enriched record in Firestore 'leads' collection with session telemetry
+         */
+        async submitLead({ email, type = 'direct_inquiry', intent = 'General Inquiry', message = '', extra = {} }) {
+            if (!email || typeof email !== 'string') {
+                return { success: false, error: 'Valid email is required' };
+            }
+
+            const cleanEmail = email.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(cleanEmail)) {
+                return { success: false, error: 'Please enter a valid email address' };
+            }
+
+            if (!db && !initFirebase()) {
+                return { success: false, error: 'Database connection failed. Please retry.' };
+            }
+
+            try {
+                // Ensure geo is populated
+                if (!geoInfo.country) {
+                    await fetchGeoLocation();
+                }
+
+                const leadData = {
+                    email: cleanEmail,
+                    type: type, // 'direct_inquiry' | 'resume_deck_request'
+                    intent: intent,
+                    message: (message || '').trim(),
+                    extra: extra || {},
+                    status: 'new', // 'new' | 'reviewed' | 'contacted'
+                    sessionId: SESSION_ID,
+                    device: DEVICE_TYPE,
+                    browser: BROWSER_NAME,
+                    referrer: REFERRAL_INFO.referrer,
+                    refTag: REFERRAL_INFO.refTag,
+                    campaign: REFERRAL_INFO.campaign,
+                    country: geoInfo.country || 'Unknown',
+                    countryCode: geoInfo.countryCode || '',
+                    city: geoInfo.city || '',
+                    region: geoInfo.region || '',
+                    org: geoInfo.org || '',
+                    isp: geoInfo.isp || '',
+                    ip: geoInfo.ip || '',
+                    path: window.location.pathname || "/",
+                    screen: `${window.innerWidth}x${window.innerHeight}`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    clientTime: new Date().toISOString()
+                };
+
+                const docRef = await db.collection("leads").add(leadData);
+
+                // Log companion analytics event
+                PortfolioAnalytics.logEvent("lead_captured", {
+                    leadId: docRef.id,
+                    type: type,
+                    intent: intent
+                });
+
+                // Dispatch global event for UI reactivity
+                try {
+                    window.dispatchEvent(new CustomEvent('portfolio_lead_submitted', {
+                        detail: { leadId: docRef.id, email: cleanEmail, type, intent }
+                    }));
+                } catch (e) {}
+
+                return { success: true, leadId: docRef.id };
+            } catch (err) {
+                console.error("[Lead Capture Error]:", err);
+                return { success: false, error: err.message || 'Transmission failed. Please retry.' };
+            }
         }
     };
 
