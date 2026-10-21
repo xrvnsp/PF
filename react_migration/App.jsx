@@ -59,7 +59,7 @@ const PortfolioApp = () => {
                     handle="srvnsp"
                     status="Online"
                     contactText="Contact Me"
-                    avatarUrl="/assets/profile_authentic.webp"
+                    avatarUrl="/assets/profile_photoroom.webp"
                     showUserInfo
                     enableTilt={true}
                     enableMobileTilt

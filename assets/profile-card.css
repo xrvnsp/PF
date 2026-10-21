@@ -169,12 +169,15 @@
 
 .profile-card__photo {
   position: absolute;
-  inset: calc(var(--pc-parallax) * -2 - 12px);
-  width: calc(100% + var(--pc-parallax) * 4 + 24px);
-  height: calc(100% + var(--pc-parallax) * 4 + 24px);
+  top: 50%;
+  left: 50%;
+  width: calc(100% + var(--pc-parallax) * 4 + 40px) !important;
+  height: calc(100% + var(--pc-parallax) * 4 + 40px) !important;
+  max-width: none !important;
+  max-height: none !important;
   object-fit: cover;
   object-position: center bottom;
-  transform: translate3d(var(--pc-shift-x), var(--pc-shift-y), 0);
+  transform: translate3d(calc(-50% + var(--pc-shift-x)), calc(-50% + var(--pc-shift-y)), 0);
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
