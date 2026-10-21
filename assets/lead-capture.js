@@ -87,16 +87,16 @@
 
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.querySelector('.btn-text').textContent = 'Transmitting...';
+            submitBtn.querySelector('.btn-text').textContent = 'Sending...';
         }
         if (statusEl) {
             statusEl.className = 'dt-status sending';
-            statusEl.textContent = '⚡ Establishing secure channel...';
+            statusEl.textContent = 'Sending your message...';
         }
 
         try {
             if (!window.PortfolioAnalytics || typeof window.PortfolioAnalytics.submitLead !== 'function') {
-                throw new Error('Analytics client initializing. Please retry in a moment.');
+                throw new Error('Please wait a moment and try again.');
             }
 
             const result = await window.PortfolioAnalytics.submitLead({
@@ -109,27 +109,27 @@
             if (result && result.success) {
                 if (statusEl) {
                     statusEl.className = 'dt-status success';
-                    statusEl.innerHTML = '✔ Transmission Confirmed! Expect a response within 4 hours.';
+                    statusEl.innerHTML = '✔ Message sent! Thank you, I will get back to you soon.';
                 }
                 form.reset();
                 if (submitBtn) {
-                    submitBtn.querySelector('.btn-text').textContent = 'Transmitted ⚡';
+                    submitBtn.querySelector('.btn-text').textContent = 'Sent! ✉️';
                     setTimeout(() => {
                         submitBtn.disabled = false;
-                        submitBtn.querySelector('.btn-text').textContent = 'Transmit Transmission';
+                        submitBtn.querySelector('.btn-text').textContent = 'Send Message';
                     }, 4000);
                 }
             } else {
-                throw new Error((result && result.error) || 'Transmission failed. Please retry.');
+                throw new Error((result && result.error) || 'Failed to send message. Please retry.');
             }
         } catch (err) {
             if (statusEl) {
                 statusEl.className = 'dt-status error';
-                statusEl.textContent = `⚠ ${err.message || 'Transmission error. Please try again.'}`;
+                statusEl.textContent = `⚠ ${err.message || 'Error sending. Please try again or email me directly.'}`;
             }
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.querySelector('.btn-text').textContent = 'Retry Transmission';
+                submitBtn.querySelector('.btn-text').textContent = 'Try Again';
             }
         }
     };
@@ -150,29 +150,29 @@
 
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.querySelector('.btn-text').textContent = 'Encrypting & Transmitting...';
+            submitBtn.querySelector('.btn-text').textContent = 'Sending...';
         }
         if (statusEl) {
             statusEl.className = 'dt-status sending';
-            statusEl.textContent = '⚡ Generating dossier packet...';
+            statusEl.textContent = 'Sending to your email...';
         }
 
         try {
             if (!window.PortfolioAnalytics || typeof window.PortfolioAnalytics.submitLead !== 'function') {
-                throw new Error('Analytics client initializing. Please retry.');
+                throw new Error('Please wait a moment and retry.');
             }
 
             const result = await window.PortfolioAnalytics.submitLead({
                 email,
                 type: 'resume_deck_request',
-                intent: 'Resume & XR Capability Deck',
+                intent: 'Resume & Portfolio Deck',
                 extra: { includeNda: includeNda }
             });
 
             if (result && result.success) {
                 if (statusEl) {
                     statusEl.className = 'dt-status success';
-                    statusEl.innerHTML = '✔ Dossier dispatched! Starting backup download...';
+                    statusEl.innerHTML = '✔ Sent! Starting your direct PDF download now...';
                 }
 
                 // Automatically trigger immediate download as well
@@ -186,23 +186,23 @@
                     form.reset();
                     if (submitBtn) {
                         submitBtn.disabled = false;
-                        submitBtn.querySelector('.btn-text').textContent = 'Transmit Dossier to Inbox 🚀';
+                        submitBtn.querySelector('.btn-text').textContent = 'Send to My Email 📩';
                     }
                     if (statusEl) {
                         statusEl.textContent = '';
                     }
                 }, 2200);
             } else {
-                throw new Error((result && result.error) || 'Transmission failed.');
+                throw new Error((result && result.error) || 'Could not send. Please retry.');
             }
         } catch (err) {
             if (statusEl) {
                 statusEl.className = 'dt-status error';
-                statusEl.textContent = `⚠ ${err.message || 'Error transmitting. Please retry.'}`;
+                statusEl.textContent = `⚠ ${err.message || 'Error sending. Please retry.'}`;
             }
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.querySelector('.btn-text').textContent = 'Retry Transmission 🚀';
+                submitBtn.querySelector('.btn-text').textContent = 'Try Again 📩';
             }
         }
     };

@@ -169,13 +169,19 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data && data.success !== false) {
+                    const rawIsp = (data.connection && data.connection.isp) || '';
+                    const rawOrg = (data.connection && data.connection.org) || '';
+                    // Detect if org is actually a postal address instead of a company name
+                    const isPostalAddress = /plot\s*no|sector|phase|street|road|pincode|\d{5,6}/i.test(rawOrg);
+                    const cleanOrg = isPostalAddress ? (rawIsp || 'Internet Service Provider') : (rawOrg || rawIsp || '');
+
                     geoInfo = {
                         country: data.country || 'Unknown',
                         countryCode: data.country_code || '',
                         city: data.city || 'Unknown',
                         region: data.region || '',
-                        org: (data.connection && (data.connection.org || data.connection.isp)) || '',
-                        isp: (data.connection && data.connection.isp) || '',
+                        org: cleanOrg,
+                        isp: rawIsp || cleanOrg,
                         ip: data.ip || ''
                     };
                     try {

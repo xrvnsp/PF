@@ -1956,24 +1956,24 @@
             <!-- Summary KPI strip for Leads -->
             <div class="kpi-grid" style="margin-bottom: 24px;">
                 <div class="kpi-card cyan">
-                    <div class="kpi-label">Total Leads Captured <span>📬</span></div>
+                    <div class="kpi-label">Total Inbound Leads <span>📬</span></div>
                     <div class="kpi-value" id="leads-stat-total">0</div>
-                    <div class="kpi-subtext">Direct &amp; Dossier requests</div>
+                    <div class="kpi-subtext">Messages &amp; resume requests</div>
                 </div>
                 <div class="kpi-card emerald">
-                    <div class="kpi-label">Direct Contact Form <span>⚡</span></div>
+                    <div class="kpi-label">Contact Form Messages <span>✉️</span></div>
                     <div class="kpi-value" id="leads-stat-direct">0</div>
-                    <div class="kpi-subtext">Inquiries submitted on-site</div>
+                    <div class="kpi-subtext">Direct inquiries sent</div>
                 </div>
                 <div class="kpi-card purple">
-                    <div class="kpi-label">Resume &amp; XR Deck <span>📄</span></div>
+                    <div class="kpi-label">Resume Requests <span>📄</span></div>
                     <div class="kpi-value" id="leads-stat-resume">0</div>
-                    <div class="kpi-subtext">Dossier sent to inbox</div>
+                    <div class="kpi-subtext">Requested via email</div>
                 </div>
                 <div class="kpi-card amber">
-                    <div class="kpi-label">Top Inbound Intent <span>🎯</span></div>
+                    <div class="kpi-label">Top Reason / Intent <span>🎯</span></div>
                     <div class="kpi-value" style="font-size: 1.15rem;" id="leads-stat-top-intent">—</div>
-                    <div class="kpi-subtext">Most frequent interest</div>
+                    <div class="kpi-subtext">Most common topic</div>
                 </div>
             </div>
 
@@ -1982,11 +1982,11 @@
                 <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
                     <div>
                         <div class="panel-title" style="font-size: 1.15rem;">
-                            <span>📬 Inbound Leads &amp; Direct Transmissions</span>
+                            <span>📬 Inbound Leads &amp; Messages</span>
                             <span id="leads-table-badge" style="font-size: 0.75rem; color: #00f2fe; background: rgba(0, 242, 254, 0.15); padding: 3px 10px; border-radius: 20px;">0 Leads</span>
                         </div>
                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                            Live feed of studio recruiters, founders, and visitors who submitted their email or requested your XR capability deck.
+                            Live list of visitors who sent a message or requested your resume.
                         </p>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -3178,11 +3178,15 @@
                 const email = lead.email || 'Anonymous';
                 const isResume = lead.type === 'resume_deck_request';
                 const channelBadge = isResume
-                    ? `<span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">📄 Resume &amp; Deck</span>`
-                    : `<span style="background: rgba(0, 242, 254, 0.15); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">⚡ Direct Contact</span>`;
+                    ? `<span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">📄 Resume Request</span>`
+                    : `<span style="background: rgba(0, 242, 254, 0.15); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">✉️ Contact Form</span>`;
 
                 const locStr = [lead.city, lead.region, lead.country].filter(Boolean).join(', ') || 'Unknown Location';
-                const orgDisplay = lead.org || lead.isp || 'Standard Network';
+                let networkName = lead.isp || lead.org || 'Internet Provider';
+                // If networkName is a corporate postal address (like Bharti Airtel Gurugram address), sanitize it
+                if (/plot\s*no|sector|phase|street|road|pincode|\d{5,6}/i.test(networkName)) {
+                    networkName = (lead.isp && !/plot\s*no|sector|phase/i.test(lead.isp)) ? lead.isp : 'Internet Provider';
+                }
                 const messageText = lead.message ? escapeHtml(lead.message) : '';
 
                 return `
@@ -3209,14 +3213,14 @@
                         </td>
                         <td>
                             <div style="font-weight: 600; color: var(--text-main); font-size: 0.82rem;">📍 ${escapeHtml(locStr)}</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace;">🏢 ${escapeHtml(orgDisplay)}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace;" title="Internet Service Provider">🌐 ISP: ${escapeHtml(networkName)}</div>
                         </td>
                         <td>
                             <div style="font-size: 0.8rem; color: var(--text-main);">💻 ${escapeHtml(lead.device || 'Desktop')}</div>
                             <div style="font-size: 0.72rem; color: var(--cyan);">${escapeHtml(lead.browser || 'Browser')}</div>
                         </td>
                         <td style="text-align: right;">
-                            <a href="mailto:${escapeHtml(email)}?subject=Re:%20XR%20Portfolio%20Inquiry%20-%20Saravana%20Prakash" class="btn-action" style="font-size: 0.72rem; padding: 5px 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            <a href="mailto:${escapeHtml(email)}?subject=Re:%20Portfolio%20Inquiry%20-%20Saravana%20Prakash" class="btn-action" style="font-size: 0.72rem; padding: 5px 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                                 ✉️ Reply
                             </a>
                         </td>

@@ -48,10 +48,10 @@
     background: rgba(0, 245, 255, 0.08);
     border: 1px solid rgba(0, 245, 255, 0.3);
     border-radius: 20px;
-    font-size: 0.72rem;
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-size: 0.78rem;
+    font-family: inherit;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     color: #00f5ff;
     text-transform: uppercase;
     margin-bottom: 8px;
@@ -206,10 +206,10 @@
     border: none;
     border-radius: 12px;
     color: #010815;
-    font-size: 0.92rem;
-    font-weight: 700;
-    font-family: 'Orbitron', monospace;
-    letter-spacing: 0.05em;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.02em;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 4px 20px rgba(0, 245, 255, 0.35);
@@ -273,9 +273,10 @@
 }
 
 .contact-divider .divider-text {
-    font-size: 0.72rem;
-    font-family: 'Orbitron', monospace;
-    letter-spacing: 0.15em;
+    font-size: 0.75rem;
+    font-family: inherit;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     color: var(--color-text-muted);
     text-transform: uppercase;
     white-space: nowrap;
@@ -375,11 +376,11 @@
     background: rgba(0, 245, 255, 0.1);
     border: 1px solid rgba(0, 245, 255, 0.3);
     border-radius: 16px;
-    font-size: 0.7rem;
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
+    font-size: 0.74rem;
+    font-family: inherit;
+    font-weight: 600;
     color: #00f5ff;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     margin-bottom: 10px;
 }
 
