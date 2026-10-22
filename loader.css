@@ -24,6 +24,16 @@ html.fast-boot #portfolio-content {
     transition: opacity 0.6s ease-out, visibility 0.6s;
     cursor: none;
     /* Hide browser cursor */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    touch-action: none;
+}
+
+#terminal-loader * {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 /* Shutter Panel System */

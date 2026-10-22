@@ -196,6 +196,8 @@ function initTerminalLoader() {
     // Touch anywhere on terminal to close on mobile devices
     loader.addEventListener('touchstart', handleTouchSkip, { passive: true });
     loader.addEventListener('pointerdown', handlePointerSkip, { passive: true });
+    loader.addEventListener('dragstart', (e) => e.preventDefault());
+    loader.addEventListener('selectstart', (e) => e.preventDefault());
 
     // Setup skip triggers on Skip button and Close control
     const skipBtn = document.getElementById('terminal-skip-btn');
@@ -285,6 +287,17 @@ function initTerminalLoader() {
         let charIndex = 0;
         const typingSpeed = Math.random() * 8 + 2; // Fast typing
 
+        let scrollScheduled = false;
+        function requestTerminalScroll() {
+            if (!scrollScheduled && terminalBody) {
+                scrollScheduled = true;
+                requestAnimationFrame(() => {
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                    scrollScheduled = false;
+                });
+            }
+        }
+
         function typeChar() {
             if (hasFinished) return;
 
@@ -292,9 +305,7 @@ function initTerminalLoader() {
                 lineElement.textContent += lineData.text.charAt(charIndex);
                 charIndex++;
 
-                if (terminalBody) {
-                    terminalBody.scrollTop = terminalBody.scrollHeight;
-                }
+                requestTerminalScroll();
 
                 setTimeout(typeChar, typingSpeed);
             } else {
