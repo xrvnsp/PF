@@ -127,10 +127,9 @@ function initReactComponents() {
           contactText="Contact Me"
           avatarUrl="assets/profile_photoroom.png"
           miniAvatarUrl="assets/profile_photoroom.png"
-          backdropColor="#0c1527"
-          iconUrl="assets/csharp-pattern.svg"
-          holo={0.9}
-          glare={0.6}
+          iconUrl="/assets/csharp-pattern.svg"
+          holo={0.8}
+          glare={0.5}
           tiltStrength={12}
           parallax={8}
           radius={20}

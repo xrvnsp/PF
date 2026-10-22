@@ -41,9 +41,9 @@ const THEMES = {
 
 const FOILS = {
   dark: {
-    '--pc-blend': 'screen',
+    '--pc-blend': 'color-dodge',
     '--pc-holo-filter': 'hue-rotate(0deg)',
-    '--pc-sheen': 'rgba(255, 255, 255, 0.25)'
+    '--pc-sheen': 'rgba(255, 255, 255, 0.16)'
   },
   light: {
     '--pc-blend': 'multiply',
@@ -188,13 +188,13 @@ const ProfileCard = ({
     const release = () => aim(0, 0, false);
 
     const onEnter = event => {
-      if (event.pointerType === 'mouse') aimAt(event);
+      if (event.pointerType === 'mouse' || !event.pointerType) aimAt(event);
     };
     const onMove = event => {
-      if (event.pointerType === 'mouse' || event.pointerId === touchId) aimAt(event);
+      if (event.pointerType === 'mouse' || !event.pointerType || event.pointerId === touchId) aimAt(event);
     };
     const onLeave = event => {
-      if (event.pointerType === 'mouse') release();
+      if (event.pointerType === 'mouse' || !event.pointerType) release();
     };
     const onDown = event => {
       if (event.pointerType === 'mouse') return;
@@ -213,6 +213,8 @@ const ProfileCard = ({
     root.addEventListener('pointerdown', onDown);
     root.addEventListener('pointerup', onUp);
     root.addEventListener('pointercancel', onUp);
+    root.addEventListener('mousemove', onMove);
+    root.addEventListener('mouseleave', release);
 
     const observer = new ResizeObserver(() => {
       size.width = root.offsetWidth;
@@ -243,6 +245,8 @@ const ProfileCard = ({
       root.removeEventListener('pointerdown', onDown);
       root.removeEventListener('pointerup', onUp);
       root.removeEventListener('pointercancel', onUp);
+      root.removeEventListener('mousemove', onMove);
+      root.removeEventListener('mouseleave', release);
       engineRef.current = null;
     };
   }, []);
@@ -292,6 +296,10 @@ const ProfileCard = ({
     ? `linear-gradient(180deg, color-mix(in srgb, ${backdropColor}, #ffffff 12%) 0%, color-mix(in srgb, ${backdropColor}, #000000 18%) 100%)`
     : 'var(--pc-tile)';
 
+  const cleanPattern = iconUrl
+    ? (iconUrl.startsWith('/') || iconUrl.startsWith('http') || iconUrl.startsWith('data:') ? iconUrl : `/${iconUrl}`)
+    : '/assets/csharp-pattern.svg';
+
   return (
     <div
       ref={rootRef}
@@ -306,9 +314,9 @@ const ProfileCard = ({
         '--pc-parallax': `${Math.max(0, parallax)}px`,
         '--pc-status': statusColor,
         '--pc-grain': GRAIN,
-        '--pc-pattern': `url("${iconUrl || 'assets/csharp-pattern.svg'}")`,
-        '--pc-pattern-size': '100px 100px',
-        '--pc-holo-gain': 1.35,
+        '--pc-pattern': `url("${cleanPattern}")`,
+        '--pc-pattern-size': '200px 200px',
+        '--pc-holo-gain': 1.25,
         '--pc-holo-detail': foil === 'dark' ? 1 : 0
       }}
     >
