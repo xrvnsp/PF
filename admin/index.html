@@ -863,6 +863,91 @@
             background: rgba(0, 242, 254, 0.035);
         }
 
+        /* ========================================
+           INBOUND LEADS TABLE: TWO-COLOR ZEBRA DIFFERENTIATION
+           ======================================== */
+        #tab-leads .audit-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.82rem;
+            text-align: left;
+            min-width: 900px;
+        }
+
+        #tab-leads .audit-table thead tr {
+            background: rgba(0, 242, 254, 0.08);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        #tab-leads .audit-table thead th {
+            padding: 13px 16px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--cyan);
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+        }
+
+        /* Lead Row Color 1: Deep Midnight Obsidian */
+        #tab-leads .audit-table tbody tr:nth-child(odd),
+        #tab-leads .audit-table tbody tr:nth-child(odd) td {
+            background: rgba(8, 14, 28, 0.92);
+            transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+        }
+
+        /* Lead Row Color 2: Distinctive Elevated Slate-Navy / Indigo */
+        #tab-leads .audit-table tbody tr:nth-child(even),
+        #tab-leads .audit-table tbody tr:nth-child(even) td {
+            background: rgba(22, 34, 64, 0.90);
+            transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+        }
+
+        #tab-leads .audit-table tbody td {
+            padding: 13px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        /* Left accent border to further emphasize row differentiation */
+        #tab-leads .audit-table tbody tr:nth-child(odd) td:first-child {
+            border-left: 4px solid rgba(0, 242, 254, 0.65);
+        }
+        #tab-leads .audit-table tbody tr:nth-child(even) td:first-child {
+            border-left: 4px solid rgba(168, 85, 247, 0.75);
+        }
+
+        /* Smooth interactive hover highlight */
+        #tab-leads .audit-table tbody tr:nth-child(odd):hover,
+        #tab-leads .audit-table tbody tr:nth-child(odd):hover td,
+        #tab-leads .audit-table tbody tr:nth-child(even):hover,
+        #tab-leads .audit-table tbody tr:nth-child(even):hover td {
+            background: rgba(0, 242, 254, 0.15) !important;
+            box-shadow: inset 0 0 20px rgba(0, 242, 254, 0.08);
+        }
+
+        #tab-leads .audit-table tbody tr:hover td:first-child {
+            border-left-color: var(--cyan) !important;
+        }
+
+        /* Today's Leads: Glowing indicator while preserving two-color difference */
+        #tab-leads .audit-table tbody tr.row-today:nth-child(odd),
+        #tab-leads .audit-table tbody tr.row-today:nth-child(odd) td {
+            background: linear-gradient(90deg, rgba(0, 242, 254, 0.18) 0%, rgba(8, 14, 28, 0.96) 100%) !important;
+        }
+
+        #tab-leads .audit-table tbody tr.row-today:nth-child(even),
+        #tab-leads .audit-table tbody tr.row-today:nth-child(even) td {
+            background: linear-gradient(90deg, rgba(0, 242, 254, 0.22) 0%, rgba(22, 34, 64, 0.96) 100%) !important;
+        }
+
+        #tab-leads .audit-table tbody tr.row-today td:first-child {
+            border-left: 5px solid var(--cyan) !important;
+        }
+
         .ip-badge {
             display: inline-flex;
             align-items: center;
@@ -1632,19 +1717,47 @@
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 10px !important;
-                background: rgba(13, 20, 38, 0.85) !important;
-                border: 1px solid rgba(0, 242, 254, 0.25) !important;
                 border-radius: 16px !important;
                 padding: 16px 14px !important;
-                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
                 position: relative !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
             }
 
-            #tab-leads .audit-table tbody tr.row-today {
-                border-left: 4.5px solid var(--cyan) !important;
-                background: linear-gradient(135deg, rgba(0, 242, 254, 0.08), rgba(13, 20, 38, 0.9)) !important;
+            /* Mobile Card Color 1: Deep Midnight Obsidian */
+            #tab-leads .audit-table tbody tr:nth-child(odd) {
+                background: rgba(8, 14, 28, 0.94) !important;
+                border: 1px solid rgba(0, 242, 254, 0.22) !important;
+                border-left: 4.5px solid rgba(0, 242, 254, 0.55) !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            /* Mobile Card Color 2: Elevated Slate-Navy / Indigo */
+            #tab-leads .audit-table tbody tr:nth-child(even) {
+                background: rgba(18, 28, 54, 0.94) !important;
+                border: 1px solid rgba(168, 85, 247, 0.28) !important;
+                border-left: 4.5px solid rgba(168, 85, 247, 0.6) !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            #tab-leads .audit-table tbody tr:nth-child(odd):hover,
+            #tab-leads .audit-table tbody tr:nth-child(even):hover {
+                transform: translateY(-2px) !important;
+                border-color: var(--cyan) !important;
+                box-shadow: 0 8px 25px rgba(0, 242, 254, 0.2) !important;
+            }
+
+            #tab-leads .audit-table tbody tr.row-today:nth-child(odd) {
+                border-left: 5px solid var(--cyan) !important;
+                background: linear-gradient(135deg, rgba(0, 242, 254, 0.14), rgba(8, 14, 28, 0.98)) !important;
+                box-shadow: 0 0 20px rgba(0, 242, 254, 0.15), 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            #tab-leads .audit-table tbody tr.row-today:nth-child(even) {
+                border-left: 5px solid var(--cyan) !important;
+                background: linear-gradient(135deg, rgba(0, 242, 254, 0.18), rgba(18, 28, 54, 0.98)) !important;
+                box-shadow: 0 0 20px rgba(0, 242, 254, 0.15), 0 6px 20px rgba(0, 0, 0, 0.5) !important;
             }
 
             #tab-leads .audit-table tbody td {
@@ -3364,6 +3477,14 @@
                 }
                 const messageText = lead.message ? escapeHtml(lead.message) : '';
 
+                // Styled Pills & Badges matching 1st Admin Page
+                const deviceDisplay = lead.device || 'Desktop';
+                const deviceIcon = (deviceDisplay === 'Mobile' || deviceDisplay === 'Tablet') ? '📱' : ((deviceDisplay.includes('VR') || deviceDisplay.includes('Quest') || deviceDisplay.includes('XR')) ? '🥽' : '💻');
+                const browserBadgeHtml = renderBrowserPill(lead.browser, lead.device, lead.referrer || lead.refTag);
+
+                const refFormatted = formatReferrerSource(lead.referrer, lead.refTag);
+                const refDisplay = (refFormatted && refFormatted !== 'Direct Visit') ? refFormatted : (lead.referrer || 'Direct Visit');
+
                 return `
                     <tr class="${ts.isToday ? 'row-today' : ''}">
                         <td>
@@ -3377,7 +3498,9 @@
                                 </a>
                                 <button type="button" title="Copy Email" onclick="navigator.clipboard.writeText('${escapeHtml(email)}'); alert('Copied: ${escapeHtml(email)}');" style="background: rgba(255,255,255,0.08); border: none; border-radius: 4px; padding: 2px 6px; color: var(--text-muted); cursor: pointer; font-size: 0.7rem;">📋</button>
                             </div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px;">Ref: ${escapeHtml(lead.referrer || 'Direct')}</div>
+                            <div style="margin-top: 5px;">
+                                <span class="ref-pill" title="Referrer: ${escapeHtml(refDisplay)}">🔗 ${escapeHtml(refDisplay)}</span>
+                            </div>
                         </td>
                         <td>${channelBadge}</td>
                         <td style="max-width: 260px;">
@@ -3387,12 +3510,19 @@
                             ${messageText ? `<div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.35; background: rgba(0,0,0,0.25); padding: 6px 8px; border-radius: 6px; border-left: 2px solid var(--cyan);">${messageText}</div>` : ''}
                         </td>
                         <td>
-                            <div style="font-weight: 600; color: var(--text-main); font-size: 0.82rem;">📍 ${escapeHtml(locStr)}</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace;" title="Internet Service Provider">🌐 ISP: ${escapeHtml(networkName)}</div>
+                            <div style="margin-bottom: 5px;">
+                                <span class="geo-pill" title="Location: ${escapeHtml(locStr)}">📍 ${escapeHtml(locStr)}</span>
+                            </div>
+                            <div>
+                                <span class="org-pill" style="max-width: 210px;" title="Internet Service Provider: ${escapeHtml(networkName)}">🏢 ${escapeHtml(networkName)}</span>
+                            </div>
                         </td>
                         <td>
-                            <div style="font-size: 0.8rem; color: var(--text-main);">💻 ${escapeHtml(lead.device || 'Desktop')}</div>
-                            <div style="font-size: 0.72rem; color: var(--cyan);">${escapeHtml(lead.browser || 'Browser')}</div>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                                ${browserBadgeHtml}
+                                <span class="device-pill">${deviceIcon} ${escapeHtml(deviceDisplay)}</span>
+                            </div>
+                            ${lead.screen ? `<div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace;">Screen: ${escapeHtml(lead.screen)}</div>` : ''}
                         </td>
                         <td style="text-align: right;">
                             <a href="mailto:${escapeHtml(email)}?subject=Re:%20Portfolio%20Inquiry%20-%20Saravana%20Prakash" class="btn-action" style="font-size: 0.72rem; padding: 5px 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
