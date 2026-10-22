@@ -71,11 +71,11 @@
 
 .profile-card__holo {
   z-index: 1;
-  background-image: var(--pc-pattern);
-  background-size: var(--pc-pattern-size);
-  background-repeat: repeat;
-  background-position: calc(50% - var(--pc-shift-x) * 1.5) calc(50% - var(--pc-shift-y) * 1.5);
-  opacity: calc(var(--pc-holo) * (0.82 + 0.18 * var(--pc-active)));
+  background-image: url('csharp-pattern.svg') !important;
+  background-size: 100px 100px !important;
+  background-repeat: repeat !important;
+  background-position: calc(50% - var(--pc-shift-x) * 1.5) calc(50% - var(--pc-shift-y) * 1.5) !important;
+  opacity: 0.95 !important;
   transition: opacity 0.25s ease;
 }
 
@@ -117,19 +117,20 @@
 
 .profile-card__photo {
   position: absolute;
-  top: 50%;
+  bottom: 0;
   left: 50%;
-  width: calc(100% + var(--pc-parallax) * 4 + 40px) !important;
-  height: calc(100% + var(--pc-parallax) * 4 + 40px) !important;
-  max-width: none !important;
-  max-height: none !important;
-  object-fit: cover;
+  width: 90% !important;
+  height: 86% !important;
+  max-width: 90% !important;
+  max-height: 88% !important;
+  object-fit: contain;
   object-position: center bottom;
-  transform: translate3d(calc(-50% + var(--pc-shift-x)), calc(-50% + var(--pc-shift-y)), 0);
+  transform: translate3d(calc(-50% + var(--pc-shift-x)), var(--pc-shift-y), 0);
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
   z-index: 2;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7));
 }
 
 .profile-card__scrim {

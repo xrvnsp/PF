@@ -68,7 +68,7 @@ const isDark = color => {
 
 const ProfileCard = ({
   avatarUrl = '',
-  iconUrl,
+  iconUrl = 'assets/csharp-pattern.svg',
   miniAvatarUrl,
   name = 'Javi A. Torres',
   title = 'Software Engineer',
@@ -306,10 +306,10 @@ const ProfileCard = ({
         '--pc-parallax': `${Math.max(0, parallax)}px`,
         '--pc-status': statusColor,
         '--pc-grain': GRAIN,
-        '--pc-pattern': iconUrl ? `url("${iconUrl}")` : 'none',
-        '--pc-pattern-size': iconUrl ? '150px 150px' : 'auto',
-        '--pc-holo-gain': iconUrl ? 1.35 : 0.75,
-        '--pc-holo-detail': iconUrl && foil === 'dark' ? 1 : 0
+        '--pc-pattern': `url("${iconUrl || 'assets/csharp-pattern.svg'}")`,
+        '--pc-pattern-size': '100px 100px',
+        '--pc-holo-gain': 1.35,
+        '--pc-holo-detail': foil === 'dark' ? 1 : 0
       }}
     >
       <div className="profile-card__body">
