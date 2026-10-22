@@ -1,62 +1,105 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
   <defs>
-    <!-- C# Developer Logo -->
-    <g id="csharp-logo">
-      <!-- Outer Hexagon -->
-      <polygon points="0,-34 29.4,-17 29.4,17 0,34 -29.4,17 -29.4,-17" fill="none" stroke="#ffffff" stroke-width="3.0" stroke-linejoin="round" opacity="0.95"/>
-      <polygon points="0,-28 24,-14 24,14 0,28 -24,14 -24,-14" fill="none" stroke="#ffffff" stroke-width="0.9" stroke-dasharray="3,4" opacity="0.5"/>
-      <!-- 'C' Shape -->
-      <path d="M 4,-16 A 16,16 0 1 0 4,16 L 4,10 A 10,10 0 1 1 4,-10 Z" fill="#ffffff" opacity="0.95"/>
-      <!-- '#' Sharp Symbol -->
-      <line x1="11" y1="-13" x2="9" y2="13" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-      <line x1="19.5" y1="-13" x2="17.5" y2="13" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-      <line x1="5.5" y1="-5" x2="23" y2="-5" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-      <line x1="5.5" y1="5" x2="23" y2="5" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-    </g>
+    <!-- Iridescent Holographic Foil Gradient 1 -->
+    <linearGradient id="holo-foil-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.9" />
+      <stop offset="25%" stop-color="#38bdf8" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#a855f7" stop-opacity="0.9" />
+      <stop offset="75%" stop-color="#f43f5e" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.9" />
+    </linearGradient>
 
-    <!-- Official Modern Unity 3D Isometric Cube Logo -->
-    <g id="unity-logo">
-      <!-- Top Isometric Face -->
-      <path d="M -3.0,-35.0 L -31.5,-18.2 L 0.0,0.0 L 31.5,-18.2 L 3.0,-35.0 L 3.0,-23.5 L 14.1,-18.2 L 0.0,-9.4 L -14.1,-18.2 L -3.0,-23.5 Z" fill="#ffffff" opacity="0.95"/>
-      <!-- Left Isometric Face -->
-      <path d="M -28.9,20.1 L 0.0,36.4 L 0.0,0.0 L -31.5,-18.2 L -31.8,14.9 L -21.9,9.2 L -22.8,-3.1 L -8.2,4.7 L -8.7,21.3 L -18.9,14.4 Z" fill="#ffffff" opacity="0.82"/>
-      <!-- Right Isometric Face -->
-      <path d="M 31.8,14.9 L 31.5,-18.2 L 0.0,0.0 L 0.0,36.4 L 28.9,20.1 L 18.9,14.4 L 8.7,21.3 L 8.2,4.7 L 22.8,-3.1 L 21.9,9.2 Z" fill="#ffffff" opacity="0.95"/>
-      <!-- Outer Hexagon Tech Accent -->
-      <polygon points="0,-39 33.7,-19.5 33.7,19.5 0,39 -33.7,19.5 -33.7,-19.5" fill="none" stroke="#ffffff" stroke-width="0.9" stroke-dasharray="4,5" opacity="0.4"/>
-    </g>
+    <!-- Iridescent Holographic Foil Gradient 2 (Reverse Angle) -->
+    <linearGradient id="holo-foil-2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9" />
+      <stop offset="30%" stop-color="#00f2fe" stop-opacity="0.95" />
+      <stop offset="65%" stop-color="#c084fc" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.9" />
+    </linearGradient>
 
-    <!-- Tech Hologram Spatial Anchor Dot -->
-    <g id="holo-node">
-      <circle cx="0" cy="0" r="2.0" fill="#ffffff" opacity="0.6"/>
-      <circle cx="0" cy="0" r="7.0" fill="none" stroke="#ffffff" stroke-width="0.7" stroke-dasharray="2,3" opacity="0.35"/>
-    </g>
+    <!-- Holographic Shading Gradients for Unity 3D Faces -->
+    <linearGradient id="unity-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="unity-left" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#4facfe" stop-opacity="0.75" />
+    </linearGradient>
+    <linearGradient id="unity-right" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Glow Filter for Hologram Tech Depth -->
+    <filter id="holo-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
 
-  <!-- Transparent Background for Pure Alpha Channel Masking -->
+  <!-- Ambient Diagonal Spatial Grid -->
+  <path d="M 0,0 L 180,180 M 180,0 L 0,180" stroke="rgba(0, 242, 254, 0.2)" stroke-width="0.8" stroke-dasharray="2,6" />
+  <path d="M 90,0 L 90,180 M 0,90 L 180,90" stroke="rgba(168, 85, 247, 0.2)" stroke-width="0.8" stroke-dasharray="2,6" />
 
-  <!-- Subtle Ambient Diagonal Mesh -->
-  <path d="M 0,0 L 360,360 M 360,0 L 0,360" stroke="#ffffff" stroke-width="0.6" stroke-dasharray="3,10" opacity="0.18"/>
-  <path d="M 180,0 L 180,360 M 0,180 L 360,180" stroke="#ffffff" stroke-width="0.6" stroke-dasharray="3,10" opacity="0.15"/>
+  <!-- ==================== LOGO 1: UNITY 3D (x=45, y=45) ==================== -->
+  <g transform="translate(45, 45) scale(0.65)" filter="url(#holo-glow)">
+    <!-- Outer Hexagon Tech Ring -->
+    <polygon points="0,-40 34.6,-20 34.6,20 0,40 -34.6,20 -34.6,-20" fill="none" stroke="url(#holo-foil-1)" stroke-width="1.8" stroke-dasharray="4,4" opacity="0.7" />
+    <!-- Top Face -->
+    <path d="M -3.0,-35.0 L -31.5,-18.2 L 0.0,0.0 L 31.5,-18.2 L 3.0,-35.0 L 3.0,-23.5 L 14.1,-18.2 L 0.0,-9.4 L -14.1,-18.2 L -3.0,-23.5 Z" fill="url(#unity-top)" stroke="#00f2fe" stroke-width="0.8" />
+    <!-- Left Face -->
+    <path d="M -28.9,20.1 L 0.0,36.4 L 0.0,0.0 L -31.5,-18.2 L -31.8,14.9 L -21.9,9.2 L -22.8,-3.1 L -8.2,4.7 L -8.7,21.3 L -18.9,14.4 Z" fill="url(#unity-left)" stroke="#a855f7" stroke-width="0.8" />
+    <!-- Right Face -->
+    <path d="M 31.8,14.9 L 31.5,-18.2 L 0.0,0.0 L 0.0,36.4 L 28.9,20.1 L 18.9,14.4 L 8.7,21.3 L 8.2,4.7 L 22.8,-3.1 L 21.9,9.2 Z" fill="url(#unity-right)" stroke="#00f2fe" stroke-width="0.8" />
+  </g>
 
-  <!-- ==================== ROW 1 (y = 0): UNITY - C# - UNITY ==================== -->
-  <g transform="translate(0, 0)"><use href="#unity-logo"/></g>
-  <g transform="translate(180, 0)"><use href="#csharp-logo"/></g>
-  <g transform="translate(360, 0)"><use href="#unity-logo"/></g>
+  <!-- ==================== LOGO 2: C# DEVELOPER (x=135, y=45) ==================== -->
+  <g transform="translate(135, 45) scale(0.65)" filter="url(#holo-glow)">
+    <!-- Outer Hexagon -->
+    <polygon points="0,-36 31.2,-18 31.2,18 0,36 -31.2,18 -31.2,-18" fill="rgba(0, 242, 254, 0.08)" stroke="url(#holo-foil-2)" stroke-width="3.2" stroke-linejoin="round" />
+    <!-- Inner Hexagon Dash -->
+    <polygon points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="none" stroke="rgba(168, 85, 247, 0.6)" stroke-width="1.2" stroke-dasharray="3,3" />
+    <!-- Bold 'C' Symbol -->
+    <path d="M 6,-18 A 18,18 0 1 0 6,18 L 6,10 A 10,10 0 1 1 6,-10 Z" fill="url(#holo-foil-1)" stroke="#00f2fe" stroke-width="0.8" />
+    <!-- '#' Sharp Bars -->
+    <line x1="12" y1="-14" x2="10" y2="14" stroke="url(#holo-foil-2)" stroke-width="3.2" stroke-linecap="round" />
+    <line x1="21" y1="-14" x2="19" y2="14" stroke="url(#holo-foil-2)" stroke-width="3.2" stroke-linecap="round" />
+    <line x1="6" y1="-6" x2="25" y2="-6" stroke="url(#holo-foil-1)" stroke-width="3.2" stroke-linecap="round" />
+    <line x1="6" y1="6" x2="25" y2="6" stroke="url(#holo-foil-1)" stroke-width="3.2" stroke-linecap="round" />
+  </g>
 
-  <!-- ==================== ROW 2 (y = 180): C# - UNITY - C# ==================== -->
-  <g transform="translate(0, 180)"><use href="#csharp-logo"/></g>
-  <g transform="translate(180, 180)"><use href="#unity-logo"/></g>
-  <g transform="translate(360, 180)"><use href="#csharp-logo"/></g>
+  <!-- ==================== LOGO 3: C# DEVELOPER (x=45, y=135) ==================== -->
+  <g transform="translate(45, 135) scale(0.65)" filter="url(#holo-glow)">
+    <!-- Outer Hexagon -->
+    <polygon points="0,-36 31.2,-18 31.2,18 0,36 -31.2,18 -31.2,-18" fill="rgba(0, 242, 254, 0.08)" stroke="url(#holo-foil-1)" stroke-width="3.2" stroke-linejoin="round" />
+    <!-- Inner Hexagon Dash -->
+    <polygon points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="none" stroke="rgba(168, 85, 247, 0.6)" stroke-width="1.2" stroke-dasharray="3,3" />
+    <!-- Bold 'C' Symbol -->
+    <path d="M 6,-18 A 18,18 0 1 0 6,18 L 6,10 A 10,10 0 1 1 6,-10 Z" fill="url(#holo-foil-2)" stroke="#00f2fe" stroke-width="0.8" />
+    <!-- '#' Sharp Bars -->
+    <line x1="12" y1="-14" x2="10" y2="14" stroke="url(#holo-foil-1)" stroke-width="3.2" stroke-linecap="round" />
+    <line x1="21" y1="-14" x2="19" y2="14" stroke="url(#holo-foil-1)" stroke-width="3.2" stroke-linecap="round" />
+    <line x1="6" y1="-6" x2="25" y2="-6" stroke="url(#holo-foil-2)" stroke-width="3.2" stroke-linecap="round" />
+    <line x1="6" y1="6" x2="25" y2="6" stroke="url(#holo-foil-2)" stroke-width="3.2" stroke-linecap="round" />
+  </g>
 
-  <!-- ==================== ROW 3 (y = 360): UNITY - C# - UNITY ==================== -->
-  <g transform="translate(0, 360)"><use href="#unity-logo"/></g>
-  <g transform="translate(180, 360)"><use href="#csharp-logo"/></g>
-  <g transform="translate(360, 360)"><use href="#unity-logo"/></g>
+  <!-- ==================== LOGO 4: UNITY 3D (x=135, y=135) ==================== -->
+  <g transform="translate(135, 135) scale(0.65)" filter="url(#holo-glow)">
+    <!-- Outer Hexagon Tech Ring -->
+    <polygon points="0,-40 34.6,-20 34.6,20 0,40 -34.6,20 -34.6,-20" fill="none" stroke="url(#holo-foil-2)" stroke-width="1.8" stroke-dasharray="4,4" opacity="0.7" />
+    <!-- Top Face -->
+    <path d="M -3.0,-35.0 L -31.5,-18.2 L 0.0,0.0 L 31.5,-18.2 L 3.0,-35.0 L 3.0,-23.5 L 14.1,-18.2 L 0.0,-9.4 L -14.1,-18.2 L -3.0,-23.5 Z" fill="url(#unity-top)" stroke="#00f2fe" stroke-width="0.8" />
+    <!-- Left Face -->
+    <path d="M -28.9,20.1 L 0.0,36.4 L 0.0,0.0 L -31.5,-18.2 L -31.8,14.9 L -21.9,9.2 L -22.8,-3.1 L -8.2,4.7 L -8.7,21.3 L -18.9,14.4 Z" fill="url(#unity-left)" stroke="#a855f7" stroke-width="0.8" />
+    <!-- Right Face -->
+    <path d="M 31.8,14.9 L 31.5,-18.2 L 0.0,0.0 L 0.0,36.4 L 28.9,20.1 L 18.9,14.4 L 8.7,21.3 L 8.2,4.7 L 22.8,-3.1 L 21.9,9.2 Z" fill="url(#unity-right)" stroke="#00f2fe" stroke-width="0.8" />
+  </g>
 
-  <!-- Spatial Nodes for Tech Grid Depth -->
-  <g transform="translate(90, 90)"><use href="#holo-node"/></g>
-  <g transform="translate(270, 90)"><use href="#holo-node"/></g>
-  <g transform="translate(90, 270)"><use href="#holo-node"/></g>
-  <g transform="translate(270, 270)"><use href="#holo-node"/></g>
+  <!-- Spatial Tech Nodes -->
+  <circle cx="90" cy="90" r="3.5" fill="#00f2fe" opacity="0.9" />
+  <circle cx="90" cy="90" r="8" fill="none" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="2,3" opacity="0.6" />
 </svg>

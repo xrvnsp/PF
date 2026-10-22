@@ -60,7 +60,7 @@
 }
 
 .profile-card__sheen {
-  z-index: 2;
+  z-index: 3;
   background: radial-gradient(
     farthest-corner circle at calc(var(--pc-light-x) - 10px) calc(var(--pc-light-y) - 10px),
     var(--pc-sheen) 0%,
@@ -70,103 +70,49 @@
 }
 
 .profile-card__holo {
-  z-index: 3;
-  --pc-spectrum: repeating-linear-gradient(
-    0deg,
-    hsl(2, 100%, 73%) 5%,
-    hsl(53, 100%, 69%) 10%,
-    hsl(93, 100%, 69%) 15%,
-    hsl(176, 100%, 76%) 20%,
-    hsl(228, 100%, 74%) 25%,
-    hsl(260, 100%, 76%) 30%,
-    hsl(2, 100%, 73%) 35%
-  );
-  --pc-bars: repeating-linear-gradient(
-    -45deg,
-    #0e152e 0%,
-    hsl(180, 10%, 60%) 3.8%,
-    hsl(180, 29%, 66%) 4.5%,
-    hsl(180, 10%, 60%) 5.2%,
-    #0e152e 10%,
-    #0e152e 12%
-  );
-  --pc-falloff: radial-gradient(
-    farthest-corner circle at var(--pc-pointer-x) var(--pc-pointer-y),
-    hsla(0, 0%, 0%, 0.1) 12%,
-    hsla(0, 0%, 0%, 0.15) 20%,
-    hsla(0, 0%, 0%, 0.25) 120%
-  );
-  background-image: var(--pc-spectrum), var(--pc-bars), var(--pc-falloff);
-  background-position:
-    0 var(--pc-band-y),
-    var(--pc-band-x) var(--pc-band-y),
-    center;
-  background-size:
-    500% 500%,
-    300% 300%,
-    200% 200%;
-  background-blend-mode: color, hard-light;
-  mix-blend-mode: var(--pc-blend);
-  filter: brightness(calc(0.75 + 0.25 * var(--pc-active))) contrast(calc(1.25 + 0.25 * var(--pc-active)))
-    saturate(calc(0.55 + 0.35 * var(--pc-active))) var(--pc-holo-filter);
-  opacity: calc(var(--pc-holo) * var(--pc-holo-gain) * (0.6 + 0.4 * var(--pc-active)));
-  -webkit-mask-image: var(--pc-pattern);
-  -webkit-mask-size: var(--pc-pattern-size);
-  -webkit-mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
-  -webkit-mask-repeat: repeat;
-  mask-image: var(--pc-pattern);
-  mask-size: var(--pc-pattern-size);
-  mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
-  mask-repeat: repeat;
+  z-index: 1;
+  background-image: var(--pc-pattern);
+  background-size: var(--pc-pattern-size);
+  background-repeat: repeat;
+  background-position: calc(50% - var(--pc-shift-x) * 1.5) calc(50% - var(--pc-shift-y) * 1.5);
+  opacity: calc(var(--pc-holo) * (0.82 + 0.18 * var(--pc-active)));
+  transition: opacity 0.25s ease;
 }
 
 .profile-card__holo-glow,
 .profile-card__holo-shift {
   position: absolute;
   inset: 0;
-  opacity: calc(var(--pc-active) * var(--pc-holo-detail));
+  border-radius: inherit;
+  opacity: calc(var(--pc-active) * 0.7);
+  pointer-events: none;
 }
 
 .profile-card__holo-glow {
   background-image:
     linear-gradient(
       45deg,
-      hsl(176, 100%, 76%),
-      hsl(228, 100%, 74%),
-      hsl(260, 100%, 76%),
-      hsl(2, 100%, 73%),
-      hsl(53, 100%, 69%),
-      hsl(93, 100%, 69%)
+      rgba(0, 242, 254, 0.35),
+      rgba(168, 85, 247, 0.35),
+      rgba(244, 63, 94, 0.25),
+      rgba(251, 191, 36, 0.25)
     ),
-    radial-gradient(circle at var(--pc-pointer-x) var(--pc-pointer-y), hsl(0, 0%, 70%) 0%, hsla(0, 0%, 30%, 0.2) 90%),
-    var(--pc-grain);
-  background-size:
-    250% 250%,
-    100% 100%,
-    220px 220px;
-  background-position:
-    var(--pc-pointer-x) var(--pc-pointer-y),
-    center,
-    0 0;
-  background-blend-mode: color-dodge;
-  filter: brightness(calc(2 - var(--pc-reach))) contrast(calc(var(--pc-reach) + 2))
-    saturate(calc(0.5 + var(--pc-reach)));
-  mix-blend-mode: luminosity;
+    radial-gradient(circle at var(--pc-pointer-x) var(--pc-pointer-y), rgba(0, 242, 254, 0.45) 0%, transparent 65%);
+  mix-blend-mode: screen;
 }
 
 .profile-card__holo-shift {
-  background-image: var(--pc-spectrum), var(--pc-bars), var(--pc-falloff);
-  background-position:
-    0 var(--pc-band-y),
-    calc(var(--pc-band-x) * 0.4) calc(var(--pc-band-y) * 0.5),
-    center;
-  background-size:
-    200% 300%,
-    700% 700%,
-    100% 100%;
-  background-blend-mode: color, hard-light;
-  mix-blend-mode: difference;
-  filter: brightness(0.8) contrast(1.5);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0%,
+    rgba(0, 242, 254, 0.15) 3.8%,
+    rgba(168, 85, 247, 0.2) 4.5%,
+    rgba(0, 242, 254, 0.15) 5.2%,
+    transparent 9%
+  );
+  background-position: calc(var(--pc-band-x) * 0.4) calc(var(--pc-band-y) * 0.5);
+  background-size: 200% 200%;
+  mix-blend-mode: screen;
 }
 
 .profile-card__photo {
@@ -183,7 +129,7 @@
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 .profile-card__scrim {

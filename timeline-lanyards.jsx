@@ -125,8 +125,8 @@ function initReactComponents() {
           status="Online"
           statusColor="#00f5ff"
           contactText="Contact Me"
-          avatarUrl="assets/profile_photoroom.webp"
-          miniAvatarUrl="assets/profile_photoroom.webp"
+          avatarUrl="assets/profile_photoroom.png"
+          miniAvatarUrl="assets/profile_photoroom.png"
           backdropColor="#0c1527"
           iconUrl="assets/csharp-pattern.svg"
           holo={0.9}

@@ -306,22 +306,22 @@ const ProfileCard = ({
         '--pc-parallax': `${Math.max(0, parallax)}px`,
         '--pc-status': statusColor,
         '--pc-grain': GRAIN,
-        '--pc-pattern': iconUrl ? `url("${iconUrl}")` : 'linear-gradient(#000, #000)',
-        '--pc-pattern-size': iconUrl ? '120px 120px' : '100% 100%',
+        '--pc-pattern': iconUrl ? `url("${iconUrl}")` : 'none',
+        '--pc-pattern-size': iconUrl ? '150px 150px' : 'auto',
         '--pc-holo-gain': iconUrl ? 1.35 : 0.75,
         '--pc-holo-detail': iconUrl && foil === 'dark' ? 1 : 0
       }}
     >
       <div className="profile-card__body">
         <div className="profile-card__tile">
-          {avatarUrl && (
-            <img className="profile-card__photo" src={avatarUrl} alt={name || ''} loading="lazy" draggable={false} />
-          )}
           <span className="profile-card__sheen" />
           <span className="profile-card__holo">
             <span className="profile-card__holo-glow" />
             <span className="profile-card__holo-shift" />
           </span>
+          {avatarUrl && (
+            <img className="profile-card__photo" src={avatarUrl} alt={name || ''} loading="lazy" draggable={false} />
+          )}
           {(name || title) && (
             <>
               <span className="profile-card__scrim" />
