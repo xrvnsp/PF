@@ -72,7 +72,7 @@
 .profile-card__holo {
   z-index: 1;
   background-image: url('csharp-pattern.svg') !important;
-  background-size: 100px 100px !important;
+  background-size: 220px 220px !important;
   background-repeat: repeat !important;
   background-position: calc(50% - var(--pc-shift-x) * 1.5) calc(50% - var(--pc-shift-y) * 1.5) !important;
   opacity: 0.95 !important;
@@ -119,10 +119,10 @@
   position: absolute;
   bottom: 0;
   left: 50%;
-  width: 90% !important;
-  height: 86% !important;
-  max-width: 90% !important;
-  max-height: 88% !important;
+  width: 106% !important;
+  height: 92% !important;
+  max-width: none !important;
+  max-height: none !important;
   object-fit: contain;
   object-position: center bottom;
   transform: translate3d(calc(-50% + var(--pc-shift-x)), var(--pc-shift-y), 0);
