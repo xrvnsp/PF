@@ -60,6 +60,7 @@
 }
 
 .profile-card__sheen {
+  z-index: 2;
   background: radial-gradient(
     farthest-corner circle at calc(var(--pc-light-x) - 10px) calc(var(--pc-light-y) - 10px),
     var(--pc-sheen) 0%,
@@ -69,6 +70,7 @@
 }
 
 .profile-card__holo {
+  z-index: 3;
   --pc-spectrum: repeating-linear-gradient(
     0deg,
     hsl(2, 100%, 73%) 5%,
@@ -105,9 +107,9 @@
     200% 200%;
   background-blend-mode: color, hard-light;
   mix-blend-mode: var(--pc-blend);
-  filter: brightness(calc(0.66 + 0.19 * var(--pc-active))) contrast(calc(1.33 + 0.17 * var(--pc-active)))
-    saturate(calc(0.33 + 0.17 * var(--pc-active))) var(--pc-holo-filter);
-  opacity: calc(var(--pc-holo) * var(--pc-holo-gain) * (0.5 + 0.5 * var(--pc-active)));
+  filter: brightness(calc(0.75 + 0.25 * var(--pc-active))) contrast(calc(1.25 + 0.25 * var(--pc-active)))
+    saturate(calc(0.55 + 0.35 * var(--pc-active))) var(--pc-holo-filter);
+  opacity: calc(var(--pc-holo) * var(--pc-holo-gain) * (0.6 + 0.4 * var(--pc-active)));
   -webkit-mask-image: var(--pc-pattern);
   -webkit-mask-size: var(--pc-pattern-size);
   -webkit-mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
@@ -181,9 +183,11 @@
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
+  z-index: 1;
 }
 
 .profile-card__scrim {
+  z-index: 4;
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 0.6) 0%,
@@ -204,6 +208,7 @@
   right: 20px;
   bottom: 18px;
   color: #ffffff;
+  z-index: 5;
 }
 
 .profile-card__name {
@@ -223,6 +228,7 @@
 }
 
 .profile-card__tile-rim {
+  z-index: 6;
   box-shadow:
     inset 0 0 0 1px var(--pc-tile-edge),
     inset 0 1px 0 var(--pc-tile-highlight);

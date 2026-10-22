@@ -41,9 +41,9 @@ const THEMES = {
 
 const FOILS = {
   dark: {
-    '--pc-blend': 'color-dodge',
+    '--pc-blend': 'screen',
     '--pc-holo-filter': 'hue-rotate(0deg)',
-    '--pc-sheen': 'rgba(255, 255, 255, 0.16)'
+    '--pc-sheen': 'rgba(255, 255, 255, 0.25)'
   },
   light: {
     '--pc-blend': 'multiply',
@@ -307,21 +307,21 @@ const ProfileCard = ({
         '--pc-status': statusColor,
         '--pc-grain': GRAIN,
         '--pc-pattern': iconUrl ? `url("${iconUrl}")` : 'linear-gradient(#000, #000)',
-        '--pc-pattern-size': iconUrl ? '180% auto' : '100% 100%',
-        '--pc-holo-gain': iconUrl ? 1.25 : 0.75,
+        '--pc-pattern-size': iconUrl ? '120px 120px' : '100% 100%',
+        '--pc-holo-gain': iconUrl ? 1.35 : 0.75,
         '--pc-holo-detail': iconUrl && foil === 'dark' ? 1 : 0
       }}
     >
       <div className="profile-card__body">
         <div className="profile-card__tile">
+          {avatarUrl && (
+            <img className="profile-card__photo" src={avatarUrl} alt={name || ''} loading="lazy" draggable={false} />
+          )}
           <span className="profile-card__sheen" />
           <span className="profile-card__holo">
             <span className="profile-card__holo-glow" />
             <span className="profile-card__holo-shift" />
           </span>
-          {avatarUrl && (
-            <img className="profile-card__photo" src={avatarUrl} alt={name || ''} loading="lazy" draggable={false} />
-          )}
           {(name || title) && (
             <>
               <span className="profile-card__scrim" />

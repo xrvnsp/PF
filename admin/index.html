@@ -1564,6 +1564,181 @@
                 padding: 8px;
                 font-size: 0.76rem;
             }
+
+            /* ========================================================
+               📱 MOBILE LEADS TAB & AUDIT TABLES OPTIMIZATION
+               ======================================================== */
+            /* Inbound Leads Header & Filter Controls */
+            #tab-leads .panel-header,
+            #tab-resume .panel-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+
+            #tab-leads .panel-header > div:last-child,
+            #tab-resume .panel-header > div:last-child {
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            #leads-filter-input,
+            #resume-search-input {
+                width: 100% !important;
+                min-width: 0 !important;
+                font-size: 16px !important; /* Prevents auto-zoom on iOS */
+                padding: 10px 14px !important;
+                border-radius: 10px !important;
+                background: rgba(4, 9, 20, 0.75) !important;
+            }
+
+            #tab-leads .panel-header .btn-action,
+            #tab-resume .panel-header .btn-portal {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 11px 14px !important;
+                font-size: 0.85rem !important;
+                min-height: 44px !important;
+                touch-action: manipulation !important;
+            }
+
+            /* Transform Inbound Leads Table to Responsive Touch Cards */
+            #tab-leads .audit-table-wrap {
+                overflow-x: visible !important;
+                max-height: none !important;
+                padding: 2px !important;
+            }
+
+            #tab-leads .audit-table {
+                min-width: 0 !important;
+                width: 100% !important;
+                display: block !important;
+            }
+
+            #tab-leads .audit-table thead {
+                display: none !important;
+            }
+
+            #tab-leads .audit-table tbody {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 14px !important;
+                width: 100% !important;
+            }
+
+            #tab-leads .audit-table tbody tr {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+                background: rgba(13, 20, 38, 0.85) !important;
+                border: 1px solid rgba(0, 242, 254, 0.25) !important;
+                border-radius: 16px !important;
+                padding: 16px 14px !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+                position: relative !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            #tab-leads .audit-table tbody tr.row-today {
+                border-left: 4.5px solid var(--cyan) !important;
+                background: linear-gradient(135deg, rgba(0, 242, 254, 0.08), rgba(13, 20, 38, 0.9)) !important;
+            }
+
+            #tab-leads .audit-table tbody td {
+                display: block !important;
+                padding: 0 !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                text-align: left !important;
+            }
+
+            #tab-leads .audit-table tbody td a[href^="mailto:"] {
+                word-break: break-all !important;
+                font-size: 0.95rem !important;
+                color: var(--cyan) !important;
+            }
+
+            #tab-leads .audit-table tbody td:last-child {
+                margin-top: 6px !important;
+                padding-top: 10px !important;
+                border-top: 1px dashed rgba(255, 255, 255, 0.1) !important;
+            }
+
+            #tab-leads .audit-table tbody td:last-child .btn-action {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 12px 16px !important;
+                font-size: 0.9rem !important;
+                min-height: 44px !important;
+                border-radius: 10px !important;
+                touch-action: manipulation !important;
+            }
+
+            /* Transform Resume Audit Table to Responsive Touch Cards */
+            .resume-table-container {
+                overflow-x: visible !important;
+                padding: 2px !important;
+            }
+
+            .resume-audit-table {
+                min-width: 0 !important;
+                width: 100% !important;
+                display: block !important;
+            }
+
+            .resume-audit-table thead {
+                display: none !important;
+            }
+
+            .resume-audit-table tbody {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 14px !important;
+                width: 100% !important;
+            }
+
+            .resume-audit-table tbody tr {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+                background: rgba(13, 20, 38, 0.85) !important;
+                border: 1px solid rgba(168, 85, 247, 0.25) !important;
+                border-radius: 16px !important;
+                padding: 16px 14px !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .resume-audit-table tbody tr.row-today {
+                border-left: 4.5px solid var(--purple) !important;
+                background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(13, 20, 38, 0.9)) !important;
+            }
+
+            .resume-audit-table tbody td {
+                display: block !important;
+                padding: 0 !important;
+                border: none !important;
+                width: 100% !important;
+                text-align: left !important;
+            }
+
+            .resume-audit-table .org-pill,
+            .resume-audit-table .ref-pill {
+                max-width: 100% !important;
+                display: inline-block !important;
+                word-break: break-word !important;
+            }
+
+            /* Touch Friendly Tab Bar */
+            .nav-tab {
+                min-height: 42px !important;
+                touch-action: manipulation !important;
+            }
         }
     </style>
 </head>
