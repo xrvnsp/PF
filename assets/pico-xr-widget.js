@@ -112,9 +112,9 @@
   widgetRoot.innerHTML = `
     <!-- Floating Launcher Button -->
     <div class="pico-bot-float-container" id="picoBotContainer">
-      <div class="pico-bot-tooltip" id="picoBotTooltip">
-        <span>🎮 Unity Build Settings</span>
-        <span class="pico-bot-badge">XR Devices</span>
+      <div class="pico-bot-tooltip pico-callout" id="picoBotTooltip">
+        <div class="pico-callout-header"><span class="pico-callout-name">PICO <span>XR companion</span></span><button class="pico-callout-dismiss" type="button" aria-label="Dismiss PICO message">×</button></div>
+        <p id="picoCalloutText" role="status" aria-live="polite" aria-atomic="true"></p>
       </div>
 
       <div class="pico-bot-motion">
@@ -287,6 +287,32 @@
 
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const visor = floatBtn.querySelector('.pico-visor-wrapper');
+  const calloutText = document.getElementById('picoCalloutText');
+  let emoteTimers = [];
+  function cancelEmote() {
+    emoteTimers.forEach(clearTimeout);
+    emoteTimers = [];
+    widgetRoot.classList.remove('pico-ipd');
+    tooltip.classList.remove('visible');
+    calloutText.textContent = '';
+  }
+  function say(message, duration = 3000, ipd = false) {
+    cancelEmote();
+    if (document.hidden || buildWindow.classList.contains('open')) return;
+    calloutText.textContent = message;
+    tooltip.classList.add('visible');
+    widgetRoot.classList.toggle('pico-ipd', ipd && !motionPreference.matches);
+    if (ipd) eyes.style.transform = '';
+    if (duration > 0) emoteTimers.push(setTimeout(cancelEmote, duration));
+  }
+  function welcomeVisitor() {
+    say('Hi, visitor! Welcome to Saravana’s XR world.', 0);
+    emoteTimers.push(setTimeout(() => {
+      say('Adjusting IPD…', 0, true);
+      emoteTimers.push(setTimeout(() => say('All set! Tap me to explore XR devices.', 3200), 2400));
+    }, 3200));
+  }
+  tooltip.querySelector('.pico-callout-dismiss').addEventListener('click', cancelEmote);
   buildWindow.inert = true;
 
   function setWindow(open) {
@@ -296,7 +322,7 @@
     buildWindow.setAttribute('aria-hidden', String(!open));
     floatBtn.setAttribute('aria-expanded', String(open));
     floatBtn.setAttribute('aria-label', open ? 'Close Unity Build Settings' : 'Open Unity Build Settings');
-    tooltip.classList.remove('visible');
+    cancelEmote();
     if (open) btnClose.focus({ preventScroll: true });
     else floatBtn.focus({ preventScroll: true });
   }
@@ -452,7 +478,7 @@
   let mouseMoveTimeout;
 
   window.addEventListener('mousemove', (e) => {
-    if (!floatBtn || !eyes || motionPreference.matches || !window.matchMedia('(pointer: fine)').matches) return;
+    if (!floatBtn || !eyes || widgetRoot.classList.contains('pico-ipd') || motionPreference.matches || !window.matchMedia('(pointer: fine)').matches) return;
     const btnRect = floatBtn.getBoundingClientRect();
     const btnCenterX = btnRect.left + btnRect.width / 2;
     const btnCenterY = btnRect.top + btnRect.height / 2;
@@ -494,16 +520,14 @@
     readyObserver?.disconnect();
     widgetRoot.classList.add('pico-ready');
     if (!motionPreference.matches) visor.classList.add('pico-hello');
-    if (!buildWindow.classList.contains('open')) {
-      tooltip.classList.add('visible');
-      setTimeout(() => tooltip.classList.remove('visible'), 3500);
-    }
+    welcomeVisitor();
   }
   visor.addEventListener('animationend', event => {
     if (event.animationName === 'pico-hello-wave') visor.classList.remove('pico-hello');
   });
   document.addEventListener('visibilitychange', () => {
     widgetRoot.classList.toggle('pico-paused', document.hidden);
+    if (document.hidden) cancelEmote();
   });
   widgetRoot.classList.toggle('pico-paused', document.hidden);
   readyObserver?.observe(loader, { attributes: true, attributeFilter: ['class'] });
