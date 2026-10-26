@@ -127,7 +127,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="loader.css?v=32">
+    <link rel="stylesheet" href="loader.css?v=43">
     <link rel="stylesheet" href="assets/profile-card.css?v=44">
     <link rel="stylesheet" href="assets/star-border.css?v=30">
     <link rel="stylesheet" href="assets/pixel-card.css?v=31">
@@ -137,15 +137,6 @@
     <link rel="stylesheet" href="assets/lead-capture.css?v=2">
 
     <script>
-        // Session-aware fast boot check: Skip terminal loader immediately if already booted in this session
-        (function () {
-            try {
-                if (sessionStorage.getItem('hasBooted') === 'true') {
-                    document.documentElement.classList.add('fast-boot');
-                }
-            } catch (e) { }
-        })();
-
         // Emergency fail-safe: Ensure loader is unlocked only if scripts crash/stall (14s emergency threshold)
         window.addEventListener('load', function () {
             setTimeout(function () {
@@ -172,43 +163,18 @@
         </defs>
     </svg>
 
-    <!-- Terminal Boot Loader -->
-    <div id="terminal-loader">
-        <div class="terminal-window">
-            <div class="terminal-titlebar">
-                <div class="window-title">Command Prompt - xr-dev</div>
-                <div class="terminal-titlebar-right">
-                    <button id="terminal-skip-btn" class="terminal-skip-btn" type="button" title="Skip Boot Sequence (or press ESC / Tap)">
-                        <span class="skip-btn-desktop">[ Press ESC or Click to Skip ]</span>
-                        <span class="skip-btn-mobile">[ Tap to Skip ]</span>
-                    </button>
-                    <div class="window-controls">
-                        <div class="control-btn btn-min" title="Minimize">
-                            <svg viewBox="0 0 10 1">
-                                <rect x="0" y="0" width="10" height="1"></rect>
-                            </svg>
-                        </div>
-                        <div class="control-btn btn-max" title="Maximize">
-                            <svg viewBox="0 0 10 10">
-                                <path d="M0,0v10h10V0H0z M9,9H1V1h8V9z"></path>
-                            </svg>
-                        </div>
-                        <div class="control-btn btn-close" id="terminal-close-btn" title="Close / Skip">
-                            <svg viewBox="0 0 10 10">
-                                <path
-                                    d="M10,1.4L8.6,0L5,3.6L1.4,0L0,1.4L3.6,5L0,8.6L1.4,10L5,6.4l3.6,3.6l1.4-1.4L6.4,5L10,1.4z">
-                                </path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="terminal-body" class="terminal-body">
-                <div id="terminal-content"></div>
-                <div class="terminal-cursor"></div>
-            </div>
+    <!-- Neon SP logo intro -->
+    <div id="terminal-loader" role="region" aria-label="Portfolio introduction">
+        <svg class="loader-circle-curtain" width="100%" height="100%" aria-hidden="true"><defs><mask id="loader-circle-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" style="mask-type:luminance"><rect width="100%" height="100%" fill="white"/><circle class="loader-circle-opening" cx="50%" cy="50%" r="0" fill="black"/></mask></defs><rect width="100%" height="100%" fill="#010206" mask="url(#loader-circle-mask)"/></svg>
+        <div class="logo-loader-stage" aria-hidden="true">
+            <svg class="loader-mark" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="loader-brand-gradient" gradientUnits="userSpaceOnUse" x1="90" y1="35" x2="184" y2="135"><stop offset="0" stop-color="#00efff"/><stop offset=".32" stop-color="#05def4"/><stop offset=".64" stop-color="#a77cce"/><stop offset="1" stop-color="#ff249f"/></linearGradient></defs><g class="loader-lettering" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.3"><path pathLength="1" d="M 150.125 20.338 L 87.350 20.338 C 64.738 20.338 50.225 32.150 46.175 52.063 L 44.150 61.850 C 40.438 82.775 50.900 93.913 70.813 93.913 L 99.163 93.913 C 106.250 93.913 108.613 97.625 106.925 104.713 L 105.913 108.425 C 104.563 114.500 100.850 117.875 94.100 117.875 L 41.450 117.875 L 32.000 142.850 L 93.088 142.850 C 114.013 142.850 126.500 130.700 130.887 111.125 L 132.913 102.013 C 137.975 80.750 127.850 68.938 108.275 68.938 L 79.588 68.938 C 72.163 68.938 69.125 65.900 70.813 58.475 L 71.488 55.438 C 72.838 48.688 77.225 44.975 84.313 44.975 L 139.325 44.975 Z"/><path pathLength="1" d="M 158.225 20.338 L 218.300 20.338 C 240.913 20.338 251.713 35.188 246.988 57.125 L 243.275 72.650 C 238.887 92.563 226.063 103.363 205.813 103.363 L 166.663 103.363 L 158.563 142.850 L 132.575 142.850 Z M 178.475 44.975 L 171.725 78.388 L 204.800 78.388 C 212.225 78.388 216.613 75.013 218.300 67.925 L 220.663 56.788 C 222.688 49.025 219.650 44.975 212.563 44.975 Z"/></g>
+            </svg>
+            <span class="loader-caption">SARAVANA PRAKASH <span>XR DEVELOPER</span></span>
         </div>
+        <button class="logo-loader-skip" type="button">Skip intro <span aria-hidden="true">↗</span></button>
     </div>
+    <script src="loader.js?v=43"></script>
     <!-- Iron Man Arc Reactor Cursor -->
     <div class="arc-cursor-core"></div>
     <div class="arc-cursor-reactor">
@@ -295,7 +261,10 @@
         <!-- Navigation -->
         <nav id="navbar">
             <div class="nav-container">
-                <div class="nav-logo">
+                <div class="nav-logo" aria-label="Saravana Prakash">
+<svg class="nav-brand-mark" aria-hidden="true" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="nav-brand-gradient" gradientUnits="userSpaceOnUse" x1="90" y1="35" x2="184" y2="135"><stop offset="0" stop-color="#00efff"/><stop offset=".32" stop-color="#05def4"/><stop offset=".64" stop-color="#a77cce"/><stop offset="1" stop-color="#ff249f"/></linearGradient></defs><g class="loader-lettering" stroke-linejoin="round" stroke-linecap="round" stroke-width="1.3"><path pathLength="1" d="M 150.125 20.338 L 87.350 20.338 C 64.738 20.338 50.225 32.150 46.175 52.063 L 44.150 61.850 C 40.438 82.775 50.900 93.913 70.813 93.913 L 99.163 93.913 C 106.250 93.913 108.613 97.625 106.925 104.713 L 105.913 108.425 C 104.563 114.500 100.850 117.875 94.100 117.875 L 41.450 117.875 L 32.000 142.850 L 93.088 142.850 C 114.013 142.850 126.500 130.700 130.887 111.125 L 132.913 102.013 C 137.975 80.750 127.850 68.938 108.275 68.938 L 79.588 68.938 C 72.163 68.938 69.125 65.900 70.813 58.475 L 71.488 55.438 C 72.838 48.688 77.225 44.975 84.313 44.975 L 139.325 44.975 Z"/><path pathLength="1" d="M 158.225 20.338 L 218.300 20.338 C 240.913 20.338 251.713 35.188 246.988 57.125 L 243.275 72.650 C 238.887 92.563 226.063 103.363 205.813 103.363 L 166.663 103.363 L 158.563 142.850 L 132.575 142.850 Z M 178.475 44.975 L 171.725 78.388 L 204.800 78.388 C 212.225 78.388 216.613 75.013 218.300 67.925 L 220.663 56.788 C 222.688 49.025 219.650 44.975 212.563 44.975 Z"/></g>
+            </svg>
                     <span class="logo-text"><span id="logo-chars">SP</span><span class="accent">_</span></span>
                 </div>
                 <ul class="nav-menu" id="nav-menu">
@@ -1113,7 +1082,7 @@
     <script src="assets/split-flap-text.js?v=7"></script>
     <script src="assets/pico-xr-widget.js?v=52"></script>
     <script src="main.js?v=31"></script>
-    <script src="loader.js?v=32"></script>
+
     <!-- Google Firebase Real-Time Analytics -->
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
