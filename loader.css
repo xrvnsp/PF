@@ -80,9 +80,6 @@
 
 
 
-.nav-logo .logo-text { display: none; }
-.nav-brand-mark { display: block; width: 64px; height: auto; }
-.nav-brand-mark .loader-lettering path { fill: url(#nav-brand-gradient); stroke: none; fill-opacity: 1; stroke-dashoffset: 0; animation: none; }
 #terminal-loader.quick-reveal { opacity: 0; }
 .quick-reveal .loader-mark { transform: none; transition: none; }
 @media (prefers-reduced-motion: reduce) {
