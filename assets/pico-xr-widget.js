@@ -119,7 +119,7 @@
 
       <button class="pico-bot-float-btn" id="picoBotBtn" aria-label="Open Unity Build Settings" title="Click to view XR Devices in Unity Build Settings">
         <div class="pico-visor-wrapper">
-          <img src="/assets/pico_bot_icon.png" alt="Unity XR Launcher" class="pico-visor-base-img" />
+          <img src="assets/pico_bot_icon.png?v=2" alt="Unity XR Launcher" class="pico-visor-base-img" />
           <div class="pico-visor-eyes-layer">
             <div class="pico-visor-eyes" id="picoEyes">
               <div class="pico-eye pico-eye-left"></div>
