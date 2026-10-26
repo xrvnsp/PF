@@ -138,7 +138,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  animation: pico-eyes-move 5.5s infinite ease-in-out;
+  animation: none;
   transform-origin: center center;
   margin-top: 1px;
 }
@@ -153,23 +153,6 @@
               inset 0 0 2px #38bdf8;
   position: relative;
   transition: transform 0.15s ease;
-}
-
-/* Eye movement keyframes matching bot behavior */
-@keyframes pico-eyes-move {
-  0%, 15% { transform: translate(0, 0) scale(1, 1); }
-  17% { transform: translate(0, 0) scale(1.1, 0.08); }
-  19%, 25% { transform: translate(0, 0) scale(1, 1); }
-  30%, 42% { transform: translate(4px, 0) scale(1, 1); }
-  44% { transform: translate(4px, 0) scale(1.1, 0.08); }
-  46%, 50% { transform: translate(4px, 0) scale(1, 1); }
-  55%, 70% { transform: translate(-4px, 0) scale(1, 1); }
-  72% { transform: translate(-4px, 0) scale(1.1, 0.08); }
-  74%, 82% { transform: translate(0, -2.5px) scale(1, 1); }
-  84% { transform: translate(0, 0) scale(1.1, 0.08); }
-  86% { transform: translate(0, 0) scale(1, 1); }
-  88% { transform: translate(0, 0) scale(1.1, 0.08); }
-  90%, 100% { transform: translate(0, 0) scale(1, 1); }
 }
 
 /* ========================================================
@@ -197,13 +180,16 @@
   z-index: 9998;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(16px) scale(0.97);
+  visibility: hidden;
+  transform: translateY(18px) scale(.9);
   transform-origin: bottom right;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1), opacity .25s ease, visibility 0s .4s;
   user-select: none;
 }
 
 .unity-build-window.open {
+  visibility: visible;
+  transition-delay: 0s;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0) scale(1);
@@ -682,4 +668,37 @@
   .pico-bot-tooltip {
     display: none;
   }
+}
+
+/* PICO personality: independent layers avoid competing transform animations. */
+.pico-xr-widget-root:not(.pico-ready) .pico-bot-float-container { visibility: hidden; pointer-events: none; }
+.pico-ready .pico-bot-motion { animation: pico-gentle-hover 4.5s ease-in-out infinite; }
+.pico-eye { animation: pico-natural-blink 6.2s ease-in-out infinite; transform-origin: center; }
+.pico-visor-wrapper.pico-hello { animation: pico-hello-wave 1.2s ease-in-out .25s both; transform-origin: 50% 80%; }
+.pico-panel-open .pico-bot-motion { animation-play-state: paused; }
+.pico-paused *, .pico-paused *::before, .pico-paused *::after { animation-play-state: paused !important; }
+.pico-bot-float-btn:focus-visible { outline: 2px solid #a855f7; outline-offset: 5px; }
+@keyframes pico-gentle-hover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes pico-natural-blink {
+  0%, 36%, 40%, 73%, 77%, 100% { transform: scaleY(1); }
+  38%, 75% { transform: scaleY(.08); }
+}
+@keyframes pico-hello-wave {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(6deg); }
+}
+@media (max-width: 640px) {
+  .pico-ready .pico-bot-motion { animation-duration: 5.5s; }
+  .unity-build-window { max-height: calc(100dvh - 96px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pico-ready .pico-bot-motion, .pico-eye, .pico-visor-wrapper.pico-hello { animation: none; }
+  .pico-bot-float-btn, .unity-build-window, .pico-bot-tooltip { transition-duration: .01s; }
+  .pico-bot-float-btn:hover, .pico-bot-float-btn:active { transform: none; }
 }

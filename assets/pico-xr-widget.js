@@ -117,7 +117,8 @@
         <span class="pico-bot-badge">XR Devices</span>
       </div>
 
-      <button class="pico-bot-float-btn" id="picoBotBtn" aria-label="Open Unity Build Settings" title="Click to view XR Devices in Unity Build Settings">
+      <div class="pico-bot-motion">
+      <button class="pico-bot-float-btn" id="picoBotBtn" type="button" aria-expanded="false" aria-controls="unityBuildWindow" aria-label="Open Unity Build Settings" title="Click to view XR Devices in Unity Build Settings">
         <div class="pico-visor-wrapper">
           <img src="assets/pico_bot_icon.png?v=2" alt="Unity XR Launcher" class="pico-visor-base-img" />
           <div class="pico-visor-eyes-layer">
@@ -128,10 +129,11 @@
           </div>
         </div>
       </button>
+      </div>
     </div>
 
     <!-- Reimagined Unity Build Settings Window -->
-    <div class="unity-build-window" id="unityBuildWindow" role="dialog" aria-labelledby="unityWindowTitle">
+    <div class="unity-build-window" id="unityBuildWindow" role="dialog" aria-hidden="true" inert aria-labelledby="unityWindowTitle">
       <!-- Unity Titlebar -->
       <div class="unity-build-titlebar">
         <div class="unity-titlebar-left">
@@ -283,35 +285,38 @@
   const sceneRows = document.querySelectorAll('.unity-scene-row');
   const platformItems = document.querySelectorAll('.unity-platform-item');
 
-  // Toggle Window
-  function toggleWindow() {
-    const isOpen = buildWindow.classList.contains('open');
-    if (isOpen) {
-      buildWindow.classList.remove('open');
-    } else {
-      buildWindow.classList.add('open');
-      tooltip.classList.remove('visible');
-    }
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const visor = floatBtn.querySelector('.pico-visor-wrapper');
+  buildWindow.inert = true;
+
+  function setWindow(open) {
+    buildWindow.classList.toggle('open', open);
+    widgetRoot.classList.toggle('pico-panel-open', open);
+    buildWindow.inert = !open;
+    buildWindow.setAttribute('aria-hidden', String(!open));
+    floatBtn.setAttribute('aria-expanded', String(open));
+    floatBtn.setAttribute('aria-label', open ? 'Close Unity Build Settings' : 'Open Unity Build Settings');
+    tooltip.classList.remove('visible');
+    if (open) btnClose.focus({ preventScroll: true });
+    else floatBtn.focus({ preventScroll: true });
   }
 
-  floatBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleWindow();
+  floatBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    // A separate animation layer lets the bounce coexist with floating and the wave.
+    floatBtn.getAnimations().forEach(animation => animation.cancel());
+    if (!motionPreference.matches) floatBtn.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.12, .88)', offset: .22 },
+      { transform: 'scale(.94, 1.08) translateY(-5px)', offset: .55 },
+      { transform: 'scale(1)' }
+    ], { duration: 420, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+    setWindow(!buildWindow.classList.contains('open'));
   });
-
-  btnClose.addEventListener('click', () => {
-    buildWindow.classList.remove('open');
-  });
-
-  btnMinimize.addEventListener('click', () => {
-    buildWindow.classList.remove('open');
-  });
-
-  // ESC to close
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && buildWindow.classList.contains('open')) {
-      buildWindow.classList.remove('open');
-    }
+  btnClose.addEventListener('click', () => setWindow(false));
+  btnMinimize.addEventListener('click', () => setWindow(false));
+  window.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && buildWindow.classList.contains('open')) setWindow(false);
   });
 
   // Update Inspector for a device
@@ -447,7 +452,7 @@
   let mouseMoveTimeout;
 
   window.addEventListener('mousemove', (e) => {
-    if (!floatBtn || !eyes) return;
+    if (!floatBtn || !eyes || motionPreference.matches || !window.matchMedia('(pointer: fine)').matches) return;
     const btnRect = floatBtn.getBoundingClientRect();
     const btnCenterX = btnRect.left + btnRect.width / 2;
     const btnCenterY = btnRect.top + btnRect.height / 2;
@@ -468,21 +473,39 @@
       clearTimeout(mouseMoveTimeout);
       mouseMoveTimeout = setTimeout(() => {
         isTrackingMouse = false;
-        eyes.style.animation = 'pico-eyes-move 5.5s infinite ease-in-out';
+        eyes.style.animation = '';
+        eyes.style.transform = '';
       }, 2500);
     } else if (isTrackingMouse) {
       isTrackingMouse = false;
-      eyes.style.animation = 'pico-eyes-move 5.5s infinite ease-in-out';
+      eyes.style.animation = '';
+        eyes.style.transform = '';
     }
   });
 
-  // Welcome tooltip after 2.5s
-  setTimeout(() => {
+  // Greet once, only after the page intro has finished (including its fail-safe).
+  const loader = document.getElementById('terminal-loader');
+  let greeted = false;
+  const readyObserver = loader ? new MutationObserver(greetWhenReady) : null;
+  function greetWhenReady() {
+    if (loader && !loader.classList.contains('transition-complete')) return;
+    if (greeted) return;
+    greeted = true;
+    readyObserver?.disconnect();
+    widgetRoot.classList.add('pico-ready');
+    if (!motionPreference.matches) visor.classList.add('pico-hello');
     if (!buildWindow.classList.contains('open')) {
       tooltip.classList.add('visible');
-      setTimeout(() => {
-        tooltip.classList.remove('visible');
-      }, 4500);
+      setTimeout(() => tooltip.classList.remove('visible'), 3500);
     }
-  }, 2500);
+  }
+  visor.addEventListener('animationend', event => {
+    if (event.animationName === 'pico-hello-wave') visor.classList.remove('pico-hello');
+  });
+  document.addEventListener('visibilitychange', () => {
+    widgetRoot.classList.toggle('pico-paused', document.hidden);
+  });
+  widgetRoot.classList.toggle('pico-paused', document.hidden);
+  readyObserver?.observe(loader, { attributes: true, attributeFilter: ['class'] });
+  greetWhenReady();
 })();
