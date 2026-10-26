@@ -2701,4 +2701,16 @@ img {
         height: 520px !important;
     }
 }
-
+
+/* Mobile menu remains keyboard accessible without the desktop cursor effect. */
+button.nav-toggle { background: transparent; border: 0; padding: 10px; min-width: 44px; min-height: 44px; }
+button.nav-toggle:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+@media (max-width: 768px) {
+  .arc-cursor-core, .arc-cursor-reactor { display: none !important; }
+  body { cursor: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc-cursor-core, .arc-cursor-reactor { display: none !important; }
+  body { cursor: auto; }
+}

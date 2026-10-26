@@ -9,13 +9,13 @@ function initThreeBackground() {
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const isMobile = window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.75));
     camera.position.z = 5;
 
     // Create particle system
-    const isMobile = window.matchMedia("(pointer: coarse)").matches;
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = isMobile ? 800 : 2500; // Significantly reduced for mobile performance
+    const particlesCount = isMobile ? 350 : 1500; // Significantly reduced for mobile performance
     
     // Store final target positions
     const targetPos = new Float32Array(particlesCount * 3);
@@ -79,7 +79,8 @@ function initThreeBackground() {
 
     // Global progress tracker for GSAP blast animation
     window.particlesBlast = {
-        progress: 0
+        progress: 1,
+        _done: true
     };
 
     let lastProgress = -1;
@@ -100,8 +101,11 @@ function initThreeBackground() {
     }
 
     // Animation loop
+    let particleFrame = 0;
     function animate() {
-        requestAnimationFrame(animate);
+        particleFrame = 0;
+        if (document.hidden) return;
+        particleFrame = requestAnimationFrame(animate);
 
         // Update positions during particle blast animation
         const blast = window.particlesBlast;
@@ -146,6 +150,12 @@ function initThreeBackground() {
     }
 
     animate();
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(particleFrame);
+            particleFrame = 0;
+        } else if (!particleFrame) animate();
+    });
 
     // Handle window resize
     window.addEventListener('resize', () => {
@@ -224,6 +234,7 @@ function initNavigation() {
     navToggle.addEventListener('click', () => {
         navToggle.classList.toggle('active');
         navMenu.classList.toggle('active');
+        navToggle.setAttribute('aria-expanded', String(navMenu.classList.contains('active')));
     });
 
     // Smooth scroll and active link
@@ -245,6 +256,7 @@ function initNavigation() {
                 // Close mobile menu
                 navToggle.classList.remove('active');
                 navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
 
                 // Update active link
                 navLinks.forEach(l => l.classList.remove('active'));
@@ -476,7 +488,7 @@ function initCustomCursor() {
     let followerX = 0, followerY = 0;
 
     // Only show on real pointer (desktop) — hidden on touch via CSS
-    if (window.matchMedia('(pointer: fine)').matches) {
+    if (window.matchMedia('(pointer: fine) and (min-width: 769px)').matches) {
 
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
@@ -484,7 +496,10 @@ function initCustomCursor() {
         });
 
         // Animate loop: core snaps fast (0.20), reactor drifts slow (0.08)
+        let cursorFrame = 0;
         function moveCursor() {
+            cursorFrame = 0;
+            if (document.hidden) return;
             cursorX   += (mouseX - cursorX)   * 0.20;
             cursorY   += (mouseY - cursorY)   * 0.20;
             followerX += (mouseX - followerX) * 0.08; // slower → "hovering" feel
@@ -495,9 +510,15 @@ function initCustomCursor() {
             follower.style.left = `${followerX}px`;
             follower.style.top  = `${followerY}px`;
 
-            requestAnimationFrame(moveCursor);
+            cursorFrame = requestAnimationFrame(moveCursor);
         }
         moveCursor();
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(cursorFrame);
+                cursorFrame = 0;
+            } else if (!cursorFrame) moveCursor();
+        });
 
         // Power-up on interactive elements
         const interactive = document.querySelectorAll('a, button, .project-card, .dot, .tag, .skill-item, .nav-btn-resume');
@@ -656,12 +677,7 @@ function initLogoAnimation() {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if Three.js is loaded
-    if (typeof THREE !== 'undefined') {
-        initThreeBackground();
-    } else {
-        console.warn('Three.js not loaded');
-    }
+    scheduleDecorativeEffects();
 
     // Check if GSAP is loaded
     if (typeof gsap !== 'undefined') {
@@ -679,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // initLazyEffects();
 
     // Custom cursor (XR Style)
-    initCustomCursor();
+    // Desktop cursor starts after the intro, with other decorative effects.
 
     // Logo SP -> XR transition
     initLogoAnimation();
@@ -697,14 +713,48 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========================================
-// PAGE VISIBILITY API - Pause animations when tab not visible
-// ========================================
 
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // Pause heavy animations when tab is not visible
-        console.log('Tab hidden - animations paused');
-    } else {
-        console.log('Tab visible - animations resumed');
+function scheduleDecorativeEffects() {
+    let started = false;
+    const loader = document.getElementById('terminal-loader');
+    const observer = loader ? new MutationObserver(checkReady) : null;
+    function checkReady() {
+        if (loader && !loader.classList.contains('transition-complete')) return;
+        if (started) return;
+        started = true;
+        observer?.disconnect();
+        const start = () => {
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!reduced) {
+                initCustomCursor();
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+                script.onload = () => {
+                    try { initThreeBackground(); } catch (error) { console.warn('Particle background unavailable', error); }
+                };
+                document.head.appendChild(script);
+            }
+            const deferred = document.getElementById('deferred-react-effects');
+            const mounts = document.querySelectorAll('#profile-card-mount, #lanyard-container, #lanyard-container-mmw, #contact-stepper-mount, #disclaimer-gridscan-mount');
+            if (!deferred || !mounts.length) return;
+            let loaded = false;
+            const loadReact = () => {
+                if (loaded) return;
+                loaded = true;
+                near?.disconnect();
+                const script = document.createElement('script');
+                script.type = 'module';
+                script.src = deferred.dataset.src;
+                document.head.appendChild(script);
+            };
+            const near = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+                if (entries.some(entry => entry.isIntersecting)) loadReact();
+            }, { rootMargin: '250px' }) : null;
+            if (near) mounts.forEach(mount => near.observe(mount)); else loadReact();
+        };
+        if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 500 });
+        else setTimeout(start, 100);
     }
-});
+    observer?.observe(loader, { attributes: true, attributeFilter: ['class'] });
+    checkReady();
+}

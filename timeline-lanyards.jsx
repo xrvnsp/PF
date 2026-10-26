@@ -5,9 +5,23 @@ import GridScan from './react_src/GridScan';
 import QuickMessageStepper from './react_src/QuickMessageStepper';
 import ProfileCard from './react_src/ProfileCard';
 
+function whenNear(id, mount) {
+  const element = document.getElementById(id);
+  if (!element) return;
+  if (!('IntersectionObserver' in window)) { mount(); return; }
+  const observer = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      observer.disconnect();
+      mount();
+    }
+  }, { rootMargin: '250px' });
+  observer.observe(element);
+}
+
 function initReactComponents() {
   console.log('🚀 initReactComponents running...');
 
+  whenNear('lanyard-container', () => {
   // 1. Mount Digifox Studio Lanyard
   try {
     const heplEl = document.getElementById('lanyard-container');
@@ -36,7 +50,9 @@ function initReactComponents() {
   } catch (err) {
     console.error('❌ Failed mounting Digifox Lanyard:', err);
   }
+  });
 
+  whenNear('lanyard-container-mmw', () => {
   // 2. Mount Madras Mindworks Lanyard
   try {
     const mmwEl = document.getElementById('lanyard-container-mmw');
@@ -65,7 +81,9 @@ function initReactComponents() {
   } catch (err) {
     console.error('❌ Failed mounting MMW Lanyard:', err);
   }
+  });
 
+  whenNear('disclaimer-gridscan-mount', () => {
   // 3. Mount React Bits GridScan into Disclaimer & Professional Notice
   try {
     const disclaimerEl = document.getElementById('disclaimer-gridscan-mount');
@@ -94,7 +112,9 @@ function initReactComponents() {
   } catch (err) {
     console.error('❌ Failed mounting GridScan:', err);
   }
+  });
 
+  whenNear('contact-stepper-mount', () => {
   // 4. Mount React Bits Stepper into Quick Message Contact Section
   try {
     const quickMessageEl = document.getElementById('contact-stepper-mount');
@@ -109,7 +129,9 @@ function initReactComponents() {
   } catch (err) {
     console.error('❌ Failed mounting QuickMessageStepper:', err);
   }
+  });
 
+  whenNear('profile-card-mount', () => {
   // 5. Mount React Bits ProfileCard into About Me section
   try {
     const profileCardEl = document.getElementById('profile-card-mount');
@@ -152,6 +174,9 @@ function initReactComponents() {
   } catch (err) {
     console.error('❌ Failed mounting ProfileCard:', err);
   }
+  });
+
+
 }
 
 if (document.readyState === 'loading') {
