@@ -206,13 +206,20 @@ const loadImage = (cache, url) => {
     const image = new Image();
     image.crossOrigin = 'anonymous';
     image.decoding = 'async';
-    image.onload = () => resolve(image);
+    image.onload = async () => {
+      try { await image.decode(); } catch { /* onload images remain usable if decode is unsupported. */ }
+      resolve(image);
+    };
     image.onerror = () => resolve(null);
     image.src = url;
   });
   cache.set(url, promise);
   return promise;
 };
+
+// Warm downloads before mounting a WebGL renderer, and reuse decoded images.
+const imageCache = new Map();
+export const preloadLanyardImages = urls => Promise.all(urls.map(url => loadImage(imageCache, url)));
 
 const cardLayout = (orientation, cornerRadius, customCardSize) => {
   const [width, height] = Array.isArray(customCardSize) && customCardSize.length === 2
@@ -958,7 +965,6 @@ const Lanyard = ({
     fillLight.position.set(3, -1, 4);
     scene.add(keyLight, fillLight);
 
-    const imageCache = new Map();
     const images = { front: null, back: null, strap: null };
     const frontCanvas = document.createElement('canvas');
     const backCanvas = document.createElement('canvas');
@@ -1054,7 +1060,7 @@ const Lanyard = ({
     let imageToken = 0;
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-    const paintFaces = () => {
+    const paintFaces = (side = 'both') => {
       const s = settingsRef.current;
       const color = parseColor(s.cardColor, [1, 1, 1]);
       const width = FACE_WIDTH;
@@ -1067,18 +1073,24 @@ const Lanyard = ({
         frontTexture.dispose();
         backTexture.dispose();
       }
-      paintFace(frontCanvas, images.front, color, s.imageFit, layout, s.slotClearance, s.slotClearanceValue);
-      paintFace(backCanvas, images.back || images.front, color, s.imageFit, layout, s.slotClearance, s.slotClearanceValue);
-      frontTexture.needsUpdate = true;
-      backTexture.needsUpdate = true;
+      if (side !== 'back') {
+        paintFace(frontCanvas, images.front, color, s.imageFit, layout, s.slotClearance, s.slotClearanceValue);
+        frontTexture.needsUpdate = true;
+      }
+      if (side !== 'front') {
+        paintFace(backCanvas, images.back || images.front, color, s.imageFit, layout, s.slotClearance, s.slotClearanceValue);
+        backTexture.needsUpdate = true;
+      }
       start();
     };
 
     const repaintStrap = () => {
       const s = settingsRef.current;
+      const previousWidth = strapCanvas.width;
+      const previousHeight = strapCanvas.height;
       tileRatio = paintStrap(strapCanvas, images.strap, parseColor(s.strapColor, [0.07, 0.07, 0.07]));
       weave.repeat.set(2, 2 * tileRatio);
-      strapTexture.dispose();
+      if (strapCanvas.width !== previousWidth || strapCanvas.height !== previousHeight) strapTexture.dispose();
       strapTexture.needsUpdate = true;
       start();
     };
@@ -1143,16 +1155,24 @@ const Lanyard = ({
       const imageKey = `${s.frontImage}|${s.backImage}|${s.strapImage}`;
       if (imageKey !== applied.imageKey) {
         const token = ++imageToken;
-        Promise.all([
-          loadImage(imageCache, s.frontImage),
-          loadImage(imageCache, s.backImage),
-          loadImage(imageCache, s.strapImage)
-        ]).then(([front, back, strap]) => {
+        images.front = images.back = images.strap = null;
+        let backFailed = false;
+        // A slow strap or reverse-side request must not delay the visible face.
+        loadImage(imageCache, s.frontImage).then(front => {
           if (!alive || token !== imageToken) return;
           images.front = front;
+          paintFaces('front');
+          if (!s.backImage || backFailed) paintFaces('back');
+        });
+        loadImage(imageCache, s.backImage).then(back => {
+          if (!alive || token !== imageToken) return;
           images.back = back;
+          backFailed = !back;
+          paintFaces('back');
+        });
+        loadImage(imageCache, s.strapImage).then(strap => {
+          if (!alive || token !== imageToken) return;
           images.strap = strap;
-          paintFaces();
           repaintStrap();
         });
       }

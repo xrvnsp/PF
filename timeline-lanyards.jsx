@@ -1,11 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Lanyard from './react_src/Lanyard';
+import Lanyard, { preloadLanyardImages } from './react_src/Lanyard';
 import GridScan from './react_src/GridScan';
 import QuickMessageStepper from './react_src/QuickMessageStepper';
 import ProfileCard from './react_src/ProfileCard';
 
-function whenNear(id, mount) {
+function whenNear(id, mount, rootMargin = '250px') {
   const element = document.getElementById(id);
   if (!element) return;
   if (!('IntersectionObserver' in window)) { mount(); return; }
@@ -14,12 +14,20 @@ function whenNear(id, mount) {
       observer.disconnect();
       mount();
     }
-  }, { rootMargin: '250px' });
+  }, { rootMargin });
   observer.observe(element);
 }
 
 function initReactComponents() {
   console.log('🚀 initReactComponents running...');
+
+  // Fetch and decode artwork before each card's heavier WebGL setup starts.
+  whenNear('lanyard-container', () => preloadLanyardImages([
+    'assets/id_card_front.webp', 'assets/id_card_back.webp', 'assets/hepl_lanyard.webp'
+  ]), '1000px');
+  whenNear('lanyard-container-mmw', () => preloadLanyardImages([
+    'assets/mmw_id_front.webp', 'assets/mmw_id_back.webp', 'assets/mmw_lanyard.webp'
+  ]), '1000px');
 
   whenNear('lanyard-container', () => {
   // 1. Mount Digifox Studio Lanyard
@@ -31,9 +39,9 @@ function initReactComponents() {
       const rootHepl = createRoot(heplEl);
       rootHepl.render(
         <Lanyard
-          frontImage="assets/id_card_front.png"
-          backImage="assets/id_card_back.png"
-          strapImage="assets/hepl_lanyard.png"
+          frontImage="assets/id_card_front.webp"
+          backImage="assets/id_card_back.webp"
+          strapImage="assets/hepl_lanyard.webp"
           finish="glossy"
           orientation="portrait"
           cardSize={[1.32, 2.25]}
@@ -62,9 +70,9 @@ function initReactComponents() {
       const rootMmw = createRoot(mmwEl);
       rootMmw.render(
         <Lanyard
-          frontImage="assets/mmw_id_front.png"
-          backImage="assets/mmw_id_back.png"
-          strapImage="assets/mmw_lanyard.png"
+          frontImage="assets/mmw_id_front.webp"
+          backImage="assets/mmw_id_back.webp"
+          strapImage="assets/mmw_lanyard.webp"
           finish="glossy"
           orientation="portrait"
           cardSize={[1.32, 2.25]}
