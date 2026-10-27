@@ -113,14 +113,14 @@
     <!-- Floating Launcher Button -->
     <div class="pico-bot-float-container" id="picoBotContainer">
       <div class="pico-bot-tooltip pico-callout" id="picoBotTooltip">
-        <div class="pico-callout-header"><span class="pico-callout-name">PICO <span>XR companion</span></span><button class="pico-callout-dismiss" type="button" aria-label="Dismiss PICO message">×</button></div>
+        <div class="pico-callout-header"><span class="pico-callout-name">ZIMBO <span>XR companion</span></span><button class="pico-callout-dismiss" type="button" aria-label="Dismiss Zimbo message">×</button></div>
         <p id="picoCalloutText" role="status" aria-live="polite" aria-atomic="true"></p>
       </div>
 
       <div class="pico-bot-motion">
       <button class="pico-bot-float-btn" id="picoBotBtn" type="button" aria-expanded="false" aria-controls="unityBuildWindow" aria-label="Open Unity Build Settings" title="Click to view XR Devices in Unity Build Settings">
         <div class="pico-visor-wrapper">
-          <img src="assets/pico_bot_icon.png?v=2" alt="Unity XR Launcher" class="pico-visor-base-img" />
+          <img src="assets/pico_bot_icon.png?v=2" alt="Zimbo, your XR companion" class="pico-visor-base-img" />
           <div class="pico-visor-eyes-layer">
             <div class="pico-visor-eyes" id="picoEyes">
               <div class="pico-eye pico-eye-left"></div>
@@ -303,16 +303,97 @@
     tooltip.classList.add('visible');
     widgetRoot.classList.toggle('pico-ipd', ipd && !motionPreference.matches);
     if (ipd) eyes.style.transform = '';
-    if (duration > 0) emoteTimers.push(setTimeout(cancelEmote, duration));
+    if (duration > 0) emoteTimers.push(setTimeout(() => {
+      cancelEmote();
+      if (hintsReady) scheduleSectionHint();
+    }, duration));
+  }
+  // Session-scoped hints stay quiet after they have been shown once.
+  const messages = {
+    projects: 'These worlds were built to be experienced.',
+    experience: 'Want to see where Saravana has worked?',
+    training: 'Learning gets better when it\u2019s immersive.',
+    resume: 'Want the full story? Grab Saravana\u2019s resume.',
+    contact: 'Got an idea? Let\u2019s bring it into reality.',
+    hover: 'Curious about XR? Tap me!',
+    idle: 'Quest, Vision Pro, or Vive\u2014which is your pick?'
+  };
+  let shownHints = new Set();
+  let returningVisitor = false;
+  try {
+    returningVisitor = localStorage.getItem('zimbo-visited') === '1' && !sessionStorage.getItem('zimbo-visit');
+    shownHints = new Set(JSON.parse(sessionStorage.getItem('zimbo-hints') || '[]'));
+    localStorage.setItem('zimbo-visited', '1');
+    sessionStorage.setItem('zimbo-visit', '1');
+  } catch (_) { /* The companion also works when browser storage is unavailable. */ }
+  let hintsReady = false;
+  let activeSection = '';
+  let sectionTimer;
+  let idleTimer;
+  function rememberHint(key) {
+    shownHints.add(key);
+    try { sessionStorage.setItem('zimbo-hints', JSON.stringify([...shownHints])); } catch (_) {}
+  }
+  function modalOpen() {
+    return !!document.querySelector('dialog[open], .cyber-modal-overlay[style*="display: flex"], .cyber-modal-overlay[style*="display: block"]');
+  }
+  function hint(key) {
+    if (!messages[key] || !hintsReady || shownHints.has(key) || document.hidden || modalOpen() || buildWindow.classList.contains('open') || tooltip.classList.contains('visible')) return;
+    rememberHint(key);
+    say(messages[key], 4500);
+  }
+  function scheduleSectionHint() {
+    clearTimeout(sectionTimer);
+    const section = activeSection;
+    sectionTimer = setTimeout(() => { if (section === activeSection) hint(section); }, 1000);
+  }
+  function resetIdleHint() {
+    clearTimeout(idleTimer);
+    if (!document.hidden && !shownHints.has('idle')) idleTimer = setTimeout(() => hint('idle'), 45000);
+  }
+  function enableHints() {
+    hintsReady = true;
+    scheduleSectionHint();
+    resetIdleHint();
   }
   function welcomeVisitor() {
-    say('Hi, visitor! Welcome to Saravana’s XR world.', 0);
+    say(returningVisitor ? 'Welcome back! Ready for another adventure?' : 'Hey! I\u2019m Zimbo, your XR companion.', 0);
     emoteTimers.push(setTimeout(() => {
-      say('Adjusting IPD…', 0, true);
-      emoteTimers.push(setTimeout(() => say('All set! Tap me to explore XR devices.', 3200), 2400));
+      say('Adjusting IPD\u2026', 0, true);
+      emoteTimers.push(setTimeout(() => {
+        say('All set! Tap me to explore XR devices.', 0);
+        emoteTimers.push(setTimeout(() => { cancelEmote(); enableHints(); }, 3200));
+      }, 2400));
     }, 3200));
   }
-  tooltip.querySelector('.pico-callout-dismiss').addEventListener('click', cancelEmote);
+  tooltip.querySelector('.pico-callout-dismiss').addEventListener('click', () => {
+    cancelEmote();
+    hintsReady = true;
+    clearTimeout(sectionTimer);
+    resetIdleHint();
+  });
+  floatBtn.addEventListener('pointerenter', event => {
+    if (event.pointerType !== 'touch') hint('hover');
+  });
+  floatBtn.addEventListener('focus', () => hint('hover'));
+  document.addEventListener('click', event => {
+    if (event.target.closest('.hero-resume-btn, .nav-btn-resume, a[download], a[href*="resume.pdf"], a[href*="Resume.pdf"]')) hint('resume');
+  }, true);
+  if ('IntersectionObserver' in window) {
+    const sectionObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) { activeSection = entry.target.id; scheduleSectionHint(); }
+        else if (activeSection === entry.target.id) { activeSection = ''; clearTimeout(sectionTimer); }
+      }
+    }, { rootMargin: '-25% 0px -45% 0px', threshold: 0 });
+    ['projects', 'experience', 'training', 'contact'].forEach(id => {
+      const section = document.getElementById(id);
+      if (section) sectionObserver.observe(section);
+    });
+  }
+  ['pointerdown', 'pointermove', 'scroll', 'keydown', 'touchstart'].forEach(type => {
+    window.addEventListener(type, resetIdleHint, { passive: true });
+  });
   buildWindow.inert = true;
 
   function setWindow(open) {
@@ -323,6 +404,9 @@
     floatBtn.setAttribute('aria-expanded', String(open));
     floatBtn.setAttribute('aria-label', open ? 'Close Unity Build Settings' : 'Open Unity Build Settings');
     cancelEmote();
+    hintsReady = true;
+    clearTimeout(sectionTimer);
+    resetIdleHint();
     if (open) btnClose.focus({ preventScroll: true });
     else floatBtn.focus({ preventScroll: true });
   }
@@ -527,7 +611,15 @@
   });
   document.addEventListener('visibilitychange', () => {
     widgetRoot.classList.toggle('pico-paused', document.hidden);
-    if (document.hidden) cancelEmote();
+    if (document.hidden) {
+      cancelEmote();
+      hintsReady = true;
+      clearTimeout(sectionTimer);
+      clearTimeout(idleTimer);
+    } else {
+      scheduleSectionHint();
+      resetIdleHint();
+    }
   });
   widgetRoot.classList.toggle('pico-paused', document.hidden);
   readyObserver?.observe(loader, { attributes: true, attributeFilter: ['class'] });
