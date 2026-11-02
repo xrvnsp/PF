@@ -35,14 +35,7 @@ This repository hosts the official personal portfolio and interactive showcase o
 
 Built with a fusion of **Three.js, WebGL shaders, React 19, Vite, and GSAP**, the site delivers a cinematic cyberpunk aesthetic combined with buttery-smooth 60fps performance across desktop and mobile devices.
 
-```
-       ___  ___  ___  _____  ___  ___  _     _____ _____ 
-      / _ \/ _ \/ _ \/ _ \/ _ \/ _ \/ |   /  ___|_   _|
-     / // / // / // / // / // / // /| |   \ `--.  | |  
-    /____/\___/\___/\___/\___/\___/ |_|    `--. \ | |  
-             ✦ EXTENDED REALITY DEVELOPER ✦    /\__/ / | |  
-                                               \____/  \_/  
-```
+> *"Crafting immersive, high-fidelity spatial experiences at the intersection of virtual reality, real-time 3D, and modern web technologies."*
 
 ---
 
