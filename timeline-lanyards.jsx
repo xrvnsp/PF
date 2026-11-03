@@ -4,6 +4,7 @@ import Lanyard, { preloadLanyardImages } from './react_src/Lanyard';
 import GridScan from './react_src/GridScan';
 import QuickMessageStepper from './react_src/QuickMessageStepper';
 import ProfileCard from './react_src/ProfileCard';
+import CertificationsFolder from './react_src/CertificationsFolder';
 
 function whenNear(id, mount, rootMargin = '250px') {
   const element = document.getElementById(id);
@@ -183,6 +184,23 @@ function initReactComponents() {
     console.error('❌ Failed mounting ProfileCard:', err);
   }
   });
+
+  whenNear('certifications-folder-mount', () => {
+    // 6. Mount React Bits Folder into Certifications section
+    try {
+      const certEl = document.getElementById('certifications-folder-mount');
+      if (certEl && !certEl.dataset.folderMounted) {
+        certEl.dataset.folderMounted = 'true';
+        certEl.innerHTML = '';
+        const rootCert = createRoot(certEl);
+        rootCert.render(<CertificationsFolder />);
+        console.log('✅ CertificationsFolder mounted successfully');
+      }
+    } catch (err) {
+      console.error('❌ Failed mounting CertificationsFolder:', err);
+    }
+  });
+
 
 
 }

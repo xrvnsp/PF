@@ -735,7 +735,7 @@ function scheduleDecorativeEffects() {
                 document.head.appendChild(script);
             }
             const deferred = document.getElementById('deferred-react-effects');
-            const mounts = document.querySelectorAll('#profile-card-mount, #lanyard-container, #lanyard-container-mmw, #contact-stepper-mount, #disclaimer-gridscan-mount');
+            const mounts = document.querySelectorAll('#profile-card-mount, #lanyard-container, #lanyard-container-mmw, #contact-stepper-mount, #disclaimer-gridscan-mount, #certifications-folder-mount');
             if (!deferred || !mounts.length) return;
             let loaded = false;
             const loadReact = () => {
