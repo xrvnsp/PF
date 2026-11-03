@@ -2,6 +2,15 @@ function initLogoLoader() {
     const loader = document.getElementById('terminal-loader');
 
     if (!loader) return;
+
+    // Immediately bypass loader for search engines and crawlers so full DOM is indexed instantly
+    if (/bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent)) {
+        document.getElementById('portfolio-content')?.classList.add('active');
+        loader.style.display = 'none';
+        loader.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = 'auto';
+        return;
+    }
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let finished = false;
     let revealTimer;
