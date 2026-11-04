@@ -137,10 +137,16 @@
   width: var(--folder-doc-w);
   height: var(--folder-doc-h);
   overflow: hidden;
-  border-radius: calc(7px * var(--folder-scale));
+  border-radius: calc(8px * var(--folder-scale));
   background: var(--folder-paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: flat;
   box-shadow:
-    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
     0 calc(1px * var(--folder-scale)) calc(2px * var(--folder-scale)) rgba(0, 0, 0, 0.12),
     0 calc((2px + var(--folder-lift, 0) * 16px) * var(--folder-scale))
       calc((5px + var(--folder-lift, 0) * 26px) * var(--folder-scale))
@@ -357,13 +363,16 @@
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  padding: calc(9px * var(--folder-scale)) calc(10px * var(--folder-scale)) calc(8px * var(--folder-scale));
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #1e1e24;
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  padding: calc(10px * var(--folder-scale)) calc(12px * var(--folder-scale)) calc(9px * var(--folder-scale));
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: #090d16;
+  background: #ffffff;
   position: relative;
   border-radius: calc(8px * var(--folder-scale));
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 10px rgba(0, 0, 0, 0.06);
   user-select: none;
   overflow: hidden;
 }
@@ -372,9 +381,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  margin-bottom: calc(4px * var(--folder-scale));
-  min-height: calc(18px * var(--folder-scale));
+  gap: 8px;
+  margin-bottom: calc(5px * var(--folder-scale));
+  min-height: calc(20px * var(--folder-scale));
   flex-shrink: 0;
 }
 
@@ -382,7 +391,7 @@
   display: flex;
   align-items: center;
   max-width: 65%;
-  height: calc(16px * var(--folder-scale));
+  height: calc(18px * var(--folder-scale));
 }
 
 .cert-doc-logo {
@@ -391,6 +400,9 @@
   object-fit: contain;
   object-position: left center;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  filter: contrast(1.05);
 }
 
 .cert-doc-badge {
@@ -411,38 +423,39 @@
 .cert-doc-badge.simplilearn { background: linear-gradient(135deg, #d97706, #f59e0b); }
 
 .cert-doc-date {
-  font-size: calc(7px * var(--folder-scale));
-  font-weight: 600;
-  color: #64748b;
+  font-size: calc(7.5px * var(--folder-scale));
+  font-weight: 700;
+  color: #475569;
   font-family: 'Roboto Mono', monospace;
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
 .cert-doc-title {
-  font-size: calc(9.2px * var(--folder-scale));
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1.25;
-  margin-bottom: calc(2px * var(--folder-scale));
+  font-size: calc(9.8px * var(--folder-scale));
+  font-weight: 750;
+  color: #020617;
+  line-height: 1.28;
+  margin-bottom: calc(2.5px * var(--folder-scale));
   word-break: break-word;
   flex-shrink: 0;
 }
 
 .cert-doc-issuer {
-  font-size: calc(7.5px * var(--folder-scale));
-  font-weight: 600;
+  font-size: calc(7.8px * var(--folder-scale));
+  font-weight: 700;
   color: #0284c7;
   margin-bottom: calc(3px * var(--folder-scale));
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   flex-shrink: 0;
 }
 
 .cert-doc-desc {
-  font-size: calc(7.2px * var(--folder-scale));
-  line-height: 1.35;
-  color: #334155;
+  font-size: calc(7.5px * var(--folder-scale));
+  line-height: 1.38;
+  font-weight: 500;
+  color: #1e293b;
   margin-bottom: calc(4px * var(--folder-scale));
   flex: 1 1 auto;
   overflow: hidden;
@@ -450,11 +463,12 @@
 }
 
 .cert-doc-id {
-  font-size: calc(6.5px * var(--folder-scale));
+  font-size: calc(6.8px * var(--folder-scale));
   font-family: 'Roboto Mono', monospace;
-  color: #64748b;
-  background: rgba(0, 0, 0, 0.04);
-  padding: 2px 5px;
+  font-weight: 600;
+  color: #475569;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
   border-radius: 4px;
   margin-bottom: calc(4px * var(--folder-scale));
   display: inline-block;
@@ -478,13 +492,13 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  font-size: calc(7.5px * var(--folder-scale));
-  font-weight: 600;
+  font-size: calc(7.8px * var(--folder-scale));
+  font-weight: 700;
   color: #0284c7;
   text-decoration: none;
-  background: rgba(2, 132, 199, 0.09);
-  padding: 3px 7px;
-  border-radius: 4px;
+  background: rgba(2, 132, 199, 0.1);
+  padding: 3.5px 8px;
+  border-radius: 5px;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
@@ -499,13 +513,13 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  font-size: calc(7.5px * var(--folder-scale));
-  font-weight: 600;
+  font-size: calc(7.8px * var(--folder-scale));
+  font-weight: 700;
   color: #dc2626;
   text-decoration: none;
-  background: rgba(220, 38, 38, 0.09);
-  padding: 3px 7px;
-  border-radius: 4px;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 3.5px 8px;
+  border-radius: 5px;
   transition: all 0.2s ease;
   white-space: nowrap;
 }

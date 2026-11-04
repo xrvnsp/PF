@@ -118,7 +118,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
       : tabPosition === 'center'
         ? (w - tabW) / 2
         : w - corners[1] - 5 * scale - shoulder - tabW;
-  const docW = book ? w * 0.8 : w * 0.58;
+  const docW = book ? w * 0.8 : w * 0.60;
   return {
     book,
     scale,
@@ -133,7 +133,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
     frontTop,
     frontH: tabH + h - frontTop,
     docW,
-    docH: docW * (book ? 1.28 : 1.44)
+    docH: docW * (book ? 1.28 : 1.45)
   };
 };
 
@@ -739,15 +739,15 @@ const placeFlap = (rank, count, phase, layout, g, pointer) => {
         s: fit
       };
     }
-    const maxSpread = Math.min(260 * g.scale, g.w * 1.05);
+    const maxSpread = Math.min(270 * g.scale, g.w * 0.98);
     const step = maxSpread / Math.max(1, count - 1);
-    const fit = 0.90;
+    const fit = 0.96;
     const tidy = layout === 'row';
     return {
       x: g.w / 2 + (rank - mid) * step,
       y: lift + (tidy ? 0 : SPREAD_DROP[rank] * g.h * 0.45),
       z: 0,
-      r: tidy ? 0 : (rank - mid) * 3.8,
+      r: tidy ? 0 : (rank - mid) * 3.6,
       ry: 0,
       s: fit
     };
@@ -1204,7 +1204,7 @@ const Folder = ({
       const hovering = !drag && hover >= 0 && state.items[hover] ? state.items[hover] : null;
       const lead =
         hovering && hovering.place === 'inside' && phase === 'open' ? place(hovering.rank, inside, 'open', s) : null;
-      const focusScale = clamp(((geometry.tabH + geometry.h) * 1.35) / geometry.docH, 1.35, 2.3);
+      const focusScale = clamp(((geometry.tabH + geometry.h) * 1.45) / geometry.docH, 1.45, 2.4);
       const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.38;
 
       state.items.forEach((item, index) => {

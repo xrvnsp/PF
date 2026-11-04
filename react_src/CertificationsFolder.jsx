@@ -146,7 +146,7 @@ export default function CertificationsFolder() {
           color="#00f5ff"
           tabPosition="right"
           layout="spread"
-          size={1.15}
+          size={1.25}
           theme="dark"
           zoomOnClick={true}
           draggable={true}
