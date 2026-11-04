@@ -778,6 +778,7 @@ const Folder = ({
   onItemDrop,
   draggable = true,
   zoomOnClick = true,
+  focusScale: propFocusScale,
   peek = true,
   intro = true,
   tilt = 0.5,
@@ -865,6 +866,7 @@ const Folder = ({
     intro,
     draggable,
     zoomOnClick,
+    focusScale: propFocusScale,
     closeOnOutsideClick,
     onItemClick,
     onItemDrop,
@@ -1204,8 +1206,11 @@ const Folder = ({
       const hovering = !drag && hover >= 0 && state.items[hover] ? state.items[hover] : null;
       const lead =
         hovering && hovering.place === 'inside' && phase === 'open' ? place(hovering.rank, inside, 'open', s) : null;
-      const focusScale = clamp(((geometry.tabH + geometry.h) * 1.45) / geometry.docH, 1.45, 2.4);
-      const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.38;
+      const baseFocusScale = s.focusScale ?? clamp(((geometry.tabH + geometry.h) * 2.05) / geometry.docH, 2.0, 2.5);
+      const focusScale = typeof window !== 'undefined' && window.innerWidth < 480
+        ? Math.min(baseFocusScale, Math.max(1.75, (window.innerWidth * 0.86) / geometry.docW))
+        : baseFocusScale;
+      const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.20;
 
       state.items.forEach((item, index) => {
         if (item.fresh) {
@@ -1223,7 +1228,7 @@ const Folder = ({
         let magnet = false;
         if (state.focus === index) {
           target = { x: geometry.w / 2, y: focusY, z: 0, r: 0, ry: 0, s: focusScale };
-          lift = 2.4;
+          lift = 3.5;
           item.layer = 'focus';
         } else if (drag && drag.index === index) {
           const [vx] = velocityOf(drag.samples);

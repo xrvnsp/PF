@@ -160,6 +160,7 @@ export default function CertificationsFolder() {
           theme="dark"
           defaultOpen={true}
           zoomOnClick={true}
+          focusScale={2.15}
           draggable={true}
           peek={true}
           onOpenChange={(open) => setIsOpen(open)}
