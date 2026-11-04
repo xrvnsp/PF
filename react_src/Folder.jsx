@@ -1594,7 +1594,7 @@ const Folder = ({
         drag.samples.push([now, x, y]);
         while (drag.samples.length > 2 && now - drag.samples[0][0] > 100) drag.samples.shift();
         if (!drag.active) {
-          const threshold = event.pointerType === 'touch' ? 8 : 4;
+          const threshold = event.pointerType === 'touch' ? 20 : 6;
           if (Math.hypot(event.clientX - drag.clientX, event.clientY - drag.clientY) > threshold) startDrag(drag);
         }
         if (drag.active) updateReceiving();
@@ -1801,14 +1801,12 @@ const Folder = ({
     if (event.target.closest?.('a, button, [role="button"]:not([data-folder-item])')) {
       return;
     }
+    event.stopPropagation();
     const engine = engineRef.current;
     if (!engine) return;
-    if (engine.consumeClick()) {
-      event.stopPropagation();
-      return;
+    if (!isOpen) {
+      setOpen(true);
     }
-    if (!engine.interactive(index)) return;
-    event.stopPropagation();
     engine.select(index);
   };
 

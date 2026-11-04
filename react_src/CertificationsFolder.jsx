@@ -96,7 +96,7 @@ export default function CertificationsFolder() {
           <div className="cert-doc-logo-box">
             <img src={cert.logo} alt={cert.issuer} className="cert-doc-logo" />
           </div>
-          <span className="cert-doc-date">{cert.date}</span>
+          <span className="cert-doc-date-badge">{cert.date}</span>
         </div>
         <div className="cert-doc-title">{cert.title}</div>
         <div className="cert-doc-issuer">{cert.issuer}</div>
@@ -158,6 +158,7 @@ export default function CertificationsFolder() {
           layout="spread"
           size={1.25}
           theme="dark"
+          defaultOpen={true}
           zoomOnClick={true}
           draggable={true}
           peek={true}
@@ -171,7 +172,15 @@ export default function CertificationsFolder() {
           <div className="cert-details-logo-badge">
             <img src={activeCert.logo} alt={activeCert.issuer} className="cert-details-logo-img" />
           </div>
-          <span className="cert-details-date">{activeCert.date}</span>
+          <div className="cert-details-date-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>{activeCert.date}</span>
+          </div>
         </div>
         <h3 className="cert-details-title">{activeCert.title}</h3>
         <p className="cert-details-issuer">Issued by {activeCert.issuer} • <span className="cert-details-cred-id">{activeCert.credId}</span></p>
