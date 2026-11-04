@@ -12,6 +12,7 @@ const CERTIFICATIONS = [
     date: 'Feb 2025',
     credId: 'ID: C2558DD477EF1EBB',
     skills: ['Mixed Reality', 'Spatial Anchors', 'HoloLens', 'Perception APIs'],
+    shortDesc: 'Foundational concepts in Mixed Reality, spatial mapping, perception APIs & immersive experiences.',
     description: 'Foundational concepts in Mixed Reality, perception APIs, spatial mapping, and immersive experiences.',
     pdfUrl: 'assets/certificates/Introduction to mixed reality - Microsoft.pdf',
     verifyUrl: 'https://learn.microsoft.com/api/achievements/share/en-us/SaravanaPrakashR-4947/N29VQVPF?sharingId=C2558DD477EF1EBB',
@@ -27,6 +28,7 @@ const CERTIFICATIONS = [
     date: 'Mar 2026',
     credId: 'Cert: uuy8y6ghve9v',
     skills: ['Anthropic Claude', 'Prompt Engineering', 'AI Automation'],
+    shortDesc: 'Foundational knowledge in AI assistants, prompt engineering & automating tasks with Claude.',
     description: 'Completed the Claude 101 certification, gaining foundational knowledge in working with AI assistants and prompt engineering. Learned how to effectively interact with Claude to generate content, analyze information, and automate tasks using natural language.',
     pdfUrl: 'assets/certificates/certificate-uuy8y6ghve9v-1773051032.pdf',
     verifyUrl: 'http://verify.skilljar.com/c/uuy8y6ghve9v',
@@ -42,6 +44,7 @@ const CERTIFICATIONS = [
     date: 'Mar 2026',
     credId: 'Cert: 7bdj5ooecz23',
     skills: ['Anthropic Claude', 'AI Coding Assistants', 'Agentic Workflows'],
+    shortDesc: 'Transforming software engineering productivity with AI coding assistants & agentic workflows.',
     description: 'Excited to see how AI coding assistants are transforming software development, automation, and engineering productivity.',
     pdfUrl: 'assets/certificates/Claude Code in Action.pdf',
     verifyUrl: 'http://verify.skilljar.com/c/7bdj5ooecz23',
@@ -57,6 +60,7 @@ const CERTIFICATIONS = [
     date: 'Mar 2026',
     credId: 'Cert: qmp4Jz3om1b',
     skills: ['Generative AI', 'NLP', 'Transformers', 'ChatGPT'],
+    shortDesc: 'Foundational architecture of transformer models, token prediction, NLP & generative AI.',
     description: 'Completed Understanding ChatGPT: How It Works, gaining foundational knowledge of how generative AI models process language, generate responses, and assist in various tasks using natural language processing.',
     pdfUrl: 'assets/certificates/Understanding ChatGPT - How It Works.pdf',
     verifyUrl: 'https://simpli-web.app.link/e/qmp4Jz3om1b',
@@ -72,6 +76,7 @@ const CERTIFICATIONS = [
     date: 'Mar 2026',
     credId: 'Cert: HTn2dmSim1b',
     skills: ['Prompt Engineering', 'Few-Shot Steering', 'Instruction Tuning'],
+    shortDesc: 'Designing effective prompts, instruction optimization, structuring & response steering.',
     description: 'Successfully completed the Introduction to Prompt Engineering certification, gaining foundational knowledge in designing effective prompts for AI systems. The program covered prompt structuring, instruction optimization, and techniques for improving AI-generated responses across various use cases.',
     pdfUrl: 'assets/certificates/Introduction to Prompt Engineering certification.pdf',
     verifyUrl: 'https://simpli-web.app.link/e/HTn2dmSim1b',
@@ -95,7 +100,7 @@ export default function CertificationsFolder() {
         </div>
         <div className="cert-doc-title">{cert.title}</div>
         <div className="cert-doc-issuer">{cert.issuer}</div>
-        <div className="cert-doc-desc">{cert.description}</div>
+        <div className="cert-doc-desc">{cert.shortDesc || cert.description}</div>
         <div className="cert-doc-id">{cert.credId}</div>
         <div className="cert-doc-footer">
           <a

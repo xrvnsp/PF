@@ -118,7 +118,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
       : tabPosition === 'center'
         ? (w - tabW) / 2
         : w - corners[1] - 5 * scale - shoulder - tabW;
-  const docW = book ? w * 0.8 : w * 0.62;
+  const docW = book ? w * 0.8 : w * 0.58;
   return {
     book,
     scale,
@@ -133,7 +133,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
     frontTop,
     frontH: tabH + h - frontTop,
     docW,
-    docH: docW * (book ? 1.28 : 1.36)
+    docH: docW * (book ? 1.28 : 1.44)
   };
 };
 
@@ -739,15 +739,15 @@ const placeFlap = (rank, count, phase, layout, g, pointer) => {
         s: fit
       };
     }
-    const gap = 12 * g.scale;
-    const fit = Math.min(0.95, (g.w * 2.35 - gap * (count - 1)) / (count * g.docW));
-    const step = g.docW * fit + gap;
+    const maxSpread = Math.min(260 * g.scale, g.w * 1.05);
+    const step = maxSpread / Math.max(1, count - 1);
+    const fit = 0.90;
     const tidy = layout === 'row';
     return {
       x: g.w / 2 + (rank - mid) * step,
-      y: lift + (tidy ? 0 : SPREAD_DROP[rank] * g.h * 0.55),
+      y: lift + (tidy ? 0 : SPREAD_DROP[rank] * g.h * 0.45),
       z: 0,
-      r: tidy ? 0 : SPREAD_TURN[rank] * 0.5,
+      r: tidy ? 0 : (rank - mid) * 3.8,
       ry: 0,
       s: fit
     };
