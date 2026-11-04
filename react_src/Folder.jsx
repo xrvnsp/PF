@@ -118,7 +118,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
       : tabPosition === 'center'
         ? (w - tabW) / 2
         : w - corners[1] - 5 * scale - shoulder - tabW;
-  const docW = book ? w * 0.8 : w * 0.54;
+  const docW = book ? w * 0.8 : w * 0.62;
   return {
     book,
     scale,
@@ -133,7 +133,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
     frontTop,
     frontH: tabH + h - frontTop,
     docW,
-    docH: docW * (book ? 1.28 : 1.22)
+    docH: docW * (book ? 1.28 : 1.36)
   };
 };
 
@@ -726,7 +726,7 @@ const placeFlap = (rank, count, phase, layout, g, pointer) => {
   const floor = g.tabH + g.h - 5 * g.scale - g.docH / 2;
   const mid = (count - 1) / 2;
   if (phase === 'open') {
-    const lift = g.tabH - g.h * 0.02;
+    const lift = g.tabH + g.h * 0.12;
     if (layout === 'stack') {
       const strip = Math.min(30 * g.scale, (g.h * 0.62) / Math.max(1, count - 1));
       const fit = 1.04 - rank * 0.05;
@@ -740,14 +740,14 @@ const placeFlap = (rank, count, phase, layout, g, pointer) => {
       };
     }
     const gap = 12 * g.scale;
-    const fit = Math.min(0.94, (g.w * 2.3 - gap * (count - 1)) / (count * g.docW));
+    const fit = Math.min(0.95, (g.w * 2.35 - gap * (count - 1)) / (count * g.docW));
     const step = g.docW * fit + gap;
     const tidy = layout === 'row';
     return {
       x: g.w / 2 + (rank - mid) * step,
-      y: lift + (tidy ? 0 : SPREAD_DROP[rank] * g.h * 0.7),
+      y: lift + (tidy ? 0 : SPREAD_DROP[rank] * g.h * 0.55),
       z: 0,
-      r: tidy ? 0 : SPREAD_TURN[rank] * 0.55,
+      r: tidy ? 0 : SPREAD_TURN[rank] * 0.5,
       ry: 0,
       s: fit
     };
@@ -1204,8 +1204,8 @@ const Folder = ({
       const hovering = !drag && hover >= 0 && state.items[hover] ? state.items[hover] : null;
       const lead =
         hovering && hovering.place === 'inside' && phase === 'open' ? place(hovering.rank, inside, 'open', s) : null;
-      const focusScale = clamp(((geometry.tabH + geometry.h) * 1.18) / geometry.docH, 1.2, 2.2);
-      const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.36;
+      const focusScale = clamp(((geometry.tabH + geometry.h) * 1.35) / geometry.docH, 1.35, 2.3);
+      const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.38;
 
       state.items.forEach((item, index) => {
         if (item.fresh) {
@@ -1441,6 +1441,11 @@ const Folder = ({
         node.style.transform = toCss(matrix);
         node.style.zIndex = String(layer);
         node.style.setProperty('--folder-lift', clamp(item.hover.value, 0, 2.4).toFixed(3));
+        if (item.layer === 'focus') {
+          node.setAttribute('data-focused', 'true');
+        } else if (node.hasAttribute('data-focused')) {
+          node.removeAttribute('data-focused');
+        }
         node.style.opacity = item.alpha.value < 0.995 ? Math.max(0, item.alpha.value).toFixed(3) : '';
       });
 
@@ -1930,3 +1935,4 @@ const Folder = ({
 };
 
 export default Folder;
+
