@@ -1633,6 +1633,9 @@ const Folder = ({
 
     const onDown = event => {
       if (event.button > 0) return;
+      if (event.target.closest?.('a, button, [role="button"]:not([data-folder-item])')) {
+        return;
+      }
       state.suppressClick = false;
       const target = event.target.closest?.('[data-folder-item]');
       if (target && root.contains(target) && settingsRef.current.draggable) {
@@ -1795,6 +1798,9 @@ const Folder = ({
   };
 
   const onItemActivate = (event, index) => {
+    if (event.target.closest?.('a, button, [role="button"]:not([data-folder-item])')) {
+      return;
+    }
     const engine = engineRef.current;
     if (!engine) return;
     if (engine.consumeClick()) {

@@ -108,18 +108,28 @@ export default function CertificationsFolder() {
             target="_blank"
             rel="noopener noreferrer"
             className="cert-doc-link"
-            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.open(cert.verifyUrl, '_blank', 'noopener,noreferrer');
+            }}
             title="Verify credential online"
           >
             <span>Verify ↗</span>
           </a>
           {cert.pdfUrl && (
             <a
-              href={cert.pdfUrl}
+              href={encodeURI(cert.pdfUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="cert-doc-pdf-link"
-              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(encodeURI(cert.pdfUrl), '_blank', 'noopener,noreferrer');
+              }}
               title="View PDF certificate"
             >
               <span>PDF 📄</span>
@@ -189,7 +199,7 @@ export default function CertificationsFolder() {
           </a>
           {activeCert.pdfUrl && (
             <a
-              href={activeCert.pdfUrl}
+              href={encodeURI(activeCert.pdfUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="cert-btn-pdf"
