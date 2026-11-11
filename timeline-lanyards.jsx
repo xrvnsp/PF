@@ -172,7 +172,7 @@ function initReactComponents() {
       rootProfile.render(
         <ProfileCard
           name="Saravana Prakash R"
-          title="XR Engineer - Immersive Tech"
+          title="XR Engineer"
           handle="srvnsp"
           status="Online"
           statusColor="#00f5ff"
