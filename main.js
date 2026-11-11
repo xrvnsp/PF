@@ -172,9 +172,9 @@ function initThreeBackground() {
 function initTypedText() {
     const typedElement = document.querySelector('.typed-text');
     const texts = [
-        'Creating Immersive VR Experiences',
-        'Building AR Solutions',
-        'Training the Next Generation',
+        'XR Engineer - Immersive Tech',
+        'Simulation Engineer',
+        'Spatial Computing Architect',
         'Innovating with Extended Reality'
     ];
 
