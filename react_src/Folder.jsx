@@ -133,7 +133,7 @@ const measureFolder = (book, scale, labelWidth, hasLabel, tabPosition) => {
     frontTop,
     frontH: tabH + h - frontTop,
     docW,
-    docH: docW * (book ? 1.28 : 1.45)
+    docH: docW * (book ? 1.30 : 1.58)
   };
 };
 
@@ -1206,11 +1206,11 @@ const Folder = ({
       const hovering = !drag && hover >= 0 && state.items[hover] ? state.items[hover] : null;
       const lead =
         hovering && hovering.place === 'inside' && phase === 'open' ? place(hovering.rank, inside, 'open', s) : null;
-      const baseFocusScale = s.focusScale ?? clamp(((geometry.tabH + geometry.h) * 2.05) / geometry.docH, 2.0, 2.5);
+      const baseFocusScale = s.focusScale ?? 2.3;
       const focusScale = typeof window !== 'undefined' && window.innerWidth < 480
-        ? Math.min(baseFocusScale, Math.max(1.75, (window.innerWidth * 0.86) / geometry.docW))
+        ? Math.min(2.35, Math.max(1.95, (window.innerWidth * 0.90) / geometry.docW))
         : baseFocusScale;
-      const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.20;
+      const focusY = geometry.book ? geometry.tabH + geometry.h / 2 : geometry.tabH + geometry.h * 0.08;
 
       state.items.forEach((item, index) => {
         if (item.fresh) {

@@ -96,7 +96,14 @@ export default function CertificationsFolder() {
           <div className="cert-doc-logo-box">
             <img src={cert.logo} alt={cert.issuer} className="cert-doc-logo" />
           </div>
-          <span className="cert-doc-date-badge">{cert.date}</span>
+          <span className="cert-doc-date-badge">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '3px', verticalAlign: '-1px' }}>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+            </svg>
+            {cert.date}
+          </span>
         </div>
         <div className="cert-doc-title">{cert.title}</div>
         <div className="cert-doc-issuer">{cert.issuer}</div>
@@ -160,7 +167,7 @@ export default function CertificationsFolder() {
           theme="dark"
           defaultOpen={true}
           zoomOnClick={true}
-          focusScale={2.15}
+          focusScale={2.3}
           draggable={true}
           peek={true}
           onOpenChange={(open) => setIsOpen(open)}

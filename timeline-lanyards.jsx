@@ -6,6 +6,27 @@ import QuickMessageStepper from './react_src/QuickMessageStepper';
 import ProfileCard from './react_src/ProfileCard';
 import CertificationsFolder from './react_src/CertificationsFolder';
 
+import folderCss from './react_src/Folder.css';
+import profileCardCss from './react_src/ProfileCard.css';
+import stepperCss from './react_src/Stepper.css';
+import lanyardCss from './react_src/Lanyard.css';
+import gridScanCss from './react_src/GridScan.css';
+
+function injectStyles(id, css) {
+  if (typeof document === 'undefined' || !css || document.getElementById(id)) return;
+  const style = document.createElement('style');
+  style.id = id;
+  style.textContent = css;
+  document.head.appendChild(style);
+}
+
+// Inject bundled component styles immediately
+injectStyles('bundle-folder-css', folderCss);
+injectStyles('bundle-profile-card-css', profileCardCss);
+injectStyles('bundle-stepper-css', stepperCss);
+injectStyles('bundle-lanyard-css', lanyardCss);
+injectStyles('bundle-gridscan-css', gridScanCss);
+
 function whenNear(id, mount, rootMargin = '250px') {
   const element = document.getElementById(id);
   if (!element) return;
