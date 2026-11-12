@@ -174,7 +174,6 @@ function initTypedText() {
     const texts = [
         'XR Engineer',
         'Simulation Engineer',
-        'Spatial Computing Architect',
         'Innovating with Extended Reality'
     ];
 
