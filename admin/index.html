@@ -2114,54 +2114,74 @@
             document.getElementById('val-active-visitors').textContent = countStr;
         }
 
-        // 2. Subscribe to Real-Time Analytics Events
+                // 2. Subscribe to Real-Time Analytics Events
         function initAnalyticsStream() {
             try {
+                // Subscribe to recent 500 events ordered by clientTime desc so newest events always load
                 db.collection("analytics_events")
-                    .limit(300)
+                    .orderBy("clientTime", "desc")
+                    .limit(500)
                     .onSnapshot((snapshot) => {
                         const allEvents = snapshot.docs.map(doc => ({
                             id: doc.id,
                             ...doc.data()
                         }));
 
-                        // Sort newest first robustly using server timestamp or clientTime
-                        allEvents.sort((a, b) => {
-                            const getMillis = (item) => {
-                                if (item.timestamp && typeof item.timestamp.toDate === 'function') {
-                                    return item.timestamp.toDate().getTime();
-                                }
-                                if (item.timestamp && item.timestamp.seconds) {
-                                    return item.timestamp.seconds * 1000;
-                                }
-                                if (item.clientTime) {
-                                    return new Date(item.clientTime).getTime();
-                                }
-                                return 0;
-                            };
-                            return getMillis(b) - getMillis(a);
-                        });
-
                         renderDashboard(allEvents);
                     }, (error) => {
-                        console.warn("Analytics stream notice:", error);
-                        const feed = document.getElementById('activity-feed');
-                        const isPermError = error.code === 'permission-denied' || String(error.message).includes('permission');
-                        feed.innerHTML = `
-                            <div style="text-align: center; padding: 30px 20px; color: var(--text-muted); background: rgba(244, 63, 94, 0.08); border-radius: 12px; border: 1px solid rgba(244, 63, 94, 0.25); margin: 15px 0;">
-                                <p style="color: #fb7185; font-weight: 700; font-size: 1rem; margin-bottom: 8px;">
-                                    ${isPermError ? '🔒 Firebase Security Rules Need Update' : '⚠️ Waiting for Firebase Data'}
-                                </p>
-                                <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
-                                    ${isPermError ? 
-                                        'Firestore is currently rejecting read/write access. Go to <strong>Firebase Console &rarr; Firestore Database &rarr; Rules</strong>, set <code>allow read, write: if true;</code> and click <strong>Publish</strong>.' : 
-                                        'Connecting to Firebase stream. If this persists, ensure your Cloud Firestore is active.'}
-                                </p>
-                                <button class="btn-action" style="max-width: 200px; margin: 0 auto; font-size: 0.8rem; padding: 8px 14px;" onclick="initAnalyticsStream()">
-                                    🔄 Retry Connection
-                                </button>
-                            </div>
-                        `;
+                        console.warn("[Firestore] Query with orderBy notice:", error);
+                        db.collection("analytics_events")
+                            .limit(500)
+                            .onSnapshot((snapshot) => {
+                                const allEvents = snapshot.docs.map(doc => ({
+                                    id: doc.id,
+                                    ...doc.data()
+                                }));
+                                allEvents.sort((a, b) => {
+                                    const getMillis = (item) => {
+                                        if (item.timestamp && typeof item.timestamp.toDate === 'function') return item.timestamp.toDate().getTime();
+                                        if (item.timestamp && item.timestamp.seconds) return item.timestamp.seconds * 1000;
+                                        if (item.clientTime) return new Date(item.clientTime).getTime();
+                                        return 0;
+                                    };
+                                    return getMillis(b) - getMillis(a);
+                                });
+                                renderDashboard(allEvents);
+                            }, (err2) => {
+                                console.warn("Analytics stream notice:", err2);
+                                const feed = document.getElementById('activity-feed');
+                                if (!feed) return;
+                                const isPermError = err2.code === 'permission-denied' || String(err2.message).includes('permission');
+                                feed.innerHTML = `
+                                    <div style="text-align: center; padding: 30px 20px; color: var(--text-muted); background: rgba(244, 63, 94, 0.08); border-radius: 12px; border: 1px solid rgba(244, 63, 94, 0.25); margin: 15px 0;">
+                                        <p style="color: #fb7185; font-weight: 700; font-size: 1rem; margin-bottom: 8px;">
+                                            ${isPermError ? '🔒 Firebase Security Rules Need Update' : '⚠️ Waiting for Firebase Data'}
+                                        </p>
+                                        <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
+                                            ${isPermError ? 
+                                                'Firestore is currently rejecting read/write access. Go to <strong>Firebase Console &rarr; Firestore Database &rarr; Rules</strong>, set <code>allow read, write: if true;</code> and click <strong>Publish</strong>.' : 
+                                                'Connecting to Firebase stream. If this persists, ensure your Cloud Firestore is active.'}
+                                        </p>
+                                        <button class="btn-action" style="max-width: 200px; margin: 0 auto; font-size: 0.8rem; padding: 8px 14px;" onclick="initAnalyticsStream()">
+                                            🔄 Retry Connection
+                                        </button>
+                                    </div>
+                                `;
+                            });
+                    });
+
+                // 2b. Also subscribe to all resume downloads & referral visits specifically
+                db.collection("analytics_events")
+                    .where("type", "in", ["resume_download", "resume_referral"])
+                    .onSnapshot((snapshot) => {
+                        const resumeEvents = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        window.cachedResumeEvents = resumeEvents;
+                        renderResumeLog();
+                    }, (err) => {
+                        console.warn("Resume events stream notice:", err);
                     });
             } catch (err) {
                 console.warn("Error initializing Firestore stream:", err);
@@ -2827,9 +2847,22 @@
             const badge = document.getElementById('resume-table-badge');
             if (!tbody) return;
 
-            const downloads = (cachedAnalyticsEvents || []).filter(e => e.type === 'resume_download');
-            const referrals = (cachedAnalyticsEvents || []).filter(e => e.type === 'resume_referral' || (e.refTag && e.refTag.toLowerCase() === 'resume') || e.referrer === 'Resume PDF');
-            const resumeAll = (cachedAnalyticsEvents || []).filter(e => e.type === 'resume_download' || e.type === 'resume_referral' || (e.refTag && e.refTag.toLowerCase() === 'resume') || e.referrer === 'Resume PDF');
+            const sourceList = (window.cachedResumeEvents && window.cachedResumeEvents.length > 0)
+                ? window.cachedResumeEvents
+                : (cachedAnalyticsEvents || []);
+            const downloads = sourceList.filter(e => e.type === 'resume_download');
+            const referrals = sourceList.filter(e => e.type === 'resume_referral' || (e.refTag && e.refTag.toLowerCase() === 'resume') || e.referrer === 'Resume PDF');
+            const resumeAll = sourceList.filter(e => e.type === 'resume_download' || e.type === 'resume_referral' || (e.refTag && e.refTag.toLowerCase() === 'resume') || e.referrer === 'Resume PDF');
+
+            resumeAll.sort((a, b) => {
+                const getMillis = (item) => {
+                    if (item.timestamp && typeof item.timestamp.toDate === 'function') return item.timestamp.toDate().getTime();
+                    if (item.timestamp && item.timestamp.seconds) return item.timestamp.seconds * 1000;
+                    if (item.clientTime) return new Date(item.clientTime).getTime();
+                    return 0;
+                };
+                return getMillis(b) - getMillis(a);
+            });
 
             // Compute statistics
             const total = downloads.length;
