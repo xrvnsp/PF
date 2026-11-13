@@ -111,6 +111,9 @@
             const params = new URLSearchParams(window.location.search);
             refTag = params.get('ref') || params.get('source') || params.get('recruiter') || params.get('utm_source') || '';
             campaign = params.get('utm_campaign') || params.get('campaign') || '';
+            if (refTag.toLowerCase() === 'resume' || (params.get('utm_source') || '').toLowerCase() === 'resume') {
+                referrer = 'Resume PDF';
+            }
         } catch (e) {}
 
         return { referrer, refTag, campaign };
@@ -296,6 +299,19 @@
                 title: document.title,
                 url: window.location.href
             });
+
+            // 1b. Track Resume Referral if visitor arrived via Resume link
+            const isResumeRef = (REFERRAL_INFO.refTag && REFERRAL_INFO.refTag.toLowerCase() === 'resume') ||
+                                (REFERRAL_INFO.campaign && REFERRAL_INFO.campaign.toLowerCase().includes('resume')) ||
+                                REFERRAL_INFO.referrer === 'Resume PDF';
+            if (isResumeRef) {
+                PortfolioAnalytics.logEvent("resume_referral", {
+                    source: "Resume PDF Click",
+                    landingUrl: window.location.href,
+                    ref: REFERRAL_INFO.refTag || "resume",
+                    campaign: REFERRAL_INFO.campaign || "portfolio_cv"
+                });
+            }
 
             // 2. Track Resume Downloads
             document.addEventListener('click', (e) => {
