@@ -81,6 +81,22 @@ const CERTIFICATIONS = [
     pdfUrl: 'assets/certificates/Introduction to Prompt Engineering certification.pdf',
     verifyUrl: 'https://simpli-web.app.link/e/HTn2dmSim1b',
     linkedinUrl: 'https://www.linkedin.com/in/srvnsp/overlay/Certifications/1358602910/treasury/?profileId=ACoAABdO7jQBKvvWP3vs7P6dPJzcnJ19rfJ2d0w'
+  },
+  {
+    id: 'skillquest-genai',
+    logo: 'assets/logos/simplilearn-skillup.png',
+    badge: 'Simplilearn',
+    badgeClass: 'simplilearn',
+    title: 'SkillQuest - Generative AI Literacy',
+    issuer: 'Simplilearn SkillUp',
+    date: 'Nov 2026',
+    credId: 'Cert: 56890135',
+    skills: ['Generative AI', 'LLM Literacy', 'AI Foundations', 'Prompting'],
+    shortDesc: 'Demonstrated knowledge through the SkillQuest assessment in Generative AI literacy and in-demand skills.',
+    description: 'This certification formally recognizes demonstrated knowledge through the SkillQuest assessment, emphasizing commitment to building in-demand skills in Generative AI literacy, model concepts, and practical AI applications.',
+    pdfUrl: 'assets/certificates/SkillQuest - Generative AI Literacy.pdf',
+    verifyUrl: 'https://simpli-web.app.link/e/56890135',
+    linkedinUrl: 'https://www.linkedin.com/in/srvnsp/'
   }
 ];
 
