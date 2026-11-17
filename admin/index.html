@@ -1614,6 +1614,139 @@
             background: rgba(16, 185, 129, 0.06);
         }
 
+    
+        /* ==========================================================================
+           🌟 HIGHLIGHTED RESUME DOWNLOAD & RECRUITER REFERRAL CARDS
+           ========================================================================== */
+        .event-item.is-resume-download {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(20, 23, 30, 0.98) 100%) !important;
+            border: 2px solid #A855F7 !important;
+            border-left: 6px solid #C084FC !important;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 4px 4px 0 #7E22CE !important;
+            position: relative;
+            overflow: hidden;
+            animation: resume-card-glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes resume-card-glow {
+            0% {
+                box-shadow: 0 0 16px rgba(168, 85, 247, 0.35), 4px 4px 0 #7E22CE;
+            }
+            100% {
+                box-shadow: 0 0 26px rgba(192, 132, 252, 0.65), 4px 4px 0 #A855F7;
+            }
+        }
+
+        .event-item.is-resume-download::after {
+            content: '📄 CV DOWNLOAD';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: #C084FC;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            padding: 2px 7px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .event-item.is-resume-download .event-title {
+            color: #F3E8FF !important;
+            font-weight: 800 !important;
+            font-size: 0.96rem !important;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+        }
+
+        .event-item.is-resume-download .event-icon-badge {
+            background: #7E22CE !important;
+            color: #FFFFFF !important;
+            border-color: #C084FC !important;
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.8) !important;
+            transform: scale(1.1);
+        }
+
+        .resume-highlight-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 9px;
+            background: #7E22CE;
+            color: #FFFFFF;
+            border: 1.5px solid #C084FC;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+            border-radius: 9999px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* 🎯 Highlighted Recruiter from Resume Event Card */
+        .event-item.is-resume-referral {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(20, 23, 30, 0.98) 100%) !important;
+            border: 2px solid var(--emerald) !important;
+            border-left: 6px solid var(--emerald-light) !important;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.35), 4px 4px 0 #064E3B !important;
+        }
+
+        .event-item.is-resume-referral .event-title {
+            color: #D1FAE5 !important;
+            font-weight: 800 !important;
+            font-size: 0.95rem !important;
+        }
+
+        .resume-referral-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 9px;
+            background: #065F46;
+            color: #A7F3D0;
+            border: 1.5px solid var(--emerald);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+            border-radius: 9999px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* Top Conversion Badge on Resume KPI Card */
+        .kpi-card.purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(20, 23, 30, 0.98) 100%) !important;
+            border: 2px solid #A855F7 !important;
+            box-shadow: 4px 4px 0 #A855F7, 0 0 20px rgba(168, 85, 247, 0.28) !important;
+            position: relative;
+        }
+
+        .kpi-card.purple::before {
+            content: '⭐ TOP RECRUITER GOAL';
+            position: absolute;
+            top: -10px;
+            right: 12px;
+            background: #7E22CE;
+            color: #FFFFFF;
+            border: 1px solid #C084FC;
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            padding: 1px 8px;
+            border-radius: 9999px;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+        }
+
+        .date-cv-pill.highlighted {
+            background: #7E22CE !important;
+            color: #FFFFFF !important;
+            border: 1.5px solid #C084FC !important;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.6) !important;
+            padding: 2px 10px !important;
+            font-weight: 900 !important;
+        }
+
     </style>
 </head>
 
@@ -2502,19 +2635,27 @@
                                 <span class="date-divider-cal">📅</span>
                                 <span class="date-divider-title"><strong>${headerInfo.tag}</strong> (${headerInfo.formattedDate})</span>
                                 <span class="date-visit-pill">👁️ <strong>${visits}</strong> ${visits === 1 ? 'Visit' : 'Visits'}</span>
-                                ${stats.downloads > 0 ? `<span class="date-cv-pill">📄 <strong>${stats.downloads}</strong> CV</span>` : ''}
+                                ${stats.downloads > 0 ? `<span class="date-cv-pill highlighted">📄 <strong>${stats.downloads}</strong> CV Download${stats.downloads > 1 ? 's' : ''}</span>` : ''}
                                 <span class="date-event-sub">• ${stats.totalEvents} events</span>
                             </div>
                         </div>
                     `;
                 }
 
+                const isResumeDownload = (e.type === 'resume_download');
+                const isResumeReferral = (e.type === 'resume_referral' || (e.refTag && e.refTag.toLowerCase() === 'resume') || e.referrer === 'Resume PDF');
+                let eventClasses = `event-item ${ts.isToday ? 'is-today' : 'is-past'}`;
+                if (isResumeDownload) eventClasses += ' is-resume-download';
+                if (isResumeReferral) eventClasses += ' is-resume-referral';
+
                 return dividerHtml + `
-                    <div class="event-item ${ts.isToday ? 'is-today' : 'is-past'}">
+                    <div class="${eventClasses}">
                         <div class="event-icon-badge type-${e.type || 'page_view'}">${icon}</div>
                         <div class="event-info">
                             <div class="event-top">
                                 <span class="event-title">${title}</span>
+                                ${isResumeDownload ? `<span class="resume-highlight-badge">🔥 RESUME DOWNLOADED</span>` : ''}
+                                ${isResumeReferral ? `<span class="resume-referral-badge">🎯 RECRUITER FROM PDF</span>` : ''}
                                 ${ts.isToday ? `<span class="today-badge"><span class="today-dot"></span>TODAY</span>` : ''}
                                 <span class="event-time" title="${ts.dateStr} ${ts.timeStr} (${ts.relStr})">
                                     ${dateTimeDisplay}
@@ -2573,7 +2714,7 @@
                                 </div>
                                 <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace;">
                                     <span>${s.totalEvents} interactions</span>
-                                    ${s.downloads > 0 ? `<span style="color: #c084fc;">📄 ${s.downloads} CV download${s.downloads > 1 ? 's' : ''}</span>` : ''}
+                                    ${s.downloads > 0 ? `<span style="background: rgba(168, 85, 247, 0.28); color: #F3E8FF; border: 1px solid #C084FC; padding: 2px 8px; border-radius: 9999px; font-weight: 800; box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);">📄 <strong>${s.downloads}</strong> CV Download${s.downloads > 1 ? 's' : ''}</span>` : ''}
                                 </div>
                             </div>
                         `;
