@@ -453,12 +453,13 @@
         }
 
         .kpi-subtext {
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 600;
             color: var(--text-soft);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            line-height: 1.35;
+            overflow: visible;
+            word-break: break-word;
         }
 
         /* ==========================================================================
@@ -1723,19 +1724,32 @@
         }
 
         .kpi-card.purple::before {
-            content: '⭐ TOP RECRUITER GOAL';
+            content: '';
             position: absolute;
-            top: -10px;
-            right: 12px;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--purple);
+        }
+
+        .kpi-recruiter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
             background: #7E22CE;
             color: #FFFFFF;
             border: 1px solid #C084FC;
             font-size: 0.58rem;
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            padding: 1px 8px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            padding: 2px 7px;
             border-radius: 9999px;
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+            margin-left: 6px;
+            vertical-align: middle;
+            white-space: nowrap;
+            line-height: 1.2;
         }
 
         .date-cv-pill.highlighted {
@@ -1879,7 +1893,10 @@
                 </div>
 
                 <div class="kpi-card purple" onclick="switchTab('resume')" style="cursor: pointer;" title="Click to view IP address, location, browser and date audit log">
-                    <div class="kpi-label">Resume & Referrals <span>📄</span></div>
+                    <div class="kpi-label" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+                        <span>Resume &amp; Referrals 📄</span>
+                        <span class="kpi-recruiter-badge">⭐ TOP RECRUITER GOAL</span>
+                    </div>
                     <div class="kpi-value" id="val-resume-downloads">0</div>
                     <div class="kpi-subtext" id="val-resume-subtext">Click to view IP &amp; telemetry &rarr;</div>
                 </div>
