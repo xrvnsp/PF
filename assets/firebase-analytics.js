@@ -178,6 +178,18 @@
                     const isPostalAddress = /plot\s*no|sector|phase|street|road|pincode|\d{5,6}/i.test(rawOrg);
                     const cleanOrg = isPostalAddress ? (rawIsp || 'Internet Service Provider') : (rawOrg || rawIsp || '');
 
+                    const combinedNet = ((cleanOrg || '') + ' ' + (rawIsp || '')).toLowerCase();
+                    const ENTERPRISES = ['google', 'meta', 'facebook', 'apple', 'microsoft', 'amazon', 'netflix', 'adobe', 'nvidia', 'intel', 'qualcomm', 'sony', 'unity', 'epic', 'bytedance', 'tiktok', 'tcs', 'infosys', 'wipro', 'hcl', 'cognizant', 'accenture', 'capgemini', 'deloitte', 'ey', 'pwc', 'kpmg', 'ibm', 'oracle', 'salesforce', 'cisco', 'samsung', 'siemens', 'bosch', 'volvo', 'toyota', 'bmw', 'tesla', 'skillveri', 'amd', 'valve', 'htc'];
+                    let isEnterprise = false;
+                    let enterpriseTag = '';
+                    for (const ent of ENTERPRISES) {
+                        if (combinedNet.includes(ent)) {
+                            isEnterprise = true;
+                            enterpriseTag = ent.toUpperCase();
+                            break;
+                        }
+                    }
+
                     geoInfo = {
                         country: data.country || 'Unknown',
                         countryCode: data.country_code || '',
@@ -185,6 +197,8 @@
                         region: data.region || '',
                         org: cleanOrg,
                         isp: rawIsp || cleanOrg,
+                        isEnterprise: isEnterprise,
+                        enterpriseTag: enterpriseTag,
                         ip: data.ip || ''
                     };
                     try {
@@ -237,6 +251,8 @@
                     region: geoInfo.region || '',
                     org: geoInfo.org || '',
                     isp: geoInfo.isp || '',
+                    isEnterprise: Boolean(geoInfo.isEnterprise),
+                    enterpriseTag: geoInfo.enterpriseTag || '',
                     ip: geoInfo.ip || '',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     clientTime: new Date().toISOString()
@@ -438,6 +454,8 @@
                     region: geoInfo.region || '',
                     org: geoInfo.org || '',
                     isp: geoInfo.isp || '',
+                    isEnterprise: Boolean(geoInfo.isEnterprise),
+                    enterpriseTag: geoInfo.enterpriseTag || '',
                     ip: geoInfo.ip || '',
                     path: window.location.pathname || "/",
                     screen: `${window.innerWidth}x${window.innerHeight}`,
@@ -485,3 +503,28 @@
     }
 })();
 
+
+    // Dynamic Cloud CV Interceptor: Checks Firestore for updated CV
+    (async function initDynamicCv() {
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            const doc = await db.collection('settings').doc('resume_config').get();
+            if (doc.exists && doc.data() && doc.data().active && doc.data().base64) {
+                const data = doc.data();
+                window.__dynamicCvUrl = data.base64;
+                window.__dynamicCvName = data.filename || 'Saravana_Prakash_XR_Developer_Resume.pdf';
+                const updateLinks = () => {
+                    document.querySelectorAll('a[href*="resume.pdf"], a.hire__cv, a[download*="Resume"], a[download*="resume"]').forEach(a => {
+                        a.href = data.base64;
+                        if (data.filename) a.download = data.filename;
+                    });
+                };
+                updateLinks();
+                if (document.readyState !== 'complete') {
+                    window.addEventListener('load', updateLinks);
+                }
+                setTimeout(updateLinks, 1500);
+            }
+        } catch(e) {}
+    })();

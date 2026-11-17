@@ -1781,6 +1781,25 @@
             font-weight: 900 !important;
         }
 
+    
+        /* Enterprise Recruiter Badges & Dynamic CV Manager */
+        .enterprise-pill {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(168, 85, 247, 0.22) 100%) !important;
+            color: #F8FAFC !important;
+            border: 1.5px solid #A855F7 !important;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.45) !important;
+            font-weight: 800 !important;
+        }
+        .enterprise-pill .corp-star {
+            color: #FACC15;
+            font-size: 0.62rem;
+            letter-spacing: 0.05em;
+            padding: 1px 4px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            margin-left: 3px;
+        }
+
     </style>
 </head>
 
@@ -2120,6 +2139,73 @@
                 </div>
             </div>
 
+            
+            <!-- Dynamic CV Cloud Manager Panel -->
+            <div class="panel" style="margin-bottom: 24px; border: 2px solid #A855F7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);">
+                <div class="panel-header" style="flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(168, 85, 247, 0.3);">
+                    <div>
+                        <div class="panel-title" style="font-size: 1.15rem; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+                            <span>📄</span> Dynamic CV Manager (Cloud Live Sync)
+                            <span id="cv-status-badge" style="font-size: 0.72rem; color: #10B981; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 9999px;">Default PDF</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                            Upload a new version of your CV to instantly update what recruiters download on your live portfolio without redeploying code.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" id="cv-file-input" accept="application/pdf" style="display: none;" onchange="handleAdminCvUpload(event)">
+                        <button class="btn-portal" style="background: #A855F7; color: #FFF; border-color: #C084FC;" onclick="document.getElementById('cv-file-input').click()">
+                            📤 Upload New PDF
+                        </button>
+                        <button class="btn-portal" id="cv-preview-btn" style="display: none;" onclick="previewActiveCv()">
+                            👁️ Preview
+                        </button>
+                        <button class="btn-portal" id="cv-reset-btn" style="display: none; background: rgba(239, 68, 68, 0.2); border-color: #EF4444; color: #FCA5A5;" onclick="resetToStaticCv()">
+                            🔄 Reset to Default
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 16px 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Currently Served to Visitors</div>
+                            <div id="cv-active-filename" style="font-size: 1rem; font-weight: 700; color: #F8FAFC; margin-top: 2px;">Saravana_Prakash_XR_Developer_4Y_Exp_Resume.pdf</div>
+                            <div id="cv-active-meta" style="font-size: 0.75rem; color: #94A3B8; margin-top: 2px;">Standard static build asset</div>
+                        </div>
+                        <div id="cv-upload-progress" style="display: none; width: 220px;">
+                            <div style="font-size: 0.72rem; color: #38BDF8; margin-bottom: 4px; display: flex; justify-content: space-between;">
+                                <span>Uploading &amp; Syncing...</span>
+                                <span id="cv-progress-percent">0%</span>
+                            </div>
+                            <div style="height: 6px; background: #1E232E; border-radius: 9999px; overflow: hidden;">
+                                <div id="cv-progress-bar" style="width: 0%; height: 100%; background: #A855F7; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Organizations & Recruiter Networks Panel -->
+            <div class="panel" style="margin-bottom: 24px;">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title" style="font-size: 1.15rem;">
+                            <span>🏢 Top Visiting Organizations &amp; Recruiter Networks</span>
+                            <span id="org-count-badge" style="font-size: 0.75rem; color: #38BDF8; background: rgba(56, 189, 248, 0.15); padding: 3px 10px; border-radius: 20px;">0 Organizations</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                            Corporate enterprises, tech companies, and ISPs detected across your portfolio visitors.
+                        </p>
+                    </div>
+                </div>
+                <div style="padding: 16px 20px;">
+                    <div id="org-breakdown-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Resume Audit Table Panel -->
             <div class="panel" style="margin-bottom: 24px;">
                 <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
@@ -2296,9 +2382,537 @@
     </div>
 
     <!-- Firebase Compat SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js">
+        // ==========================================
+        // DYNAMIC CV CLOUD SYNC & RECRUITER TELEMETRY
+        // ==========================================
+        async function initDynamicCvManager() {
+            try {
+                const doc = await db.collection('settings').doc('resume_config').get();
+                const badge = document.getElementById('cv-status-badge');
+                const filenameEl = document.getElementById('cv-active-filename');
+                const metaEl = document.getElementById('cv-active-meta');
+                const previewBtn = document.getElementById('cv-preview-btn');
+                const resetBtn = document.getElementById('cv-reset-btn');
+
+                if (doc.exists && doc.data() && doc.data().active && doc.data().base64) {
+                    const data = doc.data();
+                    window._activeCvData = data;
+                    if (badge) {
+                        badge.textContent = '🟢 Dynamic Cloud CV Active';
+                        badge.style.color = '#10B981';
+                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = data.filename || 'Custom_Resume.pdf';
+                    let dateStr = 'Recently updated';
+                    if (data.updatedAt && data.updatedAt.toDate) {
+                        dateStr = 'Updated on ' + data.updatedAt.toDate().toLocaleString();
+                    }
+                    if (metaEl) metaEl.textContent = `${(data.size / 1024).toFixed(1)} KB • ${dateStr}`;
+                    if (previewBtn) previewBtn.style.display = 'inline-flex';
+                    if (resetBtn) resetBtn.style.display = 'inline-flex';
+                } else {
+                    window._activeCvData = null;
+                    if (badge) {
+                        badge.textContent = 'Default Static PDF';
+                        badge.style.color = '#94A3B8';
+                        badge.style.background = 'rgba(148, 163, 184, 0.15)';
+                        badge.style.borderColor = 'rgba(148, 163, 184, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = 'Saravana_Prakash_XR_Developer_4Y_Exp_Resume.pdf';
+                    if (metaEl) metaEl.textContent = 'Serving default build bundle (/resume.pdf)';
+                    if (previewBtn) previewBtn.style.display = 'none';
+                    if (resetBtn) resetBtn.style.display = 'none';
+                }
+            } catch (e) {
+                console.warn('Could not load CV config from Firestore:', e);
+            }
+        }
+
+        function previewActiveCv() {
+            if (!window._activeCvData || !window._activeCvData.base64) {
+                window.open('/resume.pdf', '_blank');
+                return;
+            }
+            const win = window.open();
+            win.document.write(`<title>${escapeHtml(window._activeCvData.filename || 'Resume')}</title><iframe src="${window._activeCvData.base64}" frameborder="0" style="border:0; position:fixed; top:0; left:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+        }
+
+        async function resetToStaticCv() {
+            if (!confirm('Reset CV to default static /resume.pdf?')) return;
+            try {
+                await db.collection('settings').doc('resume_config').set({ active: false }, { merge: true });
+                initDynamicCvManager();
+                alert('Reset to default static resume.pdf.');
+            } catch (e) {
+                alert('Error resetting CV: ' + e.message);
+            }
+        }
+
+        function handleAdminCvUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+                alert('Please choose a valid .pdf file.');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds 2MB limit. Please compress your PDF before uploading.');
+                return;
+            }
+
+            const progressEl = document.getElementById('cv-upload-progress');
+            const bar = document.getElementById('cv-progress-bar');
+            const percent = document.getElementById('cv-progress-percent');
+            if (progressEl) progressEl.style.display = 'block';
+            if (bar) bar.style.width = '30%';
+            if (percent) percent.textContent = '30%';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                if (bar) bar.style.width = '75%';
+                if (percent) percent.textContent = '75%';
+                const base64Data = e.target.result;
+                try {
+                    await db.collection('settings').doc('resume_config').set({
+                        filename: file.name,
+                        size: file.size,
+                        base64: base64Data,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        active: true
+                    });
+                    if (bar) bar.style.width = '100%';
+                    if (percent) percent.textContent = '100%';
+                    setTimeout(() => {
+                        if (progressEl) progressEl.style.display = 'none';
+                        initDynamicCvManager();
+                        alert('✅ New CV successfully uploaded! Visitors downloading your resume will now receive this new file immediately.');
+                    }, 400);
+                } catch (err) {
+                    console.error('Failed to save CV:', err);
+                    alert('Failed to upload CV: ' + err.message);
+                    if (progressEl) progressEl.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderOrganizationBreakdown(events) {
+            const container = document.getElementById('org-breakdown-list');
+            const badge = document.getElementById('org-count-badge');
+            if (!container) return;
+
+            const orgMap = {};
+            const ENTERPRISES = ['google', 'meta', 'apple', 'microsoft', 'amazon', 'netflix', 'adobe', 'nvidia', 'intel', 'qualcomm', 'sony', 'unity', 'epic', 'bytedance', 'tcs', 'infosys', 'wipro', 'cognizant', 'accenture', 'deloitte', 'ibm', 'samsung', 'tesla', 'skillveri'];
+
+            (events || []).forEach(e => {
+                const orgName = (e.org || e.isp || '').trim();
+                if (!orgName || orgName.toLowerCase() === 'unknown') return;
+                if (!orgMap[orgName]) {
+                    const lower = orgName.toLowerCase();
+                    const isCorp = e.isEnterprise || ENTERPRISES.some(ent => lower.includes(ent));
+                    orgMap[orgName] = {
+                        name: orgName,
+                        count: 0,
+                        isEnterprise: isCorp,
+                        ips: new Set(),
+                        downloads: 0
+                    };
+                }
+                orgMap[orgName].count++;
+                if (e.ip) orgMap[orgName].ips.add(e.ip);
+                if (e.type === 'resume_download') orgMap[orgName].downloads++;
+            });
+
+            const orgList = Object.values(orgMap).sort((a, b) => {
+                if (a.isEnterprise !== b.isEnterprise) return a.isEnterprise ? -1 : 1;
+                return b.count - a.count;
+            });
+
+            if (badge) badge.textContent = `${orgList.length} Detected`;
+
+            if (orgList.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No organization telemetry recorded yet.</div>';
+                return;
+            }
+
+            container.innerHTML = orgList.slice(0, 12).map(org => {
+                return `
+                    <div style="background: ${org.isEnterprise ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(168, 85, 247, 0.16))' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${org.isEnterprise ? '#A855F7' : 'var(--border)'}; border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="min-width: 0; flex: 1; padding-right: 8px;">
+                            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: #F8FAFC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <span>${org.isEnterprise ? '🏢' : '🌐'}</span>
+                                <span title="${escapeHtml(org.name)}">${escapeHtml(org.name)}</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 3px;">
+                                ${org.ips.size} distinct IP${org.ips.size === 1 ? '' : 's'}
+                                ${org.downloads > 0 ? ` • <strong style="color: #C084FC;">${org.downloads} CV Download${org.downloads === 1 ? '' : 's'}</strong>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            ${org.isEnterprise ? '<span class="today-badge" style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border-color: #A855F7;">CORP</span>' : `<span style="font-weight: 800; font-size: 0.85rem; color: var(--emerald);">${org.count}</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js">
+        // ==========================================
+        // DYNAMIC CV CLOUD SYNC & RECRUITER TELEMETRY
+        // ==========================================
+        async function initDynamicCvManager() {
+            try {
+                const doc = await db.collection('settings').doc('resume_config').get();
+                const badge = document.getElementById('cv-status-badge');
+                const filenameEl = document.getElementById('cv-active-filename');
+                const metaEl = document.getElementById('cv-active-meta');
+                const previewBtn = document.getElementById('cv-preview-btn');
+                const resetBtn = document.getElementById('cv-reset-btn');
+
+                if (doc.exists && doc.data() && doc.data().active && doc.data().base64) {
+                    const data = doc.data();
+                    window._activeCvData = data;
+                    if (badge) {
+                        badge.textContent = '🟢 Dynamic Cloud CV Active';
+                        badge.style.color = '#10B981';
+                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = data.filename || 'Custom_Resume.pdf';
+                    let dateStr = 'Recently updated';
+                    if (data.updatedAt && data.updatedAt.toDate) {
+                        dateStr = 'Updated on ' + data.updatedAt.toDate().toLocaleString();
+                    }
+                    if (metaEl) metaEl.textContent = `${(data.size / 1024).toFixed(1)} KB • ${dateStr}`;
+                    if (previewBtn) previewBtn.style.display = 'inline-flex';
+                    if (resetBtn) resetBtn.style.display = 'inline-flex';
+                } else {
+                    window._activeCvData = null;
+                    if (badge) {
+                        badge.textContent = 'Default Static PDF';
+                        badge.style.color = '#94A3B8';
+                        badge.style.background = 'rgba(148, 163, 184, 0.15)';
+                        badge.style.borderColor = 'rgba(148, 163, 184, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = 'Saravana_Prakash_XR_Developer_4Y_Exp_Resume.pdf';
+                    if (metaEl) metaEl.textContent = 'Serving default build bundle (/resume.pdf)';
+                    if (previewBtn) previewBtn.style.display = 'none';
+                    if (resetBtn) resetBtn.style.display = 'none';
+                }
+            } catch (e) {
+                console.warn('Could not load CV config from Firestore:', e);
+            }
+        }
+
+        function previewActiveCv() {
+            if (!window._activeCvData || !window._activeCvData.base64) {
+                window.open('/resume.pdf', '_blank');
+                return;
+            }
+            const win = window.open();
+            win.document.write(`<title>${escapeHtml(window._activeCvData.filename || 'Resume')}</title><iframe src="${window._activeCvData.base64}" frameborder="0" style="border:0; position:fixed; top:0; left:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+        }
+
+        async function resetToStaticCv() {
+            if (!confirm('Reset CV to default static /resume.pdf?')) return;
+            try {
+                await db.collection('settings').doc('resume_config').set({ active: false }, { merge: true });
+                initDynamicCvManager();
+                alert('Reset to default static resume.pdf.');
+            } catch (e) {
+                alert('Error resetting CV: ' + e.message);
+            }
+        }
+
+        function handleAdminCvUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+                alert('Please choose a valid .pdf file.');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds 2MB limit. Please compress your PDF before uploading.');
+                return;
+            }
+
+            const progressEl = document.getElementById('cv-upload-progress');
+            const bar = document.getElementById('cv-progress-bar');
+            const percent = document.getElementById('cv-progress-percent');
+            if (progressEl) progressEl.style.display = 'block';
+            if (bar) bar.style.width = '30%';
+            if (percent) percent.textContent = '30%';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                if (bar) bar.style.width = '75%';
+                if (percent) percent.textContent = '75%';
+                const base64Data = e.target.result;
+                try {
+                    await db.collection('settings').doc('resume_config').set({
+                        filename: file.name,
+                        size: file.size,
+                        base64: base64Data,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        active: true
+                    });
+                    if (bar) bar.style.width = '100%';
+                    if (percent) percent.textContent = '100%';
+                    setTimeout(() => {
+                        if (progressEl) progressEl.style.display = 'none';
+                        initDynamicCvManager();
+                        alert('✅ New CV successfully uploaded! Visitors downloading your resume will now receive this new file immediately.');
+                    }, 400);
+                } catch (err) {
+                    console.error('Failed to save CV:', err);
+                    alert('Failed to upload CV: ' + err.message);
+                    if (progressEl) progressEl.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderOrganizationBreakdown(events) {
+            const container = document.getElementById('org-breakdown-list');
+            const badge = document.getElementById('org-count-badge');
+            if (!container) return;
+
+            const orgMap = {};
+            const ENTERPRISES = ['google', 'meta', 'apple', 'microsoft', 'amazon', 'netflix', 'adobe', 'nvidia', 'intel', 'qualcomm', 'sony', 'unity', 'epic', 'bytedance', 'tcs', 'infosys', 'wipro', 'cognizant', 'accenture', 'deloitte', 'ibm', 'samsung', 'tesla', 'skillveri'];
+
+            (events || []).forEach(e => {
+                const orgName = (e.org || e.isp || '').trim();
+                if (!orgName || orgName.toLowerCase() === 'unknown') return;
+                if (!orgMap[orgName]) {
+                    const lower = orgName.toLowerCase();
+                    const isCorp = e.isEnterprise || ENTERPRISES.some(ent => lower.includes(ent));
+                    orgMap[orgName] = {
+                        name: orgName,
+                        count: 0,
+                        isEnterprise: isCorp,
+                        ips: new Set(),
+                        downloads: 0
+                    };
+                }
+                orgMap[orgName].count++;
+                if (e.ip) orgMap[orgName].ips.add(e.ip);
+                if (e.type === 'resume_download') orgMap[orgName].downloads++;
+            });
+
+            const orgList = Object.values(orgMap).sort((a, b) => {
+                if (a.isEnterprise !== b.isEnterprise) return a.isEnterprise ? -1 : 1;
+                return b.count - a.count;
+            });
+
+            if (badge) badge.textContent = `${orgList.length} Detected`;
+
+            if (orgList.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No organization telemetry recorded yet.</div>';
+                return;
+            }
+
+            container.innerHTML = orgList.slice(0, 12).map(org => {
+                return `
+                    <div style="background: ${org.isEnterprise ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(168, 85, 247, 0.16))' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${org.isEnterprise ? '#A855F7' : 'var(--border)'}; border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="min-width: 0; flex: 1; padding-right: 8px;">
+                            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: #F8FAFC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <span>${org.isEnterprise ? '🏢' : '🌐'}</span>
+                                <span title="${escapeHtml(org.name)}">${escapeHtml(org.name)}</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 3px;">
+                                ${org.ips.size} distinct IP${org.ips.size === 1 ? '' : 's'}
+                                ${org.downloads > 0 ? ` • <strong style="color: #C084FC;">${org.downloads} CV Download${org.downloads === 1 ? '' : 's'}</strong>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            ${org.isEnterprise ? '<span class="today-badge" style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border-color: #A855F7;">CORP</span>' : `<span style="font-weight: 800; font-size: 0.85rem; color: var(--emerald);">${org.count}</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js">
+        // ==========================================
+        // DYNAMIC CV CLOUD SYNC & RECRUITER TELEMETRY
+        // ==========================================
+        async function initDynamicCvManager() {
+            try {
+                const doc = await db.collection('settings').doc('resume_config').get();
+                const badge = document.getElementById('cv-status-badge');
+                const filenameEl = document.getElementById('cv-active-filename');
+                const metaEl = document.getElementById('cv-active-meta');
+                const previewBtn = document.getElementById('cv-preview-btn');
+                const resetBtn = document.getElementById('cv-reset-btn');
+
+                if (doc.exists && doc.data() && doc.data().active && doc.data().base64) {
+                    const data = doc.data();
+                    window._activeCvData = data;
+                    if (badge) {
+                        badge.textContent = '🟢 Dynamic Cloud CV Active';
+                        badge.style.color = '#10B981';
+                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = data.filename || 'Custom_Resume.pdf';
+                    let dateStr = 'Recently updated';
+                    if (data.updatedAt && data.updatedAt.toDate) {
+                        dateStr = 'Updated on ' + data.updatedAt.toDate().toLocaleString();
+                    }
+                    if (metaEl) metaEl.textContent = `${(data.size / 1024).toFixed(1)} KB • ${dateStr}`;
+                    if (previewBtn) previewBtn.style.display = 'inline-flex';
+                    if (resetBtn) resetBtn.style.display = 'inline-flex';
+                } else {
+                    window._activeCvData = null;
+                    if (badge) {
+                        badge.textContent = 'Default Static PDF';
+                        badge.style.color = '#94A3B8';
+                        badge.style.background = 'rgba(148, 163, 184, 0.15)';
+                        badge.style.borderColor = 'rgba(148, 163, 184, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = 'Saravana_Prakash_XR_Developer_4Y_Exp_Resume.pdf';
+                    if (metaEl) metaEl.textContent = 'Serving default build bundle (/resume.pdf)';
+                    if (previewBtn) previewBtn.style.display = 'none';
+                    if (resetBtn) resetBtn.style.display = 'none';
+                }
+            } catch (e) {
+                console.warn('Could not load CV config from Firestore:', e);
+            }
+        }
+
+        function previewActiveCv() {
+            if (!window._activeCvData || !window._activeCvData.base64) {
+                window.open('/resume.pdf', '_blank');
+                return;
+            }
+            const win = window.open();
+            win.document.write(`<title>${escapeHtml(window._activeCvData.filename || 'Resume')}</title><iframe src="${window._activeCvData.base64}" frameborder="0" style="border:0; position:fixed; top:0; left:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+        }
+
+        async function resetToStaticCv() {
+            if (!confirm('Reset CV to default static /resume.pdf?')) return;
+            try {
+                await db.collection('settings').doc('resume_config').set({ active: false }, { merge: true });
+                initDynamicCvManager();
+                alert('Reset to default static resume.pdf.');
+            } catch (e) {
+                alert('Error resetting CV: ' + e.message);
+            }
+        }
+
+        function handleAdminCvUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+                alert('Please choose a valid .pdf file.');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds 2MB limit. Please compress your PDF before uploading.');
+                return;
+            }
+
+            const progressEl = document.getElementById('cv-upload-progress');
+            const bar = document.getElementById('cv-progress-bar');
+            const percent = document.getElementById('cv-progress-percent');
+            if (progressEl) progressEl.style.display = 'block';
+            if (bar) bar.style.width = '30%';
+            if (percent) percent.textContent = '30%';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                if (bar) bar.style.width = '75%';
+                if (percent) percent.textContent = '75%';
+                const base64Data = e.target.result;
+                try {
+                    await db.collection('settings').doc('resume_config').set({
+                        filename: file.name,
+                        size: file.size,
+                        base64: base64Data,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        active: true
+                    });
+                    if (bar) bar.style.width = '100%';
+                    if (percent) percent.textContent = '100%';
+                    setTimeout(() => {
+                        if (progressEl) progressEl.style.display = 'none';
+                        initDynamicCvManager();
+                        alert('✅ New CV successfully uploaded! Visitors downloading your resume will now receive this new file immediately.');
+                    }, 400);
+                } catch (err) {
+                    console.error('Failed to save CV:', err);
+                    alert('Failed to upload CV: ' + err.message);
+                    if (progressEl) progressEl.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderOrganizationBreakdown(events) {
+            const container = document.getElementById('org-breakdown-list');
+            const badge = document.getElementById('org-count-badge');
+            if (!container) return;
+
+            const orgMap = {};
+            const ENTERPRISES = ['google', 'meta', 'apple', 'microsoft', 'amazon', 'netflix', 'adobe', 'nvidia', 'intel', 'qualcomm', 'sony', 'unity', 'epic', 'bytedance', 'tcs', 'infosys', 'wipro', 'cognizant', 'accenture', 'deloitte', 'ibm', 'samsung', 'tesla', 'skillveri'];
+
+            (events || []).forEach(e => {
+                const orgName = (e.org || e.isp || '').trim();
+                if (!orgName || orgName.toLowerCase() === 'unknown') return;
+                if (!orgMap[orgName]) {
+                    const lower = orgName.toLowerCase();
+                    const isCorp = e.isEnterprise || ENTERPRISES.some(ent => lower.includes(ent));
+                    orgMap[orgName] = {
+                        name: orgName,
+                        count: 0,
+                        isEnterprise: isCorp,
+                        ips: new Set(),
+                        downloads: 0
+                    };
+                }
+                orgMap[orgName].count++;
+                if (e.ip) orgMap[orgName].ips.add(e.ip);
+                if (e.type === 'resume_download') orgMap[orgName].downloads++;
+            });
+
+            const orgList = Object.values(orgMap).sort((a, b) => {
+                if (a.isEnterprise !== b.isEnterprise) return a.isEnterprise ? -1 : 1;
+                return b.count - a.count;
+            });
+
+            if (badge) badge.textContent = `${orgList.length} Detected`;
+
+            if (orgList.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No organization telemetry recorded yet.</div>';
+                return;
+            }
+
+            container.innerHTML = orgList.slice(0, 12).map(org => {
+                return `
+                    <div style="background: ${org.isEnterprise ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(168, 85, 247, 0.16))' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${org.isEnterprise ? '#A855F7' : 'var(--border)'}; border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="min-width: 0; flex: 1; padding-right: 8px;">
+                            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: #F8FAFC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <span>${org.isEnterprise ? '🏢' : '🌐'}</span>
+                                <span title="${escapeHtml(org.name)}">${escapeHtml(org.name)}</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 3px;">
+                                ${org.ips.size} distinct IP${org.ips.size === 1 ? '' : 's'}
+                                ${org.downloads > 0 ? ` • <strong style="color: #C084FC;">${org.downloads} CV Download${org.downloads === 1 ? '' : 's'}</strong>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            ${org.isEnterprise ? '<span class="today-badge" style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border-color: #A855F7;">CORP</span>' : `<span style="font-weight: 800; font-size: 0.85rem; color: var(--emerald);">${org.count}</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+    </script>
 
     <!-- Admin Dashboard Logic -->
     <script>
@@ -2504,7 +3118,7 @@
                             ...doc.data()
                         }));
                         window.cachedResumeEvents = resumeEvents;
-                        renderResumeLog();
+                        renderResumeLog(); renderOrganizationBreakdown(allEvents); initDynamicCvManager();
                     }, (err) => {
                         console.warn("Resume events stream notice:", err);
                     });
@@ -2703,7 +3317,7 @@
                                 <span class="device-pill">${e.device || 'Desktop'}</span>
                                 ${renderBrowserPill(e.browser, e.device, e.referrer || e.refTag)}
                                 ${locStr ? `<span class="geo-pill" title="Location: ${escapeHtml(locStr)}">📍 ${escapeHtml(locStr)}</span>` : ''}
-                                ${orgStr ? `<span class="org-pill" title="Organization / ISP: ${escapeHtml(orgStr)}">🏢 ${escapeHtml(orgStr)}</span>` : ''}
+                                ${orgStr ? (Boolean(e.isEnterprise || /google|meta|apple|microsoft|amazon|nvidia|intel|sony|unity|epic|bytedance|tiktok|tcs|infosys|wipro|cognizant|accenture|deloitte|ibm|samsung|tesla|skillveri/i.test((e.org||'')+' '+(e.isp||''))) ? `<span class="org-pill enterprise-pill" title="Corporate / Recruiter Organization: ${escapeHtml(orgStr)}">🏢 <strong>${escapeHtml(orgStr)}</strong> <span class="corp-star">⭐ CORP</span></span>` : `<span class="org-pill" title="Network Provider / ISP: ${escapeHtml(orgStr)}">🌐 ${escapeHtml(orgStr)}</span>`) : ''}
                                 ${refStr ? `<span class="ref-pill" title="Referral: ${escapeHtml(refStr)}">🔗 ${escapeHtml(refStr)}</span>` : ''}
                                 ${dwellVal ? `<span class="dwell-pill">⏱️ ${escapeHtml(dwellVal)}</span>` : ''}
                                 ${details ? `<span style="opacity: 0.85;">${escapeHtml(details)}</span>` : ''}
@@ -2840,7 +3454,7 @@
             }
 
             // Real-time update to Resume Audit Log
-            renderResumeLog();
+            renderResumeLog(); renderOrganizationBreakdown(allEvents); initDynamicCvManager();
         }
 
         // 📈 PEAK POINTED CHART RENDERER
@@ -3304,7 +3918,7 @@
         function filterResumeLog() {
             const input = document.getElementById('resume-search-input');
             resumeLogSearchQuery = (input ? input.value : '').toLowerCase().trim();
-            renderResumeLog();
+            renderResumeLog(); renderOrganizationBreakdown(allEvents); initDynamicCvManager();
         }
 
         function renderResumeLog() {
@@ -3732,7 +4346,7 @@
             document.getElementById('tab-projects').style.display = tabId === 'projects' ? 'block' : 'none';
 
             if (tabId === 'resume') {
-                renderResumeLog();
+                renderResumeLog(); renderOrganizationBreakdown(allEvents); initDynamicCvManager();
             } else if (tabId === 'leads') {
                 renderLeadsTable();
             }
@@ -3779,6 +4393,182 @@
 
         // Initialize on load
         checkExistingAuth();
+    
+        // ==========================================
+        // DYNAMIC CV CLOUD SYNC & RECRUITER TELEMETRY
+        // ==========================================
+        async function initDynamicCvManager() {
+            try {
+                const doc = await db.collection('settings').doc('resume_config').get();
+                const badge = document.getElementById('cv-status-badge');
+                const filenameEl = document.getElementById('cv-active-filename');
+                const metaEl = document.getElementById('cv-active-meta');
+                const previewBtn = document.getElementById('cv-preview-btn');
+                const resetBtn = document.getElementById('cv-reset-btn');
+
+                if (doc.exists && doc.data() && doc.data().active && doc.data().base64) {
+                    const data = doc.data();
+                    window._activeCvData = data;
+                    if (badge) {
+                        badge.textContent = '🟢 Dynamic Cloud CV Active';
+                        badge.style.color = '#10B981';
+                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = data.filename || 'Custom_Resume.pdf';
+                    let dateStr = 'Recently updated';
+                    if (data.updatedAt && data.updatedAt.toDate) {
+                        dateStr = 'Updated on ' + data.updatedAt.toDate().toLocaleString();
+                    }
+                    if (metaEl) metaEl.textContent = `${(data.size / 1024).toFixed(1)} KB • ${dateStr}`;
+                    if (previewBtn) previewBtn.style.display = 'inline-flex';
+                    if (resetBtn) resetBtn.style.display = 'inline-flex';
+                } else {
+                    window._activeCvData = null;
+                    if (badge) {
+                        badge.textContent = 'Default Static PDF';
+                        badge.style.color = '#94A3B8';
+                        badge.style.background = 'rgba(148, 163, 184, 0.15)';
+                        badge.style.borderColor = 'rgba(148, 163, 184, 0.4)';
+                    }
+                    if (filenameEl) filenameEl.textContent = 'Saravana_Prakash_XR_Developer_4Y_Exp_Resume.pdf';
+                    if (metaEl) metaEl.textContent = 'Serving default build bundle (/resume.pdf)';
+                    if (previewBtn) previewBtn.style.display = 'none';
+                    if (resetBtn) resetBtn.style.display = 'none';
+                }
+            } catch (e) {
+                console.warn('Could not load CV config from Firestore:', e);
+            }
+        }
+
+        function previewActiveCv() {
+            if (!window._activeCvData || !window._activeCvData.base64) {
+                window.open('/resume.pdf', '_blank');
+                return;
+            }
+            const win = window.open();
+            win.document.write(`<title>${escapeHtml(window._activeCvData.filename || 'Resume')}</title><iframe src="${window._activeCvData.base64}" frameborder="0" style="border:0; position:fixed; top:0; left:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+        }
+
+        async function resetToStaticCv() {
+            if (!confirm('Reset CV to default static /resume.pdf?')) return;
+            try {
+                await db.collection('settings').doc('resume_config').set({ active: false }, { merge: true });
+                initDynamicCvManager();
+                alert('Reset to default static resume.pdf.');
+            } catch (e) {
+                alert('Error resetting CV: ' + e.message);
+            }
+        }
+
+        function handleAdminCvUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+                alert('Please choose a valid .pdf file.');
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size exceeds 2MB limit. Please compress your PDF before uploading.');
+                return;
+            }
+
+            const progressEl = document.getElementById('cv-upload-progress');
+            const bar = document.getElementById('cv-progress-bar');
+            const percent = document.getElementById('cv-progress-percent');
+            if (progressEl) progressEl.style.display = 'block';
+            if (bar) bar.style.width = '30%';
+            if (percent) percent.textContent = '30%';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                if (bar) bar.style.width = '75%';
+                if (percent) percent.textContent = '75%';
+                const base64Data = e.target.result;
+                try {
+                    await db.collection('settings').doc('resume_config').set({
+                        filename: file.name,
+                        size: file.size,
+                        base64: base64Data,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        active: true
+                    });
+                    if (bar) bar.style.width = '100%';
+                    if (percent) percent.textContent = '100%';
+                    setTimeout(() => {
+                        if (progressEl) progressEl.style.display = 'none';
+                        initDynamicCvManager();
+                        alert('✅ New CV successfully uploaded! Visitors downloading your resume will now receive this new file immediately.');
+                    }, 400);
+                } catch (err) {
+                    console.error('Failed to save CV:', err);
+                    alert('Failed to upload CV: ' + err.message);
+                    if (progressEl) progressEl.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderOrganizationBreakdown(events) {
+            const container = document.getElementById('org-breakdown-list');
+            const badge = document.getElementById('org-count-badge');
+            if (!container) return;
+
+            const orgMap = {};
+            const ENTERPRISES = ['google', 'meta', 'apple', 'microsoft', 'amazon', 'netflix', 'adobe', 'nvidia', 'intel', 'qualcomm', 'sony', 'unity', 'epic', 'bytedance', 'tcs', 'infosys', 'wipro', 'cognizant', 'accenture', 'deloitte', 'ibm', 'samsung', 'tesla', 'skillveri'];
+
+            (events || []).forEach(e => {
+                const orgName = (e.org || e.isp || '').trim();
+                if (!orgName || orgName.toLowerCase() === 'unknown') return;
+                if (!orgMap[orgName]) {
+                    const lower = orgName.toLowerCase();
+                    const isCorp = e.isEnterprise || ENTERPRISES.some(ent => lower.includes(ent));
+                    orgMap[orgName] = {
+                        name: orgName,
+                        count: 0,
+                        isEnterprise: isCorp,
+                        ips: new Set(),
+                        downloads: 0
+                    };
+                }
+                orgMap[orgName].count++;
+                if (e.ip) orgMap[orgName].ips.add(e.ip);
+                if (e.type === 'resume_download') orgMap[orgName].downloads++;
+            });
+
+            const orgList = Object.values(orgMap).sort((a, b) => {
+                if (a.isEnterprise !== b.isEnterprise) return a.isEnterprise ? -1 : 1;
+                return b.count - a.count;
+            });
+
+            if (badge) badge.textContent = `${orgList.length} Detected`;
+
+            if (orgList.length === 0) {
+                container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">No organization telemetry recorded yet.</div>';
+                return;
+            }
+
+            container.innerHTML = orgList.slice(0, 12).map(org => {
+                return `
+                    <div style="background: ${org.isEnterprise ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(168, 85, 247, 0.16))' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${org.isEnterprise ? '#A855F7' : 'var(--border)'}; border-radius: 8px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="min-width: 0; flex: 1; padding-right: 8px;">
+                            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: #F8FAFC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <span>${org.isEnterprise ? '🏢' : '🌐'}</span>
+                                <span title="${escapeHtml(org.name)}">${escapeHtml(org.name)}</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 3px;">
+                                ${org.ips.size} distinct IP${org.ips.size === 1 ? '' : 's'}
+                                ${org.downloads > 0 ? ` • <strong style="color: #C084FC;">${org.downloads} CV Download${org.downloads === 1 ? '' : 's'}</strong>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            ${org.isEnterprise ? '<span class="today-badge" style="background: rgba(168, 85, 247, 0.2); color: #C084FC; border-color: #A855F7;">CORP</span>' : `<span style="font-weight: 800; font-size: 0.85rem; color: var(--emerald);">${org.count}</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
     </script>
 </body>
 
